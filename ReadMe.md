@@ -100,8 +100,7 @@ Cart Unit Price | 470 NGN (1USD = 470NGN) | 59,000 NGN
 Total Cart amount | 470* 10 *5 = 23500 NGN | 118,000 NGN
 Dispatcher Rate | 1.20 USD | 2 USD
 Total cart delivery | 5* 1.2 * 470 = 2820NGN | 2 * 2 * 470 = 1880NGN
-Checkout Amount | 23500+2820= 26,320NGN |  118000 + 1880 = 119,880 NGN
-
+Checkout Amount | 23500+2820= 26,320NGN |  118000 + 1880 = 119,880 NGN  
 
 In this scenario:
 * The customer pays 26320+119880 = 146,200 NGN
