@@ -8,8 +8,8 @@
 
 > A modular multi-store marketplace web application with a full online payment solution powered by Flutterwave. Developed during Flutterwave's Developer Challenge 2021.
 > [Try out a working version here.](http://ewetoye.pythonanywhere.com/)
-
 <hr>
+
 <div align='center'>
   <img src="./static/shop/img/site-banner.jpg" title="Medsaf banner" width='100%'>
 </div>
