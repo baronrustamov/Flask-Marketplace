@@ -5,6 +5,8 @@ Human related models are located here, currently we have:
   - Role: Which may be one of Admin | Vendor | Customer
   - User: Table of everyone capable of logging in to the system
 '''
+from datetime import datetime
+
 from flask_security import utils, current_user, UserMixin, RoleMixin
 from flask_admin.contrib import sqla
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -15,15 +17,11 @@ from factory import db
 
 class AccountDetail(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    account_name = db.Column(db.String(50))
-    account_no = db.Column(db.Integer, unique=True)
+    account_name = db.Column(db.String(50), nullable=False)
+    account_num = db.Column(db.Integer, unique=True, nullable=False)
     bank_name = db.Column(db.Integer)
-    dispatcher_id = db.Column(db.Integer,
-                              db.ForeignKey('dispatcher.id'),
-                              nullable=True)
-    store_id = db.Column(db.Integer,
-                         db.ForeignKey('store.id'),
-                         nullable=True)
+    dispatcher_id = db.Column(db.Integer, db.ForeignKey('dispatcher.id'))
+    store_id = db.Column(db.Integer, db.ForeignKey('store.id'))
 
     @hybrid_property
     def partner_id(self):
@@ -32,8 +30,8 @@ class AccountDetail(db.Model):
 
 class Dispatcher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
-    is_active = db.Column(db.Boolean(), default=False)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    is_active = db.Column(db.Boolean(), default=True)
 
 
 roles_users = db.Table(
@@ -44,42 +42,20 @@ roles_users = db.Table(
 
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(30))
+    name = db.Column(db.String(30), nullable=False)
     description = db.Column(db.String(200))
 
     def __repr__(self):
         return '<Role {}>'.format(self.name)
 
 
-class Store(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(50))
-    # Yes, images are stored on the database
-    # from experience, it is preferrable a scenario like this
-    logo = db.Column(db.Binary)
-    about = db.Column(db.String(150))
-    user_id = db.Column(db.Integer,
-                        db.ForeignKey('user.id'),
-                        nullable=True)
-    is_active = db.Column(db.Boolean(), default=False)
-
-    @classmethod
-    def public(cls):
-        # only products from active stores are made public
-        return(Store.query.filter(Store.is_active == 1))
-
-
 class User(UserMixin, db.Model):
     ''' Table of everyone capable of logging in to the system '''
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True)
-    email = db.Column(db.String(100), unique=True)
-    password = db.Column(db.String(200))
-    # Yes, images are stored on the database
-    # from experience, it is preferrable a scenario like this
-    avartar = db.Column(db.Binary)
-    active = db.Column(db.Boolean)
-    confirmed_at = db.Column(db.DateTime)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    email = db.Column(db.String(100), unique=True, nullable=False)
+    password = db.Column(db.String(200), nullable=False)
+    active = db.Column(db.Boolean, default=True)
     roles = db.relationship(
         'Role', secondary=roles_users,
         backref=db.backref('users', lazy='dynamic'))
