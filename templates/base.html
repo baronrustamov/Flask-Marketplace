@@ -2,7 +2,8 @@
 <html lang='en'>
 
 <head>
-  <title>Jumga |
+  <title>
+    {{ config.APP_NAME }} |
     {% block sub_title%}
     Home
     {% endblock sub_title %}
@@ -10,14 +11,34 @@
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
   <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'/>
+  <link rel="stylesheet" href="/static/fontawesome-5-13/css/all.min.css">
+  <script src="/static/jquery-3.5.1.js"></script>
   {% block top_styles_scripts%}
   {% endblock top_styles_scripts %}
 </head>
+
 <body>
   <nav class='navbar fixed-top navbar-expand-sm navbar-light bg-secondary'>
     <a class='navbar-brand' href='/'>
-      <strong class='text-white'>Jumga</strong>
+      <strong class='text-white'>{{ config.APP_NAME }}</strong>
     </a>
+    <div class="col-8 justify-content-end">
+      <form class="form form-sm" method="POST">
+        <div class="form-inline">
+          <div class="input-group col-md-9">
+            <div class="input-group-prepend">
+              <span class="input-group-text">
+                <i class="fa fa-search" aria-hidden="true"></i>
+              </span>
+            </div>
+            <input type="search" class="form-control form-control-sm" placeholder="Search for product, stores ..."
+              id="query_param" required>
+          </div>
+          <button class="btn btn-primary btn-sm d-none d-md-block col-md-3" type="submit" value="Submit">Search
+            </button-->
+        </div>
+      </form>
+    </div>
     <button class='navbar-toggler' type='button' data-toggle='collapse' data-target='#navbarSupportedContent'
       aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation'><span
         class='navbar-toggler-icon'></span>
@@ -38,10 +59,18 @@
       </ul>
     </div>
   </nav>
-
-  <div class='row container-fluid pt-3 mt-5'>
+  
+  <div class='pt-3 mt-5 bg-light' style='min-height: 550px;'>
+    <div class="col-12 col-md-2  d-none d-md-block card ml-2"
+      style="position: fixed; top: 60px; bottom: 0;
+        overflow-y: auto; z-index: 1000; display: block;">
+      <div class="mt-5">
+        
+      </div>
+    </div>
     <!-- Main page Area -->
-    <div class='col-12'>
+    <div class='container'>
+    <div class="col-md-10 offset-md-2 mt-3">
       {% for message in get_flashed_messages() %}
       <div class='alert alert-warning'>
         <button type='button' class='close' data-dismiss='alert'>&times;
@@ -49,11 +78,22 @@
         {{ message }}
       </div>
       {% endfor %}
+
       {% block main_page %}
       {% endblock main_page %}
     </div>
+    </div>
+    
   </div>
 
+  <!-- Bootstrap Related JavaScripts -->
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
+    integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
+    crossorigin="anonymous"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
+    integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
+    crossorigin="anonymous"></script>
+  
   {% block bottom_styles_scripts%}
   {% endblock bottom_styles_scripts %}
 </body>

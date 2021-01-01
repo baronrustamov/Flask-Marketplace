@@ -6,6 +6,7 @@ class Config:
     DEBUG = True
     SECURITY_PASSWORD_HASH = 'sha512_crypt'
     SECURITY_PASSWORD_SALT = 'vcxdse4r6yu8ijjnb$cde456y7fc'
+    APP_NAME = 'JUMGA'
 
 
 class DevelopmentConfig(Config):
