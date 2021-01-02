@@ -78,7 +78,7 @@ def create_stores():
             name=name,
             logo=details[0],
             about=details[1],
-            currency_id=details[2],
+            iso_code=details[2],
             dispatcher_id=details[3],
             user_id=details[4],
         )

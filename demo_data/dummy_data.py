@@ -29,10 +29,10 @@ users = {
 }
 
 currencies = {
-    'Kenya': 'KES',
-    'Nigeria': 'NGN',
-    'United Kingdom': 'GBP',
-    'United State': 'USD',
+    'Kenya': ['KES', 109.74],
+    'Nigeria': ['NGN', 396.70]
+    'United Kingdom': ['GBP', 0.73]
+    'United State': ['USD', 1]
 }
 
 dispatchers = {
@@ -44,7 +44,7 @@ stores = {
     'Phone360': [
         os.urandom(10),
         'Phone is a basic neccesity',
-        3, # currency_id
+        'USD', # currency_code
         1,  # dispatcher_id
         2,  # user_id
         
@@ -53,7 +53,7 @@ stores = {
     'Farmingo': [
         os.urandom(500),
         'We sell farm harvest at cheapest prices',
-        2,
+        'NGN',
         3,
         2,
         ['Farmingo INC', 1012345678, 'GT Bank', ],

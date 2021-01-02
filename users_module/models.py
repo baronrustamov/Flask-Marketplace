@@ -32,6 +32,10 @@ class Dispatcher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     is_active = db.Column(db.Boolean(), default=True)
+    # relationships --------------------------------------
+    stores = db.relationship('Store', backref='dispatcher')
+    account = db.relationship('AccountDetail', uselist=False,
+                              backref='dispatcher')
 
 
 roles_users = db.Table(
@@ -56,9 +60,12 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(200), nullable=False)
     active = db.Column(db.Boolean, default=True)
+    # relationships --------------------------------------
+    orders = db.relationship('Order', backref='user')
     roles = db.relationship(
         'Role', secondary=roles_users,
         backref=db.backref('users', lazy='dynamic'))
+    stores = db.relationship('Store', backref='user')
 
     @property
     def is_authenticated(self):
