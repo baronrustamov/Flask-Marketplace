@@ -20,7 +20,8 @@ def index():
 @shop.route('/cart', methods=['GET'])
 @login_required
 def cart():
-    utilities.currency('/cart')
+    iso_code = utilities.currency('/cart')
+    print(iso_code)
     prod_str = request.args.get('prod_id')
     # Check if the current user has an hanging cart
     cart = Order.cart().filter_by(user_id=current_user.id).first()
@@ -44,7 +45,7 @@ def cart():
         else:
             # Create a new cart and add this product
             cart = Order(user_id=current_user.id,
-                         iso_code=request.cookies.get('iso_code'))
+                         iso_code='NGN')
             db.session.add(cart)
             # I am yet to figure out a sensible way of defferring this commit
             db.session.commit()
@@ -56,3 +57,9 @@ def cart():
     if cart:
         cart = OrderLine.query.filter_by(order_id=cart.id).all()
     return render_template('cart.html', cart=cart)
+
+
+@shop.route
+@login_required
+def checkout('/checkout', methods=['GET']):
+  pass

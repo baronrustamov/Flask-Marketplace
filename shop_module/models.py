@@ -14,7 +14,7 @@ from factory import db
 class Currency(db.Model):
     code = db.Column(db.String(3), primary_key=True)
     country = db.Column(db.String(50), nullable=False)
-    rate = db.Column(Numeric(12, 6), nullable=False)
+    rate = db.Column(db.Numeric(12, 6), nullable=False)
     # relationships --------------------------------------
     stores = db.relationship('Store', backref='currency')
     orders = db.relationship('Order', backref='currency')
@@ -72,15 +72,13 @@ class Product(db.Model):
         # only active products are made public
         return(Product.query.filter(Product.is_active == 1))
 
-    @property
-    def sale_price(self, to_currency=None):
+    def sale_price(self, to_currency):
         ''' Converts price of products to visitor's currency based on scale'''
         if to_currency:
-          scale = (Currency.query.filter_by(code=to_currency).first().rate /
-                  self.store.currency.rate)
-          return self.price * scale
+            scale = (Currency.query.filter_by(code=to_currency).first().rate /
+                     self.store.currency.rate)
+            return self.price * scale
         return self.price
-
 
 class Store(db.Model):
     '''
