@@ -59,7 +59,12 @@ def cart():
     return render_template('cart.html', cart=cart)
 
 
-@shop.route
+@shop.route('/checkout', methods=['GET'])
 @login_required
-def checkout('/checkout', methods=['GET']):
-  pass
+def checkout():
+  # Get the last hanging cart
+  cart = None
+  cart = Order.cart().filter_by(user_id=current_user.id).first()
+  if cart:
+      cart = OrderLine.query.filter_by(order_id=cart.id).all()
+  return render_template('checkout.html', cart=cart)
