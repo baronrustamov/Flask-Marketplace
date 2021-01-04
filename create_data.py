@@ -51,7 +51,8 @@ def create_currencies():
     for country in dummy_data.currencies:
         currency = shop_module.models.Currency(
             country = country,
-            code = dummy_data.currencies[country],
+            code = dummy_data.currencies[country][0],
+            rate = dummy_data.currencies[country][1],
         )
         db.session.add(currency)
 
@@ -78,7 +79,7 @@ def create_stores():
             name=name,
             logo=details[0],
             about=details[1],
-            currency_id=details[2],
+            iso_code=details[2],
             dispatcher_id=details[3],
             user_id=details[4],
         )
@@ -105,7 +106,7 @@ def create_products():
             store_id = details[3],
             is_active = details[4],
             # stagger creation time to reflect the new products feature
-            created_at = datetime.utcnow()-timedelta(minutes=2*i),
+            created_at = datetime.utcnow() - timedelta(minutes=2*i),
         )
         db.session.add(product)
         i += 1

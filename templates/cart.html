@@ -22,11 +22,11 @@
       <tr>
         <td class="s_n align-middle"></td>
         <td class='align-middle d-none'>{{ line.id }}</td>
-        <td class='align-middle'>{{ line.product_id }}</td>
+        <td class='align-middle'>{{ line.product.name }}</td>
         <td class='align-middle'>
           <input type="number" min='1' class='form-control qty' value={{line.qty}}>
         </td>
-        <td class='align-middle'>{{ line.price }}</td>
+        <td class='align-middle'>{{ line.product.sale_price(cart[0].order.iso_code) }}</td>
         <td class="line_amt align-middle"></td>
         <td class='align-middle'><i class="fas fa-minus-circle text-danger 
           btn remove"></i></td>
@@ -38,7 +38,7 @@
 <div class="row text-center">
   <div class="col-12 mt-3">
     <span>Basket Total: </span>
-    <span class="font-weight-bold"><span>₦</span><span class="total">0</span></span><br>
+    <span class="font-weight-bold"><span>{{ cart[0].order.iso_code }} </span><span class="total">0</span></span><br>
     <span class="btn btn-md btn-success">Confirm and Checkout</span>
   </div>
 </div>
