@@ -1,14 +1,13 @@
 from requests import get
 
-from flask import make_response, redirect, request
+from flask import make_response, redirect, request, render_template
 
 def currency(destination):
-    code = request.cookies.get('iso_code')
-    if not(request.cookies.get('iso_code')):
-        response = make_response(redirect('destination'))
-        # iso_code = get('https://ipapi.co/currency/').text
-        iso_code = 'USD'
-        # print(iso_code)
+    iso_code = request.cookies.get('iso_code')
+    if not(iso_code):
+        response = make_response(render_template('index.html'))
+        iso_code = get('https://ipapi.co/currency/').text
+        print('Just got code')
         response.set_cookie('iso_code', iso_code)
         return response
-    return code
+    return iso_code
