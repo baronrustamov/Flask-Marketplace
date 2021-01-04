@@ -8,7 +8,7 @@ from factory import db
 from .models import Currency, Order, OrderLine, Product, Store
 from . import utilities
 # ---------- Declaring the blueprint ----------
-shop = Blueprint('shop', __name__, template_folder="templates")
+shop = Blueprint('shop', __name__,)
 
 
 @shop.route('/')
@@ -102,3 +102,10 @@ def currency():
         iso_code = get('https://ipapi.co/currency/').text
         response.set_cookie('iso_code', iso_code)
     return response
+
+
+@shop.route('/market', methods=['GET'])
+@login_required
+def market():
+
+    return render_template('market.html')

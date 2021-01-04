@@ -19,7 +19,7 @@
 
 <body>
   <nav class='navbar fixed-top navbar-expand-sm navbar-light bg-secondary'>
-    <a class='navbar-brand' href='/'>
+    <a class='navbar-brand btn-lg' href='/'>
       <strong class='text-white'>{{ config.APP_NAME }}</strong>
     </a>
     <div class="col-8 justify-content-end">
@@ -35,7 +35,7 @@
               id="query_param" required>
           </div>
           <button class="btn btn-primary btn-sm d-none d-md-block col-md-3" type="submit" value="Submit">Search
-            </button-->
+            </button>
         </div>
       </form>
     </div>
@@ -50,6 +50,10 @@
           <a class='nav-link text-white' href="{{url_for('security.logout')}}">Logout
           </a>
         </li>
+        <li class='nav-item'>
+          <a class='nav-link text-white' href="{{url_for('shop.cart')}}">Cart
+          </a>
+        </li>
         {% else %}
         <li class='nav-item'>
           <a class='nav-link text-white' href="{{url_for('security.login')}}">Login
@@ -62,14 +66,14 @@
   
   <div class='pt-3 mt-5 bg-light' style='min-height: 550px;'>
     <div class="col-12 col-md-2  d-none d-md-block card ml-2"
-      style="position: fixed; top: 60px; bottom: 0;
+      style="position: fixed; top: 80px; bottom: 0;
         overflow-y: auto; z-index: 1000; display: block;">
       <div class="mt-5">
         
       </div>
     </div>
     <!-- Main page Area -->
-    <div class='container'>
+    <div class='container-fluid'>
     <div class="col-md-10 offset-md-2 mt-3">
       {% for message in get_flashed_messages() %}
       <div class='alert alert-warning'>
