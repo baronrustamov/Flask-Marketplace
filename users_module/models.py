@@ -32,6 +32,7 @@ class Dispatcher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     is_active = db.Column(db.Boolean(), default=True)
+    charge = db.Column(db.Integer, nullable=False)
     # relationships --------------------------------------
     stores = db.relationship('Store', backref='dispatcher')
     account = db.relationship('AccountDetail', uselist=False,

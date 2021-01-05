@@ -1,13 +1,12 @@
 from requests import get
 
 from flask import make_response, redirect, request, render_template
+from .models import Currency
 
-def currency(destination):
-    iso_code = request.cookies.get('iso_code')
-    if not(iso_code):
-        response = make_response(render_template('index.html'))
-        iso_code = get('https://ipapi.co/currency/').text
-        print('Just got code')
-        response.set_cookie('iso_code', iso_code)
-        return response
-    return iso_code
+def convert_currency(price, from_currency, to_currency):
+    ''' Converts price of products to visitor's currency based on scale'''
+    if to_currency:
+        scale = (Currency.query.filter_by(code=to_currency).first().rate /
+                  Currency.query.filter_by(code=from_currency).first().rate)
+        return price * scale
+    return price

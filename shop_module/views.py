@@ -75,21 +75,32 @@ def checkout():
         # For security reason, let's update all the order line prices again
         for line in db.session.query(OrderLine).filter_by(order_id=1).all():
             line.price = line.product.sale_price(iso_code)
-        db.session.commit()  # To ensure the update figures are pick subsequently
-        # Get the publisher of the cart products, sum total, and qty total
-        store_value = db.session.query(
-            Product.store_id.label('store_id'),
-            db.func.sum(OrderLine.qty * OrderLine.price).label('store_sum'),
-            db.func.sum(OrderLine.qty).label('qty_sum').label('qty_sum'),
-        ).join(Product).filter(OrderLine.order_id == cart.id).group_by(
-            Product.store_id).subquery()
-        # All other payment data are related to the store
-        pay_data = db.session.query(
-            Store, store_value.c.store_sum,
-            store_value.c.qty_sum).join(
-            store_value, Store.id == store_value.c.store_id).all()
-
-    return render_template('checkout.html', cart=cart_lines, pay_data=pay_data)
+        db.session.commit()  # To ensure the update figures are picked up
+    # Get the publisher of the cart products, sum total, and qty total
+    store_value = db.session.query(
+        Product.store_id.label('store_id'),
+        db.func.sum(OrderLine.qty * OrderLine.price).label('store_sum'),
+        db.func.sum(OrderLine.qty).label('qty_sum').label('qty_sum'),
+    ).join(Product).filter(OrderLine.order_id == cart.id).group_by(
+        Product.store_id).subquery()
+    # All other payment data are related to the store
+    pay_data = db.session.query(
+        Store, store_value.c.store_sum,
+        store_value.c.qty_sum).join(
+        store_value, Store.id == store_value.c.store_id).all()
+    # Calculate delivery fee
+    shipping = []
+    store_total = 0
+    for i in range(len(pay_data)):
+        shipping_charge = utilities.convert_currency(
+            pay_data[i][0].dispatcher.charge,
+            pay_data[i][0].iso_code, iso_code) * pay_data[i][2]
+        shipping.append(shipping_charge)
+        store_total += pay_data[i][1]
+    print(pay_data)
+    return render_template('checkout.html', cart=cart_lines,
+                           store_value=[iso_code, store_total, shipping],
+                           pay_data=pay_data)
 
 
 @shop.route('/currency_token', methods=['GET'])
