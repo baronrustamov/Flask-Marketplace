@@ -8,7 +8,7 @@ from factory import db
 from .models import Currency, Order, OrderLine, Product, Store
 from . import utilities
 # ---------- Declaring the blueprint ----------
-shop = Blueprint('shop', __name__,)
+shop = Blueprint('shop', __name__, template_folder='templates')
 
 
 @shop.route('/')
@@ -88,18 +88,12 @@ def checkout():
         Store, store_value.c.store_sum,
         store_value.c.qty_sum).join(
         store_value, Store.id == store_value.c.store_id).all()
-    # Calculate delivery fee
-    shipping = []
-    store_total = 0
-    for i in range(len(pay_data)):
-        shipping_charge = utilities.convert_currency(
-            pay_data[i][0].dispatcher.charge,
-            pay_data[i][0].iso_code, iso_code) * pay_data[i][2]
-        shipping.append(shipping_charge)
-        store_total += pay_data[i][1]
+    # Compute amounts
+    store_value = utilities.amounts_sep(iso_code, pay_data)
     print(pay_data)
+    print(store_value)
     return render_template('checkout.html', cart=cart_lines,
-                           store_value=[iso_code, store_total, shipping],
+                           store_value=store_value,
                            pay_data=pay_data)
 
 
