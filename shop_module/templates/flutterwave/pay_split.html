@@ -29,4 +29,22 @@
         },
       });
     }
+    
+    /*
+    function compute_split(){
+      var shippings = {{ store_value.shipping_costs[1] }};
+      var store_amts = []
+      var ratios = [];
+      {{ pay_data }}.forEach(function(line) {
+        store_amts.push(line[1])
+      });
+      amount = store_amts.concat(shippings)
+      var sum_amt =  .reduce(function(a, b){
+          return a + b;
+      }, 0);
+      amount.forEach(function(d){
+        ratio.push(parseInt(d/sum_amt * 10000));
+      });
+      return ratio
+    }*/
   </script>

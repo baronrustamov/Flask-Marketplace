@@ -58,7 +58,7 @@ class Product(db.Model):
     description = db.Column(db.String(200))
     # Yes, images are stored on the database
     # from experience, it is preferrable a scenario like this
-    image = db.Column(db.Binary)
+    image = db.Column(db.BLOB)
     store_id = db.Column(db.Integer, db.ForeignKey('store.id'),
                          nullable=False)
     is_active = db.Column(db.Boolean, default=False)

@@ -3,6 +3,7 @@ from requests import get
 
 from flask import Blueprint, make_response, redirect, render_template, request
 from flask_login import current_user, login_required
+from flask import Response, stream_with_context
 
 from factory import db
 from .models import Currency, Order, OrderLine, Product, Store
@@ -11,10 +12,15 @@ from . import utilities
 shop = Blueprint('shop', __name__, template_folder='templates')
 
 
+@shop.before_request
+def before_request():
+    if not(request.cookies.get('iso_code')):
+        return redirect('/currency_token?next='+request.path)
+
+
+
 @shop.route('/')
 def index():
-    if not(request.cookies.get('iso_code')):
-        return redirect('/currency_token')
     return render_template('index.html')
 
 
@@ -22,8 +28,6 @@ def index():
 @login_required
 def cart():
     iso_code = request.cookies.get('iso_code')
-    if not(iso_code):
-        return redirect('/currency_token')
     prod_str = request.args.get('prod_id')
     # Check if the current user has an hanging cart
     cart = Order.cart().filter_by(user_id=current_user.id).first()
@@ -55,7 +59,7 @@ def cart():
                                      product_id=cart_line.id,
                                      price=cart_line.price,))
         db.session.commit()
-
+        return redirect('/cart')
     if cart:
         cart = OrderLine.query.filter_by(order_id=cart.id).all()
     return render_template('cart.html', cart=cart)
@@ -65,8 +69,6 @@ def cart():
 @login_required
 def checkout():
     iso_code = request.cookies.get('iso_code')
-    if not(iso_code):
-        return redirect('/currency_token?next=checkout')
     # Get the last hanging cart
     cart_lines = None
     cart = Order.cart().filter_by(user_id=current_user.id).first()
@@ -90,8 +92,6 @@ def checkout():
         store_value, Store.id == store_value.c.store_id).all()
     # Compute amounts
     store_value = utilities.amounts_sep(iso_code, pay_data)
-    print(pay_data)
-    print(store_value)
     return render_template('checkout.html', cart=cart_lines,
                            store_value=store_value,
                            pay_data=pay_data)
@@ -112,5 +112,15 @@ def currency():
 @shop.route('/market', methods=['GET'])
 @login_required
 def market():
+    iso_code = request.cookies.get('iso_code')
+    if not(iso_code):
+        return redirect('/currency_token?next=market')
+    products = Product.public()
+    return render_template('market.html', products=products,
+                           iso_code=iso_code)
 
-    return render_template('market.html')
+
+@shop.route('/img/product/<int:id>')
+def product_img(id):
+    product = Product.query.get_or_404(id)
+    return Response(product.image, mimetype='image/jpg')
