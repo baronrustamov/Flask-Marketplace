@@ -18,7 +18,6 @@ def before_request():
         return redirect('/currency_token?next='+request.path)
 
 
-
 @shop.route('/')
 def index():
     return render_template('index.html')
@@ -124,3 +123,9 @@ def market():
 def product_img(id):
     product = Product.query.get_or_404(id)
     return Response(product.image, mimetype='image/jpg')
+
+
+@shop.route('/dashboard')
+@login_required
+def dashboard():
+    return render_template('dashboard.html')

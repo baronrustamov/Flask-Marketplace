@@ -57,9 +57,9 @@ def create_currencies():
 def create_dispatchers():
     i = 1
     for name, details in dummy_data.dispatchers.items():
-        dispatcher = users_module.models.Dispatcher(
+        dispatcher = shop_module.models.Dispatcher(
             name=name, charge=details[3])
-        account = users_module.models.AccountDetail(
+        account = shop_module.models.AccountDetail(
             account_name=details[0],
             account_num=details[1],
             bank_name=details[2],
@@ -81,7 +81,7 @@ def create_stores():
             dispatcher_id=details[3],
             user_id=details[4],
         )
-        account = users_module.models.AccountDetail(
+        account = shop_module.models.AccountDetail(
             account_name=details[5][0],
             account_num=details[5][1],
             bank_name=details[5][2],
