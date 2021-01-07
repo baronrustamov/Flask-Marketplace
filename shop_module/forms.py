@@ -16,11 +16,12 @@ class StoreRegisterForm(FlaskForm):
                        validators=[required(), unique_store_name])
     about = StringField('Short description', validators=[required()])
     iso_code = SelectField()
-    logo = FileField('Logo',
-                     FileAllowed(['jpg', 'png'], 'Images only!'))
+    logo = FileField('Logo',)
     # ----- Account detail
     account_name = StringField('Account Name',
                                validators=[required()])
     account_num = IntegerField('Account Number',
                                validators=[required()])
     bank_name = StringField('Bank Name', validators=[required()])
+
+    

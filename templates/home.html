@@ -10,7 +10,7 @@
   </title>
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
-  <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'/>
+  <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css' />
   <link rel="stylesheet" href="/static/fontawesome-5-13/css/all.min.css">
   <link rel="stylesheet" href="/static/branding.css">
   <script src="/static/jquery-3.5.1.js"></script>
@@ -36,7 +36,7 @@
               id="query_param" required>
           </div>
           <button class="btn btn-primary btn-sm d-none d-md-block col-md-3" type="submit" value="Submit">Search
-            </button>
+          </button>
         </div>
       </form>
     </div>
@@ -69,19 +69,11 @@
       </ul>
     </div>
   </nav>
-  
-  <div class='pt-3 mt-5 bg-light' style='min-height: 550px;'>
-    <div class="col-12 col-md-2  d-none d-md-block card ml-2"
-      style="position: fixed; top: 80px; bottom: 0;
-        overflow-y: auto; z-index: 1000; display: block;">
-      <div class="mt-5">
-        {% block side_bar %}
-        {% endblock side_bar %}
-      </div>
-    </div>
-    <!-- Main page Area -->
-    <div class='container-fluid'>
-    <div class="col-md-10 offset-md-2 mt-3">
+
+
+  <!-- Main page Area -->
+  <div class='container-fluid bg-light'>
+    <div class="col-md-12 mt-3">
       {% for category, message in get_flashed_messages(with_categories=True) %}
       <div class='alert alert-{{category}}'>
         <button type='button' class='close' data-dismiss='alert'>&times;
@@ -91,12 +83,59 @@
       {% endfor %}
 
       {% block main_page %}
+      <div class='row pt-3 mt-5 col-12'>
+        <div class="col-2 card">
+          <div class="mt-5">
+            {% block side_bar %}
+            sdfghjkl;''
+            {% endblock side_bar %}
+          </div>
+        </div>
+        <div class="col-8">
+          <div id="carouselExampleIndicators" class="carousel slide" data-ride="carousel">
+            <ol class="carousel-indicators">
+              <li data-target="#carouselExampleIndicators" data-slide-to="0" class="active"></li>
+              <li data-target="#carouselExampleIndicators" data-slide-to="1"></li>
+              <li data-target="#carouselExampleIndicators" data-slide-to="2"></li>
+            </ol>
+            <div class="carousel-inner">
+              <div class="carousel-item active">
+                <img class="d-block w-100" src="/static/shop/img/Slider-copy.jpg" alt="First slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/static/shop/img/Slider-copy-2.jpg" alt="Second slide">
+              </div>
+              <div class="carousel-item">
+                <img class="d-block w-100" src="/static/shop/img/Slider-copy-5.jpg" alt="Third slide">
+              </div>
+            </div>
+            <a class="carousel-control-prev" href="#carouselExampleIndicators" role="button" data-slide="prev">
+              <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+              <span class="sr-only">Previous</span>
+            </a>
+            <a class="carousel-control-next" href="#carouselExampleIndicators" role="button" data-slide="next">
+              <span class="carousel-control-next-icon" aria-hidden="true"></span>
+              <span class="sr-only">Next</span>
+            </a>
+          </div>
+        </div>
+        <div class="col-2 card">
+          <div class="mt-5">
+            {% block right_side_bar %}
+            sdfghjkl;''
+            {% endblock right_side_bar %}
+          </div>
+        </div>
+      </div>
+      <div class='row pt-3 mt-5 pb-5 col-12'>
+        <div class="col-12 card">
+          <div class="mt-5">
+          </div>
+        </div>
+      </div>
       {% endblock main_page %}
     </div>
-    </div>
-    
   </div>
-
   <!-- Bootstrap Related JavaScripts -->
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
     integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
@@ -104,8 +143,9 @@
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"
     integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6"
     crossorigin="anonymous"></script>
-  
+
   {% block bottom_styles_scripts%}
   {% endblock bottom_styles_scripts %}
 </body>
+
 </html>

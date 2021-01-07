@@ -8,29 +8,28 @@ from flask import Response, stream_with_context
 from factory import db
 from .models import Currency, Order, OrderLine, Product, Store
 from . import utilities
+from users_module.forms import ExtendedRegisterForm
+from.forms import StoreRegisterForm
 # ---------- Declaring the blueprint ----------
 shop = Blueprint('shop', __name__, template_folder='templates')
 
-'''
+
 @shop.before_request
 def before_request():
     if not(request.cookies.get('iso_code')):
-        return redirect('/currency_token?next='+request.path)
-'''
+        return redirect('/currency_token')
+
+
 
 @shop.route('/')
 def index():
-    if not(request.cookies.get('iso_code')):
-        return redirect('/currency_token?next='+request.path)
-    return render_template('index.html')
+    return render_template('home.html')
 
 
 @shop.route('/cart', methods=['GET'])
 @login_required
 def cart():
     iso_code = request.cookies.get('iso_code')
-    if not(iso_code):
-        return redirect('/currency_token?next='+request.path)
     prod_str = request.args.get('prod_id')
     # Check if the current user has an hanging cart
     cart = Order.cart().filter_by(user_id=current_user.id).first()
@@ -72,8 +71,6 @@ def cart():
 @login_required
 def checkout():
     iso_code = request.cookies.get('iso_code')
-    if not(iso_code):
-        return redirect('/currency_token?next='+request.path)
     # Get the last hanging cart
     cart_lines = None
     cart = Order.cart().filter_by(user_id=current_user.id).first()
@@ -118,8 +115,6 @@ def currency():
 @login_required
 def market():
     iso_code = request.cookies.get('iso_code')
-    if not(iso_code):
-        return redirect('/currency_token?next='+request.path)
     products = Product.public()
     return render_template('market.html', products=products,
                            iso_code=iso_code)
@@ -135,3 +130,16 @@ def product_img(id):
 @login_required
 def dashboard():
     return render_template('dashboard.html')
+
+
+@shop.route('/store/new')
+@login_required
+def store_new():
+    form = StoreRegisterForm(request.form)
+    return render_template('store_new.html', form=form)
+
+
+@shop.route('/profile')
+@login_required
+def profile():
+    return render_template('profile.html')
