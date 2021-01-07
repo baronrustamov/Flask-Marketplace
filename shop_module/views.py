@@ -11,15 +11,17 @@ from . import utilities
 # ---------- Declaring the blueprint ----------
 shop = Blueprint('shop', __name__, template_folder='templates')
 
-
+'''
 @shop.before_request
 def before_request():
     if not(request.cookies.get('iso_code')):
         return redirect('/currency_token?next='+request.path)
-
+'''
 
 @shop.route('/')
 def index():
+    if not(request.cookies.get('iso_code')):
+        return redirect('/currency_token?next='+request.path)
     return render_template('index.html')
 
 
@@ -27,6 +29,8 @@ def index():
 @login_required
 def cart():
     iso_code = request.cookies.get('iso_code')
+    if not(iso_code):
+        return redirect('/currency_token?next='+request.path)
     prod_str = request.args.get('prod_id')
     # Check if the current user has an hanging cart
     cart = Order.cart().filter_by(user_id=current_user.id).first()
@@ -68,6 +72,8 @@ def cart():
 @login_required
 def checkout():
     iso_code = request.cookies.get('iso_code')
+    if not(iso_code):
+        return redirect('/currency_token?next='+request.path)
     # Get the last hanging cart
     cart_lines = None
     cart = Order.cart().filter_by(user_id=current_user.id).first()
@@ -104,7 +110,7 @@ def currency():
     code = request.cookies.get('iso_code')
     if not(code):
         iso_code = get('https://ipapi.co/currency/').text
-        response.set_cookie('iso_code', iso_code)
+        response.set_cookie('iso_code', iso_code, samesite='None')
     return response
 
 
@@ -113,7 +119,7 @@ def currency():
 def market():
     iso_code = request.cookies.get('iso_code')
     if not(iso_code):
-        return redirect('/currency_token?next=market')
+        return redirect('/currency_token?next='+request.path)
     products = Product.public()
     return render_template('market.html', products=products,
                            iso_code=iso_code)
