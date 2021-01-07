@@ -36,8 +36,8 @@ currencies = {
 }
 
 dispatchers = {
-    'Errandi': ['Errandi PLC', 30989012345, 'Union', ],  # account
-    'Motorize': ['Motorize LTD', 1098765432, 'Access', ],
+    'Errandi': ['Errandi PLC', 30989012345, 'Union', 5],  # account
+    'Motorize': ['Motorize LTD', 1098765432, 'Access', 1500],
 }
 
 stores = {
@@ -54,8 +54,8 @@ stores = {
         os.urandom(500),
         'We sell farm harvest at cheapest prices',
         'NGN',
-        3,
         2,
+        3,
         ['Farmingo INC', 1012345678, 'GT Bank', ],
     ],
 }

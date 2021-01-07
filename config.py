@@ -1,12 +1,19 @@
 class Config:
-    SECRET_KEY = 'Ir$6789BoknbgRt678/;oAp[@.kjhgHfdsaw34I&?lP56789M'
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///platform.sqlite3'
-    TESTING = False
+    APP_NAME = 'JUMGA'
     DEBUG = True
+    SECRET_KEY = 'Ir$6789BoknbgRt678/;oAp[@.kjhgHfdsaw34I&?lP56789M'
     SECURITY_PASSWORD_HASH = 'sha512_crypt'
     SECURITY_PASSWORD_SALT = 'vcxdse4r6yu8ijjnb$cde456y7fc'
-    APP_NAME = 'JUMGA'
+    SECURITY_REGISTERABLE = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///platform.sqlite3'
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    TESTING = False
+    #----- Payment Info
+    PAYMENT_METHOD = 'instant_split'
+    PAYMENT_PLATFORM = 'flutterwave'
+    
+    
+    
 
 
 class DevelopmentConfig(Config):

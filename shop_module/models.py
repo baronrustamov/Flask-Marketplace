@@ -1,14 +1,31 @@
 '''
 Shop related models, currently we have:
-  1. Currency
-  2. Order
-  3. OrderLine
-  4. Product
-  5. Store
+  1. AccountDetail
+  2. Currency
+  3. Dispatcher
+  4. Order
+  5. OrderLine
+  6. Product
+  7. Store
 '''
 from datetime import datetime
 
+from sqlalchemy.ext.hybrid import hybrid_property
+
 from factory import db
+
+
+class AccountDetail(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    account_name = db.Column(db.String(50), nullable=False)
+    account_num = db.Column(db.Integer, unique=True, nullable=False)
+    bank_name = db.Column(db.String(100))
+    dispatcher_id = db.Column(db.Integer, db.ForeignKey('dispatcher.id'))
+    store_id = db.Column(db.Integer, db.ForeignKey('store.id'))
+
+    @hybrid_property
+    def partner_id(self):
+        return self.dispatcher_id or self.store_id
 
 
 class Currency(db.Model):
@@ -18,6 +35,17 @@ class Currency(db.Model):
     # relationships --------------------------------------
     stores = db.relationship('Store', backref='currency')
     orders = db.relationship('Order', backref='currency')
+
+
+class Dispatcher(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    is_active = db.Column(db.Boolean(), default=True)
+    charge = db.Column(db.Integer, nullable=False)
+    # relationships --------------------------------------
+    stores = db.relationship('Store', backref='dispatcher')
+    account = db.relationship('AccountDetail', uselist=False,
+                              backref='dispatcher')
 
 
 class Order(db.Model):
@@ -58,7 +86,7 @@ class Product(db.Model):
     description = db.Column(db.String(200))
     # Yes, images are stored on the database
     # from experience, it is preferrable a scenario like this
-    image = db.Column(db.Binary)
+    image = db.Column(db.BLOB)
     store_id = db.Column(db.Integer, db.ForeignKey('store.id'),
                          nullable=False)
     is_active = db.Column(db.Boolean, default=False)
@@ -80,6 +108,7 @@ class Product(db.Model):
             return self.price * scale
         return self.price
 
+
 class Store(db.Model):
     '''
     Table of stores information. Key features are:
@@ -90,7 +119,7 @@ class Store(db.Model):
     name = db.Column(db.String(50), nullable=False)
     # Yes, images are stored on the database
     # from experience, it is preferrable a scenario like this
-    logo = db.Column(db.Binary)
+    logo = db.Column(db.BLOB)
     about = db.Column(db.String(150), nullable=False)
     iso_code = db.Column(db.Integer, db.ForeignKey('currency.code'),
                          nullable=False)

@@ -1,0 +1,50 @@
+<script>
+    function makePayment() {
+      FlutterwaveCheckout({
+        public_key: "FLWPUBK_TEST-SANDBOXDEMOKEY-X",
+        tx_ref: 'hooli-tx-1920bbtytty',
+        amount: {{ store_value.shipping_costs | sum() + store_value.store_total }},
+        currency: '{{ store_value.iso_code }}',
+        redirect_url: "https://webhook.site/9d0b00ba-9a69-44fa-a43d-a82c33c36fdc",
+        payment_options: "card",
+        meta: {
+          consumer_id: '{{ current_user.id }}',
+          sales_order_number: "92a3-912ba-1192a"
+        },
+        customer: {
+          email: '{{ current_user.email }}',
+          phone_number: '08102909304',
+          name: '{{ current_user.name }}',
+        },
+        callback: function (data) {
+          console.log(data);
+        },
+        onclose: function() {
+          // close modal
+        },
+        customizations: {
+          title: '{{ config.APPNAME }}',
+          description: 'Pay with your card',
+          logo: '/static/img/logo.png',
+        },
+      });
+    }
+    
+    /*
+    function compute_split(){
+      var shippings = {{ store_value.shipping_costs[1] }};
+      var store_amts = []
+      var ratios = [];
+      {{ pay_data }}.forEach(function(line) {
+        store_amts.push(line[1])
+      });
+      amount = store_amts.concat(shippings)
+      var sum_amt =  .reduce(function(a, b){
+          return a + b;
+      }, 0);
+      amount.forEach(function(d){
+        ratio.push(parseInt(d/sum_amt * 10000));
+      });
+      return ratio
+    }*/
+  </script>

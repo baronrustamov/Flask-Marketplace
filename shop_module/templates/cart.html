@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block main_page %}
+<h2> Cart </h2>
+{% if cart %}
+<table id='cart_table' class='display table table-striped table table-responsive mt-3'>
+  <thead>
+    <tr>
+      <th class='' style='max-width: 20px;'>No.</th>
+      <th class='d-none'>Id</th>
+      <th class='col-lg-6 col-sm-4'>Item</th>
+      <th class='col-lg-2 col-sm-2'>Qty</th>
+      <th class='col-lg-2 col-sm-2'>Unit Price</th>
+      <th class='col-lg-1 col-sm-2'>Amount</th>
+      <th  style='max-width: 20px;'><span id='del_all' class='btn text-danger'>
+        <i class='fa fa-trash'></i></span>
+    </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line in cart %}
+      <tr>
+        <td class='s_n align-middle'></td>
+        <td class='align-middle d-none'>{{ line.id }}</td>
+        <td class='align-middle'>{{ line.product.name }}</td>
+        <td class='align-middle'>
+          <input type='number' min='1' class='form-control qty' value={{line.qty}}>
+        </td>
+        <td class='align-middle'>{{ line.product.sale_price(cart[0].order.iso_code) }}</td>
+        <td class='line_amt align-middle'></td>
+        <td class='align-middle'><i class='fas fa-minus-circle text-danger 
+          btn remove'></i></td>
+      </tr>
+    {% endfor %}
+    <!-- Area will be populated when shoping-->
+  </tbody>
+</table>
+<div class='row text-center'>
+  <div class='col-12 mt-3'>
+    <span>Basket Total: </span>
+    <span class='font-weight-bold'><span>{{ cart[0].order.iso_code }} </span><span class='total'>0</span></span><br>
+    
+      <a class='btn btn-md btn-success' href="{{url_for('shop.checkout')}}">
+      Confirm and Checkout</a>
+  </div>
+</div>
+{% endif %}
+<div id='empty_cart' class='row'>
+  <div class='col-md-8 offset-md-2 mb-5'>
+    <h4>Empty Cart</h4>
+      <li>Kindly add items to your cart</li>
+  </div>
+</div>
+{% endblock main_page %}
+
+{% block bottom_styles_scripts%}
+<script src='../static/shop/js/loadingoverlay.js'></script>
+<script src='../static/shop/js/table_cart.js'></script>
+{% endblock bottom_styles_scripts %}

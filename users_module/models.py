@@ -1,7 +1,5 @@
 '''
 Human related models are located here, currently we have:
-  - AccountDetail: Stores the payment details of partners
-  - Dispatcher: For list of dispatch partners
   - Role: Which may be one of Admin | Vendor | Customer
   - User: Table of everyone capable of logging in to the system
 '''
@@ -9,33 +7,9 @@ from datetime import datetime
 
 from flask_security import utils, current_user, UserMixin, RoleMixin
 from flask_admin.contrib import sqla
-from sqlalchemy.ext.hybrid import hybrid_property
 from wtforms.fields import PasswordField
 
 from factory import db
-
-
-class AccountDetail(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    account_name = db.Column(db.String(50), nullable=False)
-    account_num = db.Column(db.Integer, unique=True, nullable=False)
-    bank_name = db.Column(db.Integer)
-    dispatcher_id = db.Column(db.Integer, db.ForeignKey('dispatcher.id'))
-    store_id = db.Column(db.Integer, db.ForeignKey('store.id'))
-
-    @hybrid_property
-    def partner_id(self):
-        return self.dispatcher_id or self.store_id
-
-
-class Dispatcher(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), unique=True, nullable=False)
-    is_active = db.Column(db.Boolean(), default=True)
-    # relationships --------------------------------------
-    stores = db.relationship('Store', backref='dispatcher')
-    account = db.relationship('AccountDetail', uselist=False,
-                              backref='dispatcher')
 
 
 roles_users = db.Table(
