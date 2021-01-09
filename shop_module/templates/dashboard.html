@@ -13,7 +13,7 @@
   <div class="dropdown-menu dropdown-menu-right" aria-labelledby="triggerId">
     {% if current_user.stores %}
     {% for store in current_user.stores %}
-    <a class="dropdown-item" href="/store/{{ store.name }}/admin">{{ store.name }}</a>
+    <a class="dropdown-item"  href="{{url_for('shop.store_edit', store_name=store.name)}}">{{ store.name }}</a>
     {% endfor %}
     {% else %}
     <span class="dropdown-item disabled">No store</span>

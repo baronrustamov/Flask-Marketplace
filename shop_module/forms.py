@@ -18,6 +18,8 @@ class StoreRegisterForm(FlaskForm):
     logo = FileField()
     account_name = StringField('Account Name', [required()])
     account_num = IntegerField('Account Number',
-                               [required()])
+                              [required()])
     bank_name = StringField('Bank Name', [required()])
     submit = SubmitField()
+
+    

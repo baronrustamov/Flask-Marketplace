@@ -1,7 +1,7 @@
 ''' Defination of all shop views in `shop` blueprint '''
 from requests import get
-from flask import Blueprint, flash, make_response, redirect, \
-    render_template, request, url_for
+from flask import Blueprint, current_app, flash, make_response, \
+    redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 from flask import Response, stream_with_context
 
@@ -30,6 +30,21 @@ def before_request():
 @shop.route('/')
 def index():
     return render_template('home.html')
+
+
+@shop.route('/callback/store_payment', methods=['POST'])
+def callback_store_payment():
+    print(url_for('.store_edit', store_name='test-store'))
+    flw_data = request.json
+    store_name = utilities.confirm_store_reg(
+        flw_data['transaction_id'], flw_data['currency'],
+        flw_data['amount'], current_app.config['STORE_REG_AMT'],
+        current_app.config['FLW_SEC_KEY'])
+    if store_name:
+        flash("Payment confirmed, thank you", 'success')
+        return {'redirect': url_for('.store_edit', store_name=store_name)}
+    flash("Unable to confirm payment, contact us", 'danger')
+    return {'redirect': url_for('.dashboard')}
 
 
 @shop.route('/cart', methods=['GET'])
@@ -105,12 +120,10 @@ def checkout():
                            pay_data=pay_data)
 
 
-@shop.route('/market', methods=['GET'])
-def market():
-    iso_code = request.cookies.get('iso_code')
-    products = Product.public()
-    return render_template('market.html', products=products,
-                           iso_code=iso_code)
+@shop.route('/dashboard', methods=['GET'])
+@login_required
+def dashboard():
+    return render_template('dashboard.html')
 
 
 @shop.route('/img/product/<int:id>', methods=['GET'])
@@ -119,42 +132,54 @@ def product_img(id):
     return Response(product.image, mimetype='image/jpg')
 
 
-@shop.route('/dashboard', methods=['GET'])
-@login_required
-def dashboard():
-    return render_template('dashboard.html')
+@shop.route('/market', methods=['GET'])
+def market():
+    iso_code = request.cookies.get('iso_code')
+    products = Product.public()
+    return render_template('market.html', products=products,
+                           iso_code=iso_code)
 
 
 @shop.route('/store/new', methods=['GET', 'POST'])
 @login_required
 def store_new():
-    form = StoreRegisterForm(request.form)
-    print(request.method)
-    print(form.validate())
-    print(form.logo.data)
+    return render_template('store_new.html')
+
+
+@shop.route('/store/<string:store_name>/edit', methods=['GET', 'POST'])
+@login_required
+def store_edit(store_name):
+    # get the current store object
+    store = Store.query.filter_by(name=store_name).first()
+    form = StoreRegisterForm()
     if form.validate_on_submit():
-        # We want to randomly fix a store to a dispatcher
-        print('form validated')
-        dispatcher = db.session.query(
-            Dispatcher).order_by(db.func.random()).first().id
-        print(dispatcher)
-        print(form.account_name.data)
-        account = AccountDetail(account_name=form.account_name.data,
-                                account_num=form.account_num.data,
-                                bank_name=form.bank_name.data)
-        store = Store(name=form.name.data,
-                      about=form.about.data,
-                      iso_code=form.iso_code.data,
-                      logo=form.logo.data,
-                      dispatcher_id=dispatcher,
-                      user_id=current_user.id,
-                      account=account)
-        db.session.add(account)
+        store.name = form.name.data
+        store.about = form.about.data
+        store.iso_code = form.iso_code.data
+        store.logo = form.logo.data
+        store.user_id = current_user.id
+        # We don't want to change account details
+        if not(store.account):
+            account = AccountDetail(
+                account_name=form.account_name.data,
+                account_num=form.account_num.data,
+                bank_name=form.bank_name.data)
+            db.session.add(account)
+            store.account = account
         db.session.add(store)
         db.session.commit()
-        flash('Thanks for registering')
+        flash('Succesfully edited', 'success')
         return redirect(url_for('.index'))
-    return render_template('store_new.html', form=form)
+    # Pre-populating the form
+    form.name.data = store.name
+    form.about.data = store.about
+    form.iso_code.data = store.iso_code
+    # New stores don't posses account details
+    if store.account:
+        form.account_name.data = store.account.account_name
+        form.account_num.data = store.account.account_num
+        form.bank_name.data = store.account.bank_name
+    return render_template('store_edit.html', form=form)
 
 
 @shop.route('/profile')
