@@ -34,11 +34,12 @@ def index():
 
 @shop.route('/callback/store_payment', methods=['POST'])
 def callback_store_payment():
-    print(url_for('.store_edit', store_name='test-store'))
     flw_data = request.json
+    print(flw_data)
     store_name = utilities.confirm_store_reg(
-        flw_data['transaction_id'], flw_data['currency'],
-        flw_data['amount'], current_app.config['STORE_REG_AMT'],
+        flw_data['transaction_id'], flw_data['tx_ref'],
+        flw_data['currency'], flw_data['amount'],
+        current_app.config['STORE_REG_AMT'],
         current_app.config['FLW_SEC_KEY'])
     if store_name:
         flash("Payment confirmed, thank you", 'success')
@@ -143,46 +144,47 @@ def market():
 @shop.route('/store/new', methods=['GET', 'POST'])
 @login_required
 def store_new():
-    return render_template('store_new.html')
+    return render_template('store_new.html',
+                            store_num=len(current_user.stores))
 
 
-@shop.route('/store/<string:store_name>/edit', methods=['GET', 'POST'])
-@login_required
+@ shop.route('/store/<string:store_name>/edit', methods = ['GET', 'POST'])
+@ login_required
 def store_edit(store_name):
     # get the current store object
-    store = Store.query.filter_by(name=store_name).first()
-    form = StoreRegisterForm()
+    store=Store.query.filter_by(name = store_name).first()
+    form=StoreRegisterForm()
     if form.validate_on_submit():
-        store.name = form.name.data
-        store.about = form.about.data
-        store.iso_code = form.iso_code.data
-        store.logo = form.logo.data
-        store.user_id = current_user.id
+        store.name=form.name.data
+        store.about=form.about.data
+        store.iso_code=form.iso_code.data
+        store.logo=form.logo.data.read()
+        store.user_id=current_user.id
         # We don't want to change account details
         if not(store.account):
-            account = AccountDetail(
-                account_name=form.account_name.data,
-                account_num=form.account_num.data,
-                bank_name=form.bank_name.data)
+            account=AccountDetail(
+                account_name = form.account_name.data,
+                account_num = form.account_num.data,
+                bank_name = form.bank_name.data)
             db.session.add(account)
-            store.account = account
+            store.account=account
         db.session.add(store)
         db.session.commit()
         flash('Succesfully edited', 'success')
         return redirect(url_for('.index'))
     # Pre-populating the form
-    form.name.data = store.name
-    form.about.data = store.about
-    form.iso_code.data = store.iso_code
+    form.name.data=store.name
+    form.about.data=store.about
+    form.iso_code.data=store.iso_code
     # New stores don't posses account details
     if store.account:
-        form.account_name.data = store.account.account_name
-        form.account_num.data = store.account.account_num
-        form.bank_name.data = store.account.bank_name
-    return render_template('store_edit.html', form=form)
+        form.account_name.data=store.account.account_name
+        form.account_num.data=store.account.account_num
+        form.bank_name.data=store.account.bank_name
+    return render_template('store_edit.html', form = form)
 
 
-@shop.route('/profile')
-@login_required
+@ shop.route('/profile')
+@ login_required
 def profile():
     return render_template('profile.html')

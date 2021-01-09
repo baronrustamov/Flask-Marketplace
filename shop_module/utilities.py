@@ -1,9 +1,10 @@
 from requests import get
 
-from flask import make_response, redirect, request, render_template, \
-    current_app
+from flask import make_response, redirect, request, render_template
+from flask_security import current_user
 
-from .models import Currency
+from .models import Currency, Dispatcher, Store
+from factory import db
 
 
 def convert_currency(price, from_currency, to_currency):
@@ -39,6 +40,7 @@ def amounts_sep(iso_code, pay_data):
 
 
 def confirm_payment(tx_id, currency, value, flw_sec_key):
+    print('Started confirm_payment')
     '''
     Note: Flutterwave only checks if the given payment exists.
     It does not tell me if it has been formerly used previously
@@ -46,30 +48,33 @@ def confirm_payment(tx_id, currency, value, flw_sec_key):
     Thus, calling functions have to check its usability.
     '''
     flw_resp = get(
-        'https://api.flutterwave.com/v3/transactions/'+tx_id+'/verify',
+        'https://api.flutterwave.com/v3/transactions/'+str(tx_id)+'/verify',
         headers={"Content-Type": "application/json",
                  'Authorization': 'Bearer ' + flw_sec_key}
-    )
+    ).json()
     if flw_resp['data']['status'] == 'successful':
       # confirm currency and amount
         if flw_resp['data']['currency'] == currency:
             if flw_resp['data']['amount'] >= float(value):
+                print('True confirm_payment')
                 return True
+    print('False confirm_payment')
     return False
 
 
-def confirm_store_reg(trans_id, currency, value, store_reg_amt, flw_sec_key):
+def confirm_store_reg(trans_id, tx_ref, currency, value, store_reg_amt,
+                      flw_sec_key):
     value, currency = store_reg_amt.split(' ')
     if confirm_payment(trans_id, currency, value, flw_sec_key):
         # Check if the txref is still usable
         # Recall, txref = store/userid/number_of_stores.
         # Confirm that the current user matches the ref. id
-        _, tx_id, tx_store = txref.split('/')
-        if tx_id == current_user.id:
+        _, user_id, store_num = tx_ref.split('/')
+        if int(user_id) == current_user.id:
             # confirm is number of stores is valid
-            if tx_store == len(current_user.stores.all())+1:
+            if int(store_num) == len(current_user.stores):
                 # Now, it's too good not to be true
-                # proceed with dummy store creation
+                # Proceed with dummy store creation
                 # We want to randomly fix a store to a dispatcher
                 dispatcher = db.session.query(
                     Dispatcher).order_by(db.func.random()).first().id

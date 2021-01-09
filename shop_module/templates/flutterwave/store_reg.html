@@ -1,7 +1,7 @@
 <form class="col text-center">
   <script src="https://checkout.flutterwave.com/v3.js"></script>
-  <button type="button" onClick="makePayment()" class="btn btn-success col-6 m-4">
-    Pay Now</button>
+  <button type="button" onClick="makePayment()"
+    class="btn btn-success col-6 m-4">Pay Now</button>
 </form>
 
 <script>
@@ -9,9 +9,9 @@
   function makePayment() {
     FlutterwaveCheckout({
       public_key: "FLWPUBK_TEST-4b5acac8e21aceb3fc87f634a846c001-X",
-      tx_ref: "Reg/" + '{{ current_user.id }}' + "/1",
-      amount: 5,
-      currency: "USD",
+      tx_ref: 'Reg/{{ current_user.id }}/{{ store_num }}',
+      amount: "{{ config['STORE_REG_AMT'] }}".split(' ')[0],
+      currency: "{{ config['STORE_REG_AMT'] }}".split(' ')[1],
       payment_options: "card",
       customer: {
         email: '{{ current_user.email }}',
@@ -24,6 +24,7 @@
           data: JSON.stringify(flw_response),
           contentType: 'application/json; charset=utf-8',
           success: function (data, textStatus) {
+            console.log(data)
             if (data.redirect) {
               // data.redirect contains the string URL to redirect to
               window.location.href = data.redirect;
