@@ -27,9 +27,9 @@
         console.log('Closed')
       },
       customizations: {
-        title: '{{ config.APP_NAME }}' + 'Registration Fee',
+        title: 'Registration Fee',
         description: 'This is a one-off fee',
-        logo: "https://assets.piedpiper.com/logo.png",
+        logo: '{{ request.url_root }}' + 'static/shop/img/site-logo.jpg',
       },
     });
   }
