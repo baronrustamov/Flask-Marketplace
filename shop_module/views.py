@@ -1,12 +1,13 @@
 ''' Defination of all shop views in `shop` blueprint '''
 from requests import get
-
-from flask import Blueprint, make_response, redirect, render_template, request
+from flask import Blueprint, flash, make_response, redirect, \
+    render_template, request, url_for
 from flask_login import current_user, login_required
 from flask import Response, stream_with_context
 
 from factory import db
-from .models import Currency, Order, OrderLine, Product, Store
+from .models import AccountDetail, Currency, Dispatcher, \
+    Order, OrderLine, Product, Store
 from . import utilities
 from users_module.forms import ExtendedRegisterForm
 from.forms import StoreRegisterForm
@@ -16,9 +17,14 @@ shop = Blueprint('shop', __name__, template_folder='templates')
 
 @shop.before_request
 def before_request():
+    ''' Make sure that the currency is always known '''
     if not(request.cookies.get('iso_code')):
-        return redirect('/currency_token')
-
+        response = make_response(redirect(request.path))
+        code = get('https://ipapi.co/currency/').text
+        if not((code,) in Currency.query.with_entities(Currency.code).all()):
+            code = 'USD'
+        response.set_cookie('iso_code', code, samesite='None')
+        return response
 
 
 @shop.route('/')
@@ -99,20 +105,7 @@ def checkout():
                            pay_data=pay_data)
 
 
-@shop.route('/currency_token', methods=['GET'])
-def currency():
-    '''This view duty is simply add iso_code cookie'''
-    destination = request.args.get('next') or '/'
-    response = make_response(redirect(destination))
-    code = request.cookies.get('iso_code')
-    if not(code):
-        iso_code = get('https://ipapi.co/currency/').text
-        response.set_cookie('iso_code', iso_code, samesite='None')
-    return response
-
-
 @shop.route('/market', methods=['GET'])
-@login_required
 def market():
     iso_code = request.cookies.get('iso_code')
     products = Product.public()
@@ -120,22 +113,47 @@ def market():
                            iso_code=iso_code)
 
 
-@shop.route('/img/product/<int:id>')
+@shop.route('/img/product/<int:id>', methods=['GET'])
 def product_img(id):
     product = Product.query.get_or_404(id)
     return Response(product.image, mimetype='image/jpg')
 
 
-@shop.route('/dashboard')
+@shop.route('/dashboard', methods=['GET'])
 @login_required
 def dashboard():
     return render_template('dashboard.html')
 
 
-@shop.route('/store/new')
+@shop.route('/store/new', methods=['GET', 'POST'])
 @login_required
 def store_new():
     form = StoreRegisterForm(request.form)
+    print(request.method)
+    print(form.validate())
+    print(form.logo.data)
+    if form.validate_on_submit():
+        # We want to randomly fix a store to a dispatcher
+        print('form validated')
+        dispatcher = db.session.query(
+            Dispatcher).order_by(db.func.random()).first().id
+        print(dispatcher)
+        print(form.account_name.data)
+        account = AccountDetail(account_name=form.account_name.data,
+                                account_num=form.account_num.data,
+                                bank_name=form.bank_name.data)
+        store = Store(name=form.name.data,
+                      about=form.about.data,
+                      iso_code=form.iso_code.data,
+                      logo=form.logo.data,
+                      dispatcher_id=dispatcher,
+                      user_id=current_user.id,
+                      account=account)
+        db.session.add(account)
+        db.session.add(store)
+        db.session.commit()
+        flash('Thanks for registering')
+        return redirect(url_for('.index'))
     return render_template('store_new.html', form=form)
 
 

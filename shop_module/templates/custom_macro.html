@@ -11,3 +11,8 @@
   {{ field(class="form-control form-control-sm", **kwargs)|safe }}
 </div>
 {% endmacro %}
+
+
+{% macro render_field_btn(field) %}
+{{ field(class="btn btn-success col-6 m-4", **kwargs)|safe }}
+{% endmacro %}
