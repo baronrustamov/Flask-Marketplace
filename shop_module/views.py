@@ -1,9 +1,9 @@
 ''' Defination of all shop views in `shop` blueprint '''
 from requests import get
+
 from flask import Blueprint, current_app, flash, make_response, \
-    redirect, render_template, request, url_for
+    redirect, render_template, request, Response, url_for
 from flask_login import current_user, login_required
-from flask import Response, stream_with_context
 
 from factory import db
 from .models import AccountDetail, Currency, Dispatcher, \
@@ -11,6 +11,7 @@ from .models import AccountDetail, Currency, Dispatcher, \
 from . import utilities
 from users_module.forms import ExtendedRegisterForm
 from.forms import StoreRegisterForm
+
 # ---------- Declaring the blueprint ----------
 shop = Blueprint('shop', __name__, template_folder='templates')
 
@@ -37,8 +38,7 @@ def callback_store_payment():
     flw_data = request.json
     print(flw_data)
     store_name = utilities.confirm_store_reg(
-        flw_data['transaction_id'], flw_data['tx_ref'],
-        flw_data['currency'], flw_data['amount'],
+        flw_data['transaction_id'],
         current_app.config['STORE_REG_AMT'],
         current_app.config['FLW_SEC_KEY'])
     if store_name:
@@ -46,6 +46,20 @@ def callback_store_payment():
         return {'redirect': url_for('.store_edit', store_name=store_name)}
     flash("Unable to confirm payment, contact us", 'danger')
     return {'redirect': url_for('.dashboard')}
+
+
+@shop.route('/callback/sales_payment', methods=['POST'])
+def callback_sales_payment():
+    flw_data = request.json
+    print(flw_data)
+    if utilities.confirm_sales_payment(
+            flw_data['transaction_id'], flw_data['tx_ref'],
+            flw_data['currency'], flw_data['amount'],
+            current_app.config['FLW_SEC_KEY']):
+        flash("Payment confirmed, thank you", 'success')
+    else:
+        flash("Unable to confirm payment, contact us", 'danger')
+    return {'redirect': url_for('.market')}
 
 
 @shop.route('/cart', methods=['GET'])
@@ -73,15 +87,13 @@ def cart():
                                          product_id=cart_line.id,
                                          price=cart_line.price,))
         else:
-            # Create a new cart and add this product
-            cart = Order(user_id=current_user.id,
-                         iso_code=iso_code)
+            # Take the product with price tag and add it to an new cart
+            cart_line = OrderLine(product_id=cart_line.id,
+                                  price=cart_line.price,)
+            cart = Order(user_id=current_user.id, iso_code=iso_code,
+                         orderlines=[cart_line])
+            db.session.add(cart_line)
             db.session.add(cart)
-            # I am yet to figure out a sensible way of defferring this commit
-            db.session.commit()
-            db.session.add(OrderLine(order_id=cart.id,
-                                     product_id=cart_line.id,
-                                     price=cart_line.price,))
         db.session.commit()
         return redirect('/cart')
     if cart:
@@ -100,20 +112,23 @@ def checkout():
         cart_lines = OrderLine.query.filter_by(order_id=cart.id).all()
         # For security reason, let's update all the order line prices again
         for line in db.session.query(OrderLine).filter_by(order_id=1).all():
-            line.price = line.product.sale_price(iso_code)
-        db.session.commit()  # To ensure the update figures are picked up
-    # Get the publisher of the cart products, sum total, and qty total
-    store_value = db.session.query(
+            line.price = line.product.sale_price(
+                current_app.config['PRODUCT_PRICING'], iso_code)
+        db.session.commit()  # To ensure the updated figures are picked up
+    # Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
+    # Why sum of quantities per store? Recall, dispatchers rates are per qty
+    store_value_sq = db.session.query(
         Product.store_id.label('store_id'),
-        db.func.sum(OrderLine.qty * OrderLine.price).label('store_sum'),
-        db.func.sum(OrderLine.qty).label('qty_sum').label('qty_sum'),
+        db.func.sum(OrderLine.qty * OrderLine.price).label('store_amt_sum'),
+        db.func.sum(OrderLine.qty).label(
+            'store_qty_sum').label('store_qty_sum'),
     ).join(Product).filter(OrderLine.order_id == cart.id).group_by(
         Product.store_id).subquery()
     # All other payment data are related to the store
     pay_data = db.session.query(
-        Store, store_value.c.store_sum,
-        store_value.c.qty_sum).join(
-        store_value, Store.id == store_value.c.store_id).all()
+        Store, store_value_sq.c.store_amt_sum,
+        store_value_sq.c.store_qty_sum).join(
+        store_value_sq, Store.id == store_value_sq.c.store_id).all()
     # Compute amounts
     store_value = utilities.amounts_sep(iso_code, pay_data)
     return render_template('checkout.html', cart=cart_lines,
@@ -145,43 +160,43 @@ def market():
 @login_required
 def store_new():
     return render_template('store_new.html',
-                            store_num=len(current_user.stores))
+                           store_num=len(current_user.stores))
 
 
-@ shop.route('/store/<string:store_name>/edit', methods = ['GET', 'POST'])
+@ shop.route('/store/<string:store_name>/edit', methods=['GET', 'POST'])
 @ login_required
 def store_edit(store_name):
     # get the current store object
-    store=Store.query.filter_by(name = store_name).first()
-    form=StoreRegisterForm()
+    store = Store.query.filter_by(name=store_name).first()
+    form = StoreRegisterForm()
     if form.validate_on_submit():
-        store.name=form.name.data
-        store.about=form.about.data
-        store.iso_code=form.iso_code.data
-        store.logo=form.logo.data.read()
-        store.user_id=current_user.id
+        store.name = form.name.data
+        store.about = form.about.data
+        store.iso_code = form.iso_code.data
+        store.logo = form.logo.data.read()
+        store.user_id = current_user.id
         # We don't want to change account details
         if not(store.account):
-            account=AccountDetail(
-                account_name = form.account_name.data,
-                account_num = form.account_num.data,
-                bank_name = form.bank_name.data)
+            account = AccountDetail(
+                account_name=form.account_name.data,
+                account_num=form.account_num.data,
+                bank_name=form.bank_name.data)
             db.session.add(account)
-            store.account=account
+            store.account = account
         db.session.add(store)
         db.session.commit()
         flash('Succesfully edited', 'success')
         return redirect(url_for('.index'))
     # Pre-populating the form
-    form.name.data=store.name
-    form.about.data=store.about
-    form.iso_code.data=store.iso_code
+    form.name.data = store.name
+    form.about.data = store.about
+    form.iso_code.data = store.iso_code
     # New stores don't posses account details
     if store.account:
-        form.account_name.data=store.account.account_name
-        form.account_num.data=store.account.account_num
-        form.bank_name.data=store.account.bank_name
-    return render_template('store_edit.html', form = form)
+        form.account_name.data = store.account.account_name
+        form.account_num.data = store.account.account_num
+        form.bank_name.data = store.account.bank_name
+    return render_template('store_edit.html', form=form)
 
 
 @ shop.route('/profile')

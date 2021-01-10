@@ -3,7 +3,7 @@ from requests import get
 from flask import make_response, redirect, request, render_template
 from flask_security import current_user
 
-from .models import Currency, Dispatcher, Store
+from .models import Currency, Dispatcher, Order, Store
 from factory import db
 
 
@@ -39,7 +39,7 @@ def amounts_sep(iso_code, pay_data):
     }
 
 
-def confirm_payment(tx_id, currency, value, flw_sec_key):
+def confirm_payment(trans_id, currency, value, flw_sec_key):
     print('Started confirm_payment')
     '''
     Note: Flutterwave only checks if the given payment exists.
@@ -48,7 +48,8 @@ def confirm_payment(tx_id, currency, value, flw_sec_key):
     Thus, calling functions have to check its usability.
     '''
     flw_resp = get(
-        'https://api.flutterwave.com/v3/transactions/'+str(tx_id)+'/verify',
+        'https://api.flutterwave.com/v3/transactions/' + str(
+            trans_id) + '/verify',
         headers={"Content-Type": "application/json",
                  'Authorization': 'Bearer ' + flw_sec_key}
     ).json()
@@ -57,18 +58,18 @@ def confirm_payment(tx_id, currency, value, flw_sec_key):
         if flw_resp['data']['currency'] == currency:
             if flw_resp['data']['amount'] >= float(value):
                 print('True confirm_payment')
-                return True
+                return flw_resp['data']['txref']
     print('False confirm_payment')
     return False
 
 
-def confirm_store_reg(trans_id, tx_ref, currency, value, store_reg_amt,
-                      flw_sec_key):
+def confirm_store_reg(trans_id, store_reg_amt, flw_sec_key):
     value, currency = store_reg_amt.split(' ')
-    if confirm_payment(trans_id, currency, value, flw_sec_key):
+    tx_ref = confirm_payment(trans_id, currency, value, flw_sec_key)
+    if tx_ref:
         # Check if the txref is still usable
-        # Recall, txref = store/userid/number_of_stores.
-        # Confirm that the current user matches the ref. id
+        # Recall, txref = store/user_id/number_of_stores.
+        # Confirm that the current user matches the reference id
         _, user_id, store_num = tx_ref.split('/')
         if int(user_id) == current_user.id:
             # confirm is number of stores is valid
@@ -89,4 +90,22 @@ def confirm_store_reg(trans_id, tx_ref, currency, value, store_reg_amt,
                 db.session.commit()
                 # Note: trans_id has been used to create a store
                 return trans_id
+    return False
+
+
+def confirm_sales_payment(trans_id, flw_sec_key):
+    # get the order data for comparism and verification
+    order = Order.cart().filter_by(user_id=current_user.id).first()
+    tx_ref = confirm_payment(trans_id, order.iso_code, order.amount,
+                             flw_sec_key)
+    if tx_ref:
+        # Recall, txref = order/user_id/order_id.
+        # Here user_id is no longer needed as order_id is sufficient
+        if int(tx_ref.split('/')[2]) == order.id:
+            # Now, it's too good not to be true
+            # We can now certify the order
+            order.status = 'done'
+            order.paid = True
+            db.session.commit()
+            return True
     return False

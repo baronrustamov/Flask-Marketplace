@@ -7,11 +7,12 @@
   <div class='pb-2'>
     <label>Delivery Address</label>
     <textarea class='form-control' name='' id='' rows='3' required
-      placeholder='Provide us the address you want us to deliver to'></textarea>
+      placeholder='Provide us the address you want us to deliver to'>
+    </textarea>
   </div>
   <div class='form-group'>
     <label for=''>Phone Number: </label>
-    <input type='text' name='' id='' class='form-control' placeholder=''>
+    <input type='text' name='' id='' class='form-control'>
   </div>
 </form>
 
@@ -20,8 +21,10 @@
   <!-- Shipping -->
   <div class='card mt-3'>
     <div class='card-header'>
-      <span class='collapsed' data-toggle='collapse' data-target='#dispatch_name'>
-        Shipping Cost: {{ store_value.iso_code }} {{ '{:,.2f}'.format(store_value.shipping_costs | sum()) }}
+      <span class='collapsed' data-toggle='collapse'
+        data-target='#dispatch_name'>
+        Shipping Cost: {{ store_value.iso_code }} 
+        {{ '{:,.2f}'.format(store_value.shipping_costs | sum()) }}
         <button class='badge badge-secondary'>Show</button>
       </span>
     </div>
@@ -39,14 +42,16 @@
   <!-- Cart content-->
   <div class='card mt-3'>
     <div class='card-header'>
-      <span class='collapsed' data-toggle='collapse' data-target='#cart_content'>
-        Your cart value is {{ store_value.iso_code }} {{ '{:,.2f}'.format(store_value.store_total) }}
+      <span class='collapsed' data-toggle='collapse'
+        data-target='#cart_content'>
+        Your cart value is {{ store_value.iso_code }} 
+        {{ '{:,.2f}'.format(store_value.store_total) }}
         <button class='badge badge-secondary'>Show</button>
       </span>
     </div>
     <div id='cart_content' class='collapse'>
       <div class='card-body'>
-        <table class='display table table-striped table table-responsive mt-3'>
+        <table class='display table table-striped table-responsive mt-3'>
           <thead>
             <tr>
               <th class='' style='max-width: 20px;'>No.</th>
@@ -64,9 +69,12 @@
               <td class='align-middle d-none'>{{ line.id }}</td>
               <td class='align-middle'>{{ line.product.name }}</td>
               <td class='align-middle'>
-                <input type='number' min='1' class='form-control qty' value={{line.qty}} readonly>
+                <input type='number' min='1' class='form-control qty'
+                  value={{line.qty}} readonly>
               </td>
-              <td class='align-middle'>{{ line.product.sale_price(cart[0].order.iso_code) }}</td>
+              <td class='align-middle'>{{ line.product.sale_price(
+                config.PRODUCT_PRICING, cart[0].order.iso_code) }}
+              </td>
               <td class='line_amt align-middle'></td>
             </tr>
             {% endfor %}
@@ -77,13 +85,18 @@
     </div>
   </div>
   <!-- Total -->
-  <p class='font-weight-bold mt-3 ml-4'>Total payout: {{ store_value.iso_code }} {{ '{:,.2f}'.format(store_value.shipping_costs | sum() +
-    store_value.store_total) }}</p>
+  <p class='font-weight-bold mt-3 ml-4'>
+    Total payout: {{ store_value.iso_code }} {{ '{:,.2f}'.format(
+      store_value.shipping_costs | sum() + store_value.store_total) }}
+  </p>
   <div class='row justify-content-center m-3 pb-3'>
     <form>
       <script src="https://checkout.flutterwave.com/v3.js"></script>
-      <button class='btn btn-primary btn-md' type="button" onClick="makePayment()">Pay {{ store_value.iso_code }} {{ '{:,.2f}'.format(store_value.shipping_costs | sum() +
-        store_value.store_total) }}</button>
+      <button class='btn btn-primary btn-md' type="button"
+        onClick="makePayment()">
+        Pay {{ store_value.iso_code }} 
+        {{ '{:,.2f}'.format(store_value.shipping_costs | sum() +
+          store_value.store_total) }}</button>
     </form>
   </div>
 </div>
@@ -91,8 +104,11 @@
 {% endblock main_page %}
 
 {% block bottom_styles_scripts%}
-<script src='../static/shop/js/loadingoverlay.js'></script>
-<script src='../static/shop/js/table_cart.js'></script>
+<script
+  src="{{ url_for('static', filename='shop/js/loadingoverlay.js') }}">
+</script>
+<script src="{{ url_for('static', filename='shop/js/table_cart.js') }}">
+</script>
 
 {% include config.PAYMENT_PLATFORM+'/pay_split.html' %}
 

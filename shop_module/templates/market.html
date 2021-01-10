@@ -6,19 +6,27 @@
   {% for product in products %}
   <div class="col-12 col-sm-6 col-md-4 col-lg-3 mb-3">
     <div class="card">
-      <img class="card-img-top" src="{{ url_for('shop.product_img', id=product.id) }}" alt="">
-      <a class='btn btn-sm btn-primary' href='/cart?prod_id={{product.id}}'><i class="fa fa-cart-plus" aria-hidden="true"></i></a>
+      <img class="card-img-top" alt="banner" 
+        src="{{ url_for('shop.product_img', id=product.id) }}">
+      <a class='btn btn-sm btn-primary'
+        href='/cart?prod_id={{product.id}}'>
+          <i class="fa fa-cart-plus" aria-hidden="true"></i>
+      </a>
     </div>
     <p class="card-title">{{ product.name }}</p>
-    <p class="card-text font-weight-bold mt-n3"><span> {{ iso_code }} </span>
-      {{ product.sale_price(iso_code) }}
+    <p class="card-text font-weight-bold mt-n3">
+      <span> {{ iso_code }} </span>
+      {{ product.sale_price(config.PRODUCT_PRICING, iso_code) }}
     </p>
   </div>
-  {% endfor %}  
+  {% endfor %}
 </div>
 {% endblock main_page %}
 
 {% block bottom_styles_scripts%}
-<script src='../static/shop/js/loadingoverlay.js'></script>
-<script src="../static/shop/js/table_cart.js"></script>
+<script
+  src="{{ url_for('static', filename='shop/js/loadingoverlay.js') }}">
+</script>
+<script src="{{ url_for('static', filename='shop/js/table_cart.js') }}">
+</script>
 {% endblock bottom_styles_scripts %}

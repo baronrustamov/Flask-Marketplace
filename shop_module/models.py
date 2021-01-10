@@ -40,8 +40,8 @@ class Currency(db.Model):
 class Dispatcher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
-    is_active = db.Column(db.Boolean(), default=True)
     charge = db.Column(db.Integer, nullable=False)
+    is_active = db.Column(db.Boolean(), default=True)
     # relationships --------------------------------------
     stores = db.relationship('Store', backref='dispatcher')
     account = db.relationship('AccountDetail', uselist=False,
@@ -49,13 +49,24 @@ class Dispatcher(db.Model):
 
 
 class Order(db.Model):
-    ''' Table of orders: status can be one of `open` | `done` '''
+    ''' 
+      Table of orders: status can be one of
+        * `cart`: The order havenot been checked-out
+        * `placed`: It has been checkout, but not yet paid for
+        * `paid`: It has been fully paid for
+        * `dispatched`: It has been handed to the dispatcher
+        * `fulfilled`: It has been delivered to the customer  
+      Note:
+        * When the `PAYMENT_METHOD = 'instant_split'`, the `dispatched` and
+        `fulfiled` status are not used.
+    '''
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     iso_code = db.Column(db.Integer, db.ForeignKey('currency.code'),
                          nullable=False)
     amount = db.Column(db.Numeric(20, 2), default=0)
     status = db.Column(db.String(5), default='open', nullable=False)
+    #paid = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime(), default=datetime.utcnow())
     last_modified_at = db.Column(db.DateTime(), default=datetime.utcnow())
     # relationship ---------------
@@ -69,17 +80,26 @@ class Order(db.Model):
 
 class OrderLine(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    order_id = db.Column(db.Integer, db.ForeignKey('order.id'), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'),
+                         nullable=False)
     product_id = db.Column(db.Integer,
                            db.ForeignKey('product.id'),
                            nullable=False)
     price = db.Column(db.Numeric(20, 2), nullable=False)
     qty = db.Column(db.Integer, default=1, nullable=False)
-    # relationships ---------
 
 
 class Product(db.Model):
-    ''' Table of all Products from all stores '''
+    '''
+    Table of all Products from all stores.
+    When `PRODUCT_PRICING = 'localize'`, the product prices
+    will be converted from their store currencies to the
+    visitor's currency. 4 currencies (GBP, KES, NGN, USA,
+    are currently supported, and the applicable one defaults to the
+    automatically computed ISO CODE based on the visitor's IP location,
+    and when the detected ISO_CODE is not part of the supported
+    currencies, the product prices are served in USD.
+    '''
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     price = db.Column(db.Numeric(20, 2))
@@ -100,11 +120,14 @@ class Product(db.Model):
         # only active products are made public
         return(Product.query.filter(Product.is_active == 1))
 
-    def sale_price(self, to_currency):
-        ''' Converts price of products to visitor's currency based on scale'''
-        if to_currency:
-            scale = (Currency.query.filter_by(code=to_currency).first().rate /
-                     self.store.currency.rate)
+    def sale_price(self, product_pricing, to_currency):
+        '''
+        Converts price of products to visitor's currency based on scale
+        '''
+        if (product_pricing=='localize' and to_currency):
+            scale = (
+                Currency.query.filter_by(code=to_currency).first().rate /
+                self.store.currency.rate)
             return self.price * scale
         return self.price
 
