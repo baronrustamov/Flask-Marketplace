@@ -31,10 +31,15 @@ def create_app(config_name):
         def no_emails(payload):
             flash('You were successfully registered', 'success')
 
-        # ----- Setup shop_moodule
+        # ----- Setup shop_module
         import shop_module.models
         from shop_module.views import shop
         app.register_blueprint(shop, url_prefix='/')
+
+        # ----- Setup flw_moodule
+        import flw_module.models
+        from flw_module.views import flw
+        app.register_blueprint(flw, url_prefix='/flw')
 
         # ----- Setup admin
         admin = Admin(app)

@@ -16,11 +16,11 @@ class StoreRegisterForm(FlaskForm):
         'Currency', choices=Currency.query.with_entities(
             Currency.code, Currency.code).all())
     logo = FileField()
-    submit = SubmitField()
+    save = SubmitField()
 
 
 class AccountDetailForm(FlaskForm):
     account_name = StringField('Account Name', [required()])
     account_num = IntegerField('Account Number', [required()])
     bank_name = StringField('Bank', [required()])
-    submit = SubmitField()
+    save = SubmitField()

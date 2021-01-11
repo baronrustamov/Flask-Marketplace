@@ -7,10 +7,10 @@
 </div>
 
 <div class="btn-group col-12">
-  <button class="btn btn-secondary dropdown-toggle" type="button" id="triggerId" data-toggle="dropdown">
+  <button class="btn btn-secondary dropdown-toggle" type="button" id="store_dd" data-toggle="dropdown">
     Stores
   </button>
-  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="triggerId">
+  <div class="dropdown-menu dropdown-menu-right" aria-labelledby="store_dd">
     {% if current_user.stores %}
     {% for store in current_user.stores %}
     <a class="dropdown-item"  href="{{url_for('shop.store_admin', store_name=store.name)}}">{{ store.name }}</a>

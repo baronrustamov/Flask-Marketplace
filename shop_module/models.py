@@ -49,13 +49,13 @@ class Dispatcher(db.Model):
 
 
 class Order(db.Model):
-    ''' 
+    '''
       Table of orders: status can be one of
         * `cart`: The order havenot been checked-out
         * `placed`: It has been checkout, but not yet paid for
         * `paid`: It has been fully paid for
         * `dispatched`: It has been handed to the dispatcher
-        * `fulfilled`: It has been delivered to the customer  
+        * `fulfilled`: It has been delivered to the customer
       Note:
         * When the `PAYMENT_METHOD = 'instant_split'`, the `dispatched` and
         `fulfiled` status are not used.
@@ -66,7 +66,7 @@ class Order(db.Model):
                          nullable=False)
     amount = db.Column(db.Numeric(20, 2), default=0)
     status = db.Column(db.String(5), default='open', nullable=False)
-    #paid = db.Column(db.Boolean, default=False)
+    # paid = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime(), default=datetime.utcnow())
     last_modified_at = db.Column(db.DateTime(), default=datetime.utcnow())
     # relationship ---------------
@@ -124,7 +124,7 @@ class Product(db.Model):
         '''
         Converts price of products to visitor's currency based on scale
         '''
-        if (product_pricing=='localize' and to_currency):
+        if (product_pricing == 'localize' and to_currency):
             scale = (
                 Currency.query.filter_by(code=to_currency).first().rate /
                 self.store.currency.rate)
@@ -150,6 +150,8 @@ class Store(db.Model):
                               nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
                         nullable=False)
+    payment_id = db.Column(db.Integer,
+                           db.ForeignKey('flw_sub_account.sub_account_id'))
     created_at = db.Column(db.DateTime(), default=datetime.utcnow())
     is_active = db.Column(db.Boolean(), default=True)
     # relationships --------------------------------------

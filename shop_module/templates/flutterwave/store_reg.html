@@ -8,7 +8,7 @@
 
   function makePayment() {
     FlutterwaveCheckout({
-      public_key: "FLWPUBK_TEST-4b5acac8e21aceb3fc87f634a846c001-X",
+      public_key: "{{ config.FLW_SEC_KEY }}",
       tx_ref: 'Reg/{{ current_user.id }}/{{ store_num }}',
       amount: "{{ config['STORE_REG_AMT'] }}".split(' ')[0],
       currency: "{{ config['STORE_REG_AMT'] }}".split(' ')[1],
@@ -20,7 +20,7 @@
       callback: function (flw_response) {
         $.ajax({
           type: "POST",
-          url: "{{ url_for('.callback_store_payment') }}",
+          url: "{{ url_for('flw.callback_store_payment') }}",
           data: JSON.stringify(flw_response),
           contentType: 'application/json; charset=utf-8',
           success: function (data, textStatus) {

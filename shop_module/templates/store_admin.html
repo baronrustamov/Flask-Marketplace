@@ -5,32 +5,61 @@
 <h5 class='text-center'> Store Details</h5>
 <div class="row">
   <div class="form-group col-md-6 mt-5">
-    <form method='POST' enctype='multipart/form-data' id='store_form' >
-      {{ store_form.hidden_tag() }}
-      <div class='form-group col-12'>
-        {{ render_field_with_errors(store_form.name) }}
-        {{ render_field_with_errors(store_form.about) }}
-        {{ render_field_with_errors(store_form.iso_code) }}
-        {{ render_field_with_errors(store_form.logo) }}
-      </div>
-      <div class='col text-center'>
-        {{ render_field_btn(store_form.submit) }}
-      </div>
-    </form>
+    <fieldset disabled id='store_set'>
+      <form method='POST' enctype='multipart/form-data'>
+        {{ store_form.hidden_tag() }}
+        <div class='form-group col-12'>
+          {{ render_field_with_errors(store_form.name) }}
+          {{ render_field_with_errors(store_form.about) }}
+          {{ render_field_with_errors(store_form.iso_code) }}
+          {{ render_field_with_errors(store_form.logo) }}
+        </div>
+        <div class='text-center d-none' id='store_submit'>
+          {{ render_field_btn(store_form.save) }}
+        </div>
+      </form>
+    </fieldset>
+    <div class='text-center'>
+      <button type="button" id="edit_store"
+        class="col-6 btn btn-success m-4">Edit</button>
+    </div>
   </div>
-  <div class="form-group col-md-6 mt-5">
-    <form method='POST' id='account_form'>
-      {{ account_form.hidden_tag() }}
-      <div class='form-group col-12'>
-        {{ render_field_with_errors(account_form.account_name) }}
-        {{ render_field_with_errors(account_form.account_num) }}
-        {{ render_field_with_errors(account_form.bank_name) }}
-      </div>
 
-      <div class='col text-center pt-5 mt-5'>
-        {{ render_field_btn(account_form.submit) }}
-      </div>
-    </form>
+  <div class="form-group col-md-6 mt-5">
+    <fieldset disabled id='account_set'>
+      <form method='POST'>
+        {{ account_form.hidden_tag() }}
+        <div class='form-group col-12'>
+          {{ render_field_with_errors(account_form.account_name) }}
+          {{ render_field_with_errors(account_form.account_num) }}
+          {{ render_field_with_errors(account_form.bank_name) }}
+        </div>
+
+        <div class='text-center d-none pt-5 mt-5' id='account_submit'>
+          {{ render_field_btn(account_form.save) }}
+        </div>
+      </form>
+    </fieldset>
+    <div class='text-center pt-5 mt-4'>
+      <button type="button" id="edit_account"
+        class="col-6 btn btn-success m-4">Edit</button>
+    </div>
   </div>
 </div>
 {% endblock field_page %}
+{% block bottom_styles_scripts%}
+<script>
+  $(function () {
+    $('#edit_store').click(function () {
+      $('#store_set').removeAttr('disabled');
+      $('#store_submit').removeClass('d-none');
+      $(this).addClass('d-none')
+    });
+    $('#edit_account').click(function () {
+      $('#account_set').removeAttr('disabled');
+      $('#account_submit').removeClass('d-none');
+      $(this).addClass('d-none')
+    });
+  });
+</script>
+{% endblock bottom_styles_scripts %}

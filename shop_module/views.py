@@ -38,36 +38,8 @@ def before_request():
 
 @ shop.route('/')
 def index():
+
     return render_template('home.html')
-
-
-@ shop.route('/callback/store_payment', methods=['POST'])
-def callback_store_payment():
-    flw_data = request.json
-    print(flw_data)
-    store_name = utilities.confirm_store_reg(
-        flw_data['transaction_id'],
-        current_app.config['STORE_REG_AMT'],
-        current_app.config['FLW_SEC_KEY'])
-    if store_name:
-        flash("Payment confirmed, thank you", 'success')
-        return {'redirect': url_for('.store_admin', store_name=store_name)}
-    flash("Unable to confirm payment, contact us", 'danger')
-    return {'redirect': url_for('.dashboard')}
-
-
-@ shop.route('/callback/sales_payment', methods=['POST'])
-def callback_sales_payment():
-    flw_data = request.json
-    print(flw_data)
-    if utilities.confirm_sales_payment(
-            flw_data['transaction_id'], flw_data['tx_ref'],
-            flw_data['currency'], flw_data['amount'],
-            current_app.config['FLW_SEC_KEY']):
-        flash("Payment confirmed, thank you", 'success')
-    else:
-        flash("Unable to confirm payment, contact us", 'danger')
-    return {'redirect': url_for('.market')}
 
 
 @ shop.route('/cart', methods=['GET'])
@@ -179,21 +151,31 @@ def store_admin(store_name):
     store_form = StoreRegisterForm()
     account_form = AccountDetailForm()
     if store_form.validate_on_submit():
+        # Changing the store detail
         store.name = store_form.name.data
         store.about = store_form.about.data
         store.iso_code = store_form.iso_code.data
-        store.logo = store_form.logo.data.read()
+        if store_form.logo.data:
+            store.logo = store_form.logo.data.read()
         store.user_id = current_user.id
-        db.session.add(store)
         db.session.commit()
         flash('Store details: succesfully edited', 'success')
         return redirect(url_for('.dashboard'))
-    if account_form.validate_on_submit():
+    if account_form.validate_on_submit() and not store.account:
+        # Create a new account detail
         account = AccountDetail(
             account_name=account_form.account_name.data,
             account_num=account_form.account_num.data,
             bank_name=account_form.bank_name.data)
         db.session.add(account)
+        db.session.commit()
+        flash('Account details: succesfully created', 'success')
+        return redirect(url_for('.dashboard'))
+    elif account_form.validate_on_submit():
+        # The store owner is trying to change the attached account
+        store.account.account_name = account_form.account_name.data
+        store.account.account_num = account_form.account_num.data
+        store.account.bank_name = account_form.bank_name.data
         db.session.commit()
         flash('Account details: succesfully edited', 'success')
         return redirect(url_for('.dashboard'))
