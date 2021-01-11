@@ -1,0 +1,36 @@
+{% extends 'dashboard.html' %}
+{% block field_page %}
+
+{% from 'custom_macro.html' import render_field_with_errors, render_field_btn %}
+<h5 class='text-center'> Store Details</h5>
+<div class="row">
+  <div class="form-group col-md-6 mt-5">
+    <form method='POST' enctype='multipart/form-data' id='store_form' >
+      {{ store_form.hidden_tag() }}
+      <div class='form-group col-12'>
+        {{ render_field_with_errors(store_form.name) }}
+        {{ render_field_with_errors(store_form.about) }}
+        {{ render_field_with_errors(store_form.iso_code) }}
+        {{ render_field_with_errors(store_form.logo) }}
+      </div>
+      <div class='col text-center'>
+        {{ render_field_btn(store_form.submit) }}
+      </div>
+    </form>
+  </div>
+  <div class="form-group col-md-6 mt-5">
+    <form method='POST' id='account_form'>
+      {{ account_form.hidden_tag() }}
+      <div class='form-group col-12'>
+        {{ render_field_with_errors(account_form.account_name) }}
+        {{ render_field_with_errors(account_form.account_num) }}
+        {{ render_field_with_errors(account_form.bank_name) }}
+      </div>
+
+      <div class='col text-center pt-5 mt-5'>
+        {{ render_field_btn(account_form.submit) }}
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock field_page %}

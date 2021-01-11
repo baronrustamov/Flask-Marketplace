@@ -8,15 +8,12 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///platform.sqlite3'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     TESTING = False
-    #----- Payment Info
-    PRODUCT_PRICING = 'localize'
-    STORE_REG_AMT = '5 USD' # Note: value+space+iso_code
+    # ----- Payment Info
+    PRODUCT_PRICING = 'KES'
+    STORE_REG_AMT = '5 USD'  # Note: value+space+iso_code
     PAYMENT_METHOD = 'instant_split'
     PAYMENT_PLATFORM = 'flutterwave'
     FLW_SEC_KEY = 'FLWSECK_TEST-604a7225885949af8eded44c605deb0c-X'
-    
-    
-1234567890-1234567890-1234567890-1234567890-1234567890-1234567890-1234567890 
 
 
 class DevelopmentConfig(Config):
