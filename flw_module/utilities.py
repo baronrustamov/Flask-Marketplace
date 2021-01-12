@@ -1,8 +1,32 @@
 import json
-from requests import get, post
+import os
 
 from factory import db
+from requests import get, post
 from shop_module.models import Dispatcher, Order, Store
+
+# Getting the bank details handy,
+# Banks don't get created every year
+# Instead of querying Flutterwaves bank codes api for a data
+# that may never be updated within a year or two, maybe even more,
+# a JSON file generated from a python script which will be added to
+# the repository later.
+# The script will be used to collect the updated bank details,
+# when require, maximum of once in a year.
+# ---------------------
+# Pre-generate the bank options as a var in format list of tuples
+# Format => ('name/country_code/bank_code', 'name(country_code)')
+# The above format will be used to assign value during the creation
+# of sub-accounts.
+with open(os.path.join(os.path.dirname(__file__), 'bank_data.json'),
+          encoding='utf8') as f:
+    bank_data = json.load(f)
+bank_options = []
+for k, v in bank_data.items():
+    for line in v:
+        bank_options.append((f"{line['code']}/{k}",
+                             f"{line['name']}({k})"))
+
 
 def confirm_payment(trans_id, currency, value, flw_sec_key):
     print('Started confirm_payment')
@@ -19,11 +43,11 @@ def confirm_payment(trans_id, currency, value, flw_sec_key):
                  'Authorization': 'Bearer ' + flw_sec_key}
     ).json()
     if flw_resp['data']['status'] == 'successful':
-      # confirm currency and amount
+        # confirm currency and amount
         if flw_resp['data']['currency'] == currency:
             if flw_resp['data']['amount'] >= float(value):
                 print('True confirm_payment')
-                return flw_resp['data']['txref']
+                return flw_resp['data']['tx_ref']
     print('False confirm_payment')
     return False
 
@@ -77,20 +101,25 @@ def confirm_sales_payment(trans_id, flw_sec_key):
 
 
 def subaccount(partner_data, mode='update', type=None):
+  
+    bank_code, country = partner_data['bank']
+    if partner_data['type'] == 'dispatcher':
+      split = '0.85'
+    else:
+      split = '0.5'
     url = "https://api.flutterwave.com/v3/subaccounts"
-
     headers = {
         'Authorization': 'Bearer FLWSECK_TEST-SANDBOXDEMOKEY-X',
         'Content-Type': 'application/json'
     }
     payload = {
-        'account_bank': '044',
-        'account_number': '0690000037',
-        'business_name': 'aSDF gdfdf',
-        'country': 'NG',
-        'split_value': '0.85',
-        'business_mobile': '090890382',
-        'business_email': 'fsgfgf@ffdgd.com'
+        'account_bank': bank_code,
+        'account_number': partner_data['account_num'],
+        'business_name': partner_data['store'].name,
+        'country': country,
+        'split_value': split,
+        'business_mobile': partner_data['store'].phone,
+        'business_email': partner_data['store'].user.email
     }
     response = post(url, headers=headers, data=json.dumps(payload),)
     print(response.json())

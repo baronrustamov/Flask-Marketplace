@@ -12,16 +12,17 @@
           {{ render_field_with_errors(store_form.name) }}
           {{ render_field_with_errors(store_form.about) }}
           {{ render_field_with_errors(store_form.iso_code) }}
+          {{ render_field_with_errors(store_form.phone) }}
           {{ render_field_with_errors(store_form.logo) }}
         </div>
-        <div class='text-center d-none' id='store_submit'>
+        <div class='d-none' id='store_submit'>
           {{ render_field_btn(store_form.save) }}
         </div>
       </form>
     </fieldset>
-    <div class='text-center'>
+    <div>
       <button type="button" id="edit_store"
-        class="col-6 btn btn-success m-4">Edit</button>
+        class="btn btn-secondary m-4">Edit</button>
     </div>
   </div>
 
@@ -35,14 +36,14 @@
           {{ render_field_with_errors(account_form.bank_name) }}
         </div>
 
-        <div class='text-center d-none pt-5 mt-5' id='account_submit'>
+        <div class='text-right d-none' id='account_submit'>
           {{ render_field_btn(account_form.save) }}
         </div>
       </form>
     </fieldset>
-    <div class='text-center pt-5 mt-4'>
+    <div class='text-right'>
       <button type="button" id="edit_account"
-        class="col-6 btn btn-success m-4">Edit</button>
+        class="btn btn-secondary m-4">Edit</button>
     </div>
   </div>
 </div>

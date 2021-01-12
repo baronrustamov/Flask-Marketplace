@@ -8,7 +8,7 @@
 
   function makePayment() {
     FlutterwaveCheckout({
-      public_key: "{{ config.FLW_SEC_KEY }}",
+      public_key: "{{ config.FLW_PUB_KEY }}",
       tx_ref: 'Reg/{{ current_user.id }}/{{ store_num }}',
       amount: "{{ config['STORE_REG_AMT'] }}".split(' ')[0],
       currency: "{{ config['STORE_REG_AMT'] }}".split(' ')[1],

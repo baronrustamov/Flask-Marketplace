@@ -152,6 +152,7 @@ class Store(db.Model):
                         nullable=False)
     payment_id = db.Column(db.Integer,
                            db.ForeignKey('flw_sub_account.sub_account_id'))
+    phone = db.Column(db.String(15), nullable=False)
     created_at = db.Column(db.DateTime(), default=datetime.utcnow())
     is_active = db.Column(db.Boolean(), default=True)
     # relationships --------------------------------------

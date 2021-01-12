@@ -1,10 +1,8 @@
 ''' Defination of all shop views in `shop` blueprint '''
 from flask import Blueprint, current_app, flash, request, url_for
-
+import json
 from . import utilities
 from factory import db
-
-
 
 
 # ---------- Declaring the blueprint ----------

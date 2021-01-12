@@ -136,6 +136,35 @@ def market():
                            iso_code=iso_code)
 
 
+@ shop.route('/save-cart', methods=['POST'])
+@ login_required
+def save_cart():
+    # Still being worked on
+    cart_data = request.json()
+    cart = OrderLine.query.filter_by(order_id=cart_data['cart_id']).all()
+    if (cart.order.user_id == current_user.id):
+        iso_code = request.cookies.get('iso_code')
+        prod_str = request.args.get('prod_id')
+        # Check if the current user has an hanging cart
+        cart = Order.cart().filter_by(user_id=current_user.id).first()
+        # clear this cart OrderLines
+        db.session.query(OrderLine).filter(
+            OrderLine.order_id==cart_data['cart_id']).delete()
+        db.session.commit()
+        # Recreate the orderlines
+        for cart_line in cart_data['prod_data']:
+            db.session.add(OrderLine(
+                order_id=cart_data['cart_id'],
+                product_id=cart_line['id'],
+                price=Product.get(cart_line['id']).sale_price(
+                    current_app.config['PRODUCT_PRICING'], iso_code)
+            ))
+        db.session.commit()
+        # load the newly populated cart
+        cart = OrderLine.query.filter_by(order_id=cart_data['cart_id']).all()
+        return render_template('cart.html', cart=cart)
+
+
 @ shop.route('/store/new', methods=['GET', 'POST'])
 @ login_required
 def store_new():
@@ -155,6 +184,7 @@ def store_admin(store_name):
         store.name = store_form.name.data
         store.about = store_form.about.data
         store.iso_code = store_form.iso_code.data
+        store.phone = store_form.phone.data
         if store_form.logo.data:
             store.logo = store_form.logo.data.read()
         store.user_id = current_user.id
@@ -183,7 +213,8 @@ def store_admin(store_name):
     store_form.name.data = store.name
     store_form.about.data = store.about
     store_form.iso_code.data = store.iso_code
-    store_form.logo.data = store.iso_code
+    store_form.logo.data = store.logo
+    store_form.phone.data = store.phone
     # New stores don't posses account details
     if store.account:
         account_form.account_name.data = store.account.account_name
