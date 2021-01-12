@@ -5,10 +5,12 @@ from flask import abort, Blueprint, current_app, flash, make_response, \
     redirect, render_template, request, Response, url_for
 from flask_login import current_user, login_required
 
-from .models import AccountDetail, Currency, Dispatcher, \
+from .models import Currency, Dispatcher, \
     Order, OrderLine, Product, Store
 from . import utilities
-from .forms import StoreRegisterForm, AccountDetailForm
+from .forms import StoreRegisterForm
+from flw_module.forms import AccountDetailForm
+from flw_module.models import AccountDetail
 from flw_module.utilities import flw_subaccount
 from factory import db
 from users_module.forms import ExtendedRegisterForm
@@ -197,36 +199,16 @@ def store_admin(store_name):
         db.session.commit()
         flash('Store details: succesfully edited', 'success')
         return redirect(url_for('.dashboard'))
-    if account_form.validate_on_submit() and not store.account:
+    if account_form.validate_on_submit():
         # Create a new account detail
-        account = AccountDetail(
-            account_name=account_form.account_name.data,
-            account_num=account_form.account_num.data,
-            bank_name=account_form.bank_name.data)
-        db.session.add(account)
-        db.session.commit()
-        flash('Account details: succesfully created', 'success')
-        return redirect(url_for('.dashboard'))
-    elif account_form.validate_on_submit():
-        # The store owner is trying to change the attached account
-        store.account.account_name = account_form.account_name.data
-        store.account.account_num = account_form.account_num.data
-        store.account.bank_name = account_form.bank_name.data
-        data = {
-            'act_num': account_form.account_num.data,
-            'bank': account_form.bank_name.data,
-            'partner': store,
-        }
-        subaccount = flw_subaccount(
-            data, 'create', current_app.config['STORE_SPLIT_RATIO'],
-            current_app.config['FLW_SEC_KEY'])
-        if not 'danger' in subaccount:
-            db.session.commit()
-            flash(subaccount[0], subaccount[1])
+        account = flw_subaccount(
+            store, 'create', current_app.config['STORE_SPLIT_RATIO'],
+            account_form, current_app.config['FLW_SEC_KEY'])
+        if not 'danger' in account:
             flash('Account details: succesfully edited', 'success')
         else:
-            flash(subaccount[0], subaccount[1])
             flash('Account details: unsuccesful', 'danger')
+        flash(account[0], account[1])
         return redirect(url_for('.dashboard'))
     # Pre-populating the form
     store_form.name.data = store.name
@@ -236,9 +218,8 @@ def store_admin(store_name):
     store_form.phone.data = store.phone
     # New stores don't posses account details
     if store.account:
-        account_form.account_name.data = store.account.account_name
         account_form.account_num.data = store.account.account_num
-        account_form.bank_name.data = store.account.bank_name
+        account_form.bank.data = store.account.bank
     return render_template('store_admin.html', store_form=store_form,
                            account_form=account_form)
 

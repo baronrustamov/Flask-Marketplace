@@ -1,6 +1,5 @@
 '''
 Shop related models, currently we have:
-  1. AccountDetail
   2. Currency
   3. Dispatcher
   4. Order
@@ -10,24 +9,7 @@ Shop related models, currently we have:
 '''
 from datetime import datetime
 
-from sqlalchemy.ext.hybrid import hybrid_property
-
 from factory import db
-
-
-class AccountDetail(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    account_name = db.Column(db.String(50), nullable=False)
-    account_num = db.Column(db.Integer, unique=True, nullable=False)
-    bank_name = db.Column(db.String(100))
-    payment_id = db.Column(db.Integer,
-                           db.ForeignKey('flw_sub_account.sub_id'))
-    dispatcher_id = db.Column(db.Integer, db.ForeignKey('dispatcher.id'))
-    store_id = db.Column(db.Integer, db.ForeignKey('store.id'))
-
-    @hybrid_property
-    def partner_id(self):
-        return self.dispatcher_id or self.store_id
 
 
 class Currency(db.Model):
@@ -45,11 +27,11 @@ class Dispatcher(db.Model):
     charge = db.Column(db.Integer, nullable=False)
     phone = db.Column(db.String(15), nullable=False)
     email = db.Column(db.String(100), nullable=False)
+    account_id = db.Column(db.Integer,
+                           db.ForeignKey('account_detail.id'))
     is_active = db.Column(db.Boolean(), default=True)
     # relationships --------------------------------------
     stores = db.relationship('Store', backref='dispatcher')
-    account = db.relationship('AccountDetail', uselist=False,
-                              backref='dispatcher')
 
 
 class Order(db.Model):
@@ -150,6 +132,8 @@ class Store(db.Model):
     about = db.Column(db.String(150), nullable=False)
     iso_code = db.Column(db.Integer, db.ForeignKey('currency.code'),
                          nullable=False)
+    account_id = db.Column(db.Integer,
+                           db.ForeignKey('account_detail.id'))
     dispatcher_id = db.Column(db.Integer, db.ForeignKey('dispatcher.id'),
                               nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
@@ -160,8 +144,6 @@ class Store(db.Model):
     is_active = db.Column(db.Boolean(), default=True)
     # relationships --------------------------------------
     products = db.relationship('Product', backref='store')
-    account = db.relationship('AccountDetail', uselist=False,
-                              backref='store')
 
     @ classmethod
     def public(cls):

@@ -44,7 +44,7 @@ def create_users(user_datastore):
 
 def create_currencies():
     for country in dummy_data.currencies:
-        currency = shop_module.models.Currency(
+        currency = flw_module.models.Currency(
             country=country,
             code=dummy_data.currencies[country][0],
             rate=dummy_data.currencies[country][1],
@@ -58,11 +58,13 @@ def create_dispatchers():
         dispatcher = shop_module.models.Dispatcher(
             name=name, charge=details[0],
             phone=details[1], email=details[2])
-        account = shop_module.models.AccountDetail(
+        account = flw_module.models.AccountDetail(
             account_name=details[3],
             account_num=details[4],
-            bank_name=details[5],
+            bank=details[5],
             dispatcher_id=i,
+            sub_id=8096,
+            sub_number="RS_A3E2FD71C09B59048859458ACD3ECFCF",
         )
         db.session.add(dispatcher)
         db.session.add(account)
@@ -82,21 +84,17 @@ def create_stores():
             phone=details[5],
             email=details[6],
         )
-        account = shop_module.models.AccountDetail(
+        account = flw_module.models.AccountDetail(
             account_name=details[7][0],
             account_num=details[7][1],
-            bank_name=details[7][2],
+            bank=details[7][2],
             store_id=i,
-            payment_id=8096,
+            sub_id=8096,
+            sub_number="RS_A3E2FD71C09B59048859458ACD3ECFCF",
         )
         db.session.add(store)
         db.session.add(account)
         i += 1
-    # Add the FLW details
-    db.session.add(flw_module.models.FlwSubAccount(
-        sub_id=8096,
-        sub_account_number="RS_A3E2FD71C09B59048859458ACD3ECFCF")
-    )
 
 
 def create_products():
