@@ -4,3 +4,9 @@ from wtforms.validators import required
 
 class ExtendedRegisterForm(RegisterForm):
     name = StringField('Full Name', [Required()])
+
+class classname(object):
+  """
+  docstring
+  """
+  pass

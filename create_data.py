@@ -94,12 +94,14 @@ def create_stores():
 
 def create_products():
     i = 1
+    with open(r"./static/shop/img/noimage.jpg", 'rb') as f:
+        img_blob = f.read()
     for name, details in dummy_data.products.items():
         product = shop_module.models.Product(
             name=name,
             price=details[0],
             description=details[1],
-            image=details[2],
+            image=img_blob,
             store_id=details[3],
             is_active=details[4],
             # stagger creation time to reflect the new products feature
