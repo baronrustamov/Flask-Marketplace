@@ -9,7 +9,8 @@ from factory import db
 class FlwSubAccount(db.Model):
     # Note that a subaccount can be used by multiple store,
     # for example, if a user registered multiple stores
-    sub_account_id = db.Column(db.Integer, primary_key=True)
+    sub_id = db.Column(db.Integer, primary_key=True)
     sub_account_number = db.Column(db.Integer)
-    stores = db.relationship('Store', backref='flw_subaccount')
+    account = db.relationship('AccountDetail', uselist=False,
+                              backref='flw')
 

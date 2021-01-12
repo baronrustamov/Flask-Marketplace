@@ -1,9 +1,12 @@
 import json
 import os
 
-from factory import db
+from flask_security import current_user
 from requests import get, post
-from shop_module.models import Dispatcher, Order, Store
+
+from factory import db
+from shop_module.models import AccountDetail, Dispatcher, Order, Store
+from .models import FlwSubAccount
 
 # Getting the bank details handy,
 # Banks don't get created every year
@@ -100,26 +103,38 @@ def confirm_sales_payment(trans_id, flw_sec_key):
     return False
 
 
-def subaccount(partner_data, mode='update', type=None):
-  
-    bank_code, country = partner_data['bank']
-    if partner_data['type'] == 'dispatcher':
-      split = '0.85'
-    else:
-      split = '0.5'
+def flw_subaccount(partner_data, mode, split_ratio, flw_sec_key):
+    bank_code, country = partner_data['bank'].split('/')
     url = "https://api.flutterwave.com/v3/subaccounts"
     headers = {
-        'Authorization': 'Bearer FLWSECK_TEST-SANDBOXDEMOKEY-X',
+        'Authorization': flw_sec_key,
         'Content-Type': 'application/json'
     }
     payload = {
         'account_bank': bank_code,
-        'account_number': partner_data['account_num'],
-        'business_name': partner_data['store'].name,
+        'account_number': partner_data['act_num'],
+        'business_name': partner_data['partner'].name,
         'country': country,
-        'split_value': split,
-        'business_mobile': partner_data['store'].phone,
-        'business_email': partner_data['store'].user.email
+        'split_value': split_ratio,
+        'split_tupe': 'percentage',
+        'business_mobile': partner_data['partner'].phone,
+        'business_email': partner_data['partner'].email
     }
-    response = post(url, headers=headers, data=json.dumps(payload),)
-    print(response.json())
+
+    result = post(url, headers=headers, data=json.dumps(payload),).json()
+    print(payload)
+    print(result)
+    # Record the created subaccount
+    if result['data']:
+        db.session.add(FlwSubAccount(
+            sub_id=result['data']['id'],
+            sub_account_number=result['data']['subaccount_id'],)
+        )
+        partner_data['partner'].account.payment_id = result['data']['id']
+        db.session.commit()
+        return('Your account has been successfully verified', 'success')
+    elif ('kindly pass a valid account' in result['message']):
+        return('Your account number and/or bank is invalid', 'danger')
+    elif ('number and bank already exists' in result['message']):
+        return('A similar account was found', 'danger')
+    return('Crical error: contact us', 'danger')

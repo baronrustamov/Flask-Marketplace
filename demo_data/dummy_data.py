@@ -36,18 +36,21 @@ currencies = {
 }
 
 dispatchers = {
-    'Errandi': ['Errandi PLC', 30989012345, 'Union', 5],  # account
-    'Motorize': ['Motorize LTD', 1098765432, 'Access', 1500],
+    'Errandi': [5, '08123456789', 'errandi@gmail.com',
+                'Errandi PLC', 30989012345, 'Union', ],
+    'Motorize': [1500, '08123456789', 'motorize@gmail.com',
+                 'Motorize LTD', 1098765432, 'Access', ],
 }
 
 stores = {
     'Phone360': [
         os.urandom(10),
         'Phone is a basic neccesity',
-        'USD', # currency_code
+        'USD',  # currency_code
         1,  # dispatcher_id
         2,  # user_id
-        
+        '08012345678',  # phone
+        'phone360@gmail.com',
         ['Phone360 PLC', 3021345678, 'Polaris', ],  # account
     ],
     'Farmingo': [
@@ -56,6 +59,8 @@ stores = {
         'NGN',
         2,
         3,
+        '08012345679',
+        'farmingo@gmail.com',
         ['Farmingo INC', 1012345678, 'GT Bank', ],
     ],
 }

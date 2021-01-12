@@ -20,6 +20,8 @@ class AccountDetail(db.Model):
     account_name = db.Column(db.String(50), nullable=False)
     account_num = db.Column(db.Integer, unique=True, nullable=False)
     bank_name = db.Column(db.String(100))
+    payment_id = db.Column(db.Integer,
+                           db.ForeignKey('flw_sub_account.sub_id'))
     dispatcher_id = db.Column(db.Integer, db.ForeignKey('dispatcher.id'))
     store_id = db.Column(db.Integer, db.ForeignKey('store.id'))
 
@@ -41,6 +43,8 @@ class Dispatcher(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     charge = db.Column(db.Integer, nullable=False)
+    phone = db.Column(db.String(15), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
     is_active = db.Column(db.Boolean(), default=True)
     # relationships --------------------------------------
     stores = db.relationship('Store', backref='dispatcher')
@@ -150,9 +154,8 @@ class Store(db.Model):
                               nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
                         nullable=False)
-    payment_id = db.Column(db.Integer,
-                           db.ForeignKey('flw_sub_account.sub_account_id'))
     phone = db.Column(db.String(15), nullable=False)
+    email = db.Column(db.String(100), nullable=False)
     created_at = db.Column(db.DateTime(), default=datetime.utcnow())
     is_active = db.Column(db.Boolean(), default=True)
     # relationships --------------------------------------

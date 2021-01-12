@@ -1,7 +1,7 @@
 ''' Defination of all shop views in `shop` blueprint '''
 from requests import get
 
-from flask import Blueprint, current_app, flash, make_response, \
+from flask import abort, Blueprint, current_app, flash, make_response, \
     redirect, render_template, request, Response, url_for
 from flask_login import current_user, login_required
 
@@ -9,6 +9,7 @@ from .models import AccountDetail, Currency, Dispatcher, \
     Order, OrderLine, Product, Store
 from . import utilities
 from .forms import StoreRegisterForm, AccountDetailForm
+from flw_module.utilities import flw_subaccount
 from factory import db
 from users_module.forms import ExtendedRegisterForm
 
@@ -30,7 +31,8 @@ def before_request():
                 code = get('https://ipapi.co/currency/').text
             except Exception:
                 code = 'USD'
-            if not((code,) in Currency.query.with_entities(Currency.code).all()):
+            if not((code,) in Currency.query.with_entities(
+                    Currency.code).all()):
                 code = 'USD'
         response.set_cookie('iso_code', code, samesite='None')
         return response
@@ -38,7 +40,6 @@ def before_request():
 
 @ shop.route('/')
 def index():
-
     return render_template('home.html')
 
 
@@ -149,7 +150,7 @@ def save_cart():
         cart = Order.cart().filter_by(user_id=current_user.id).first()
         # clear this cart OrderLines
         db.session.query(OrderLine).filter(
-            OrderLine.order_id==cart_data['cart_id']).delete()
+            OrderLine.order_id == cart_data['cart_id']).delete()
         db.session.commit()
         # Recreate the orderlines
         for cart_line in cart_data['prod_data']:
@@ -177,6 +178,11 @@ def store_new():
 def store_admin(store_name):
     # get the current store object
     store = Store.query.filter_by(name=store_name).first()
+    if (not store) or (store.user.id != current_user.id):
+        # Will be handled appropriately later.
+        # For now, I just want to control access
+        abort(Response('''It seems either you don't possess access or
+                      you've input a wrong address'''))
     store_form = StoreRegisterForm()
     account_form = AccountDetailForm()
     if store_form.validate_on_submit():
@@ -206,8 +212,21 @@ def store_admin(store_name):
         store.account.account_name = account_form.account_name.data
         store.account.account_num = account_form.account_num.data
         store.account.bank_name = account_form.bank_name.data
-        db.session.commit()
-        flash('Account details: succesfully edited', 'success')
+        data = {
+            'act_num': account_form.account_num.data,
+            'bank': account_form.bank_name.data,
+            'partner': store,
+        }
+        subaccount = flw_subaccount(
+            data, 'create', current_app.config['STORE_SPLIT_RATIO'],
+            current_app.config['FLW_SEC_KEY'])
+        if not 'danger' in subaccount:
+            db.session.commit()
+            flash(subaccount[0], subaccount[1])
+            flash('Account details: succesfully edited', 'success')
+        else:
+            flash(subaccount[0], subaccount[1])
+            flash('Account details: unsuccesful', 'danger')
         return redirect(url_for('.dashboard'))
     # Pre-populating the form
     store_form.name.data = store.name
