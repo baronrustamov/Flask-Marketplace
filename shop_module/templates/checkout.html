@@ -90,14 +90,7 @@
       store_value.shipping_costs | sum() + store_value.store_total) }}
   </p>
   <div class='row justify-content-center m-3 pb-3'>
-    <form>
-      <script src="https://checkout.flutterwave.com/v3.js"></script>
-      <button class='btn btn-primary btn-md' type="button"
-        onClick="makePayment()">
-        Pay {{ store_value.iso_code }} 
-        {{ '{:,.2f}'.format(store_value.shipping_costs | sum() +
-          store_value.store_total) }}</button>
-    </form>
+    {% include config.PAYMENT_PLATFORM+'/pay_split.html' %}
   </div>
 </div>
 {% endif %}
@@ -109,8 +102,5 @@
 </script>
 <script src="{{ url_for('static', filename='shop/js/table_cart.js') }}">
 </script>
-
-{% include config.PAYMENT_PLATFORM+'/pay_split.html' %}
-
 
 {% endblock bottom_styles_scripts %}

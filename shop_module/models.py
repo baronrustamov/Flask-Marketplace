@@ -50,7 +50,6 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     iso_code = db.Column(db.Integer, db.ForeignKey('currency.code'),
                          nullable=False)
-    amount = db.Column(db.Numeric(20, 2), default=0)
     status = db.Column(db.String(5), default='open', nullable=False)
     # paid = db.Column(db.Boolean, default=False)
     created_at = db.Column(db.DateTime(), default=datetime.utcnow())

@@ -15,4 +15,4 @@ class AccountDetail(db.Model):
     sub_id = db.Column(db.Integer,)
     # relationships --------------------------------------
     stores = db.relationship('Store', backref='account')
-    dispatchers = db.relationship('Dispatcher', backref='dispatcher')
+    dispatchers = db.relationship('Dispatcher', backref='account')

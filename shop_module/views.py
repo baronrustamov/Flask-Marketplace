@@ -97,6 +97,7 @@ def checkout():
         for line in db.session.query(OrderLine).filter_by(order_id=1).all():
             line.price = line.product.sale_price(
                 current_app.config['PRODUCT_PRICING'], iso_code)
+
         db.session.commit()  # To ensure the updated figures are picked up
     # Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
     # Why sum of quantities per store? Recall, dispatchers rates are per qty
@@ -181,8 +182,7 @@ def store_admin(store_name):
     # get the current store object
     store = Store.query.filter_by(name=store_name).first()
     if (not store) or (store.user.id != current_user.id):
-        # Will be handled appropriately later.
-        # For now, I just want to control access
+        # Will be handled appropriately later. Just control access for now
         abort(Response('''It seems either you don't possess access or
                       you've input a wrong address'''))
     store_form = StoreRegisterForm()
@@ -228,3 +228,18 @@ def store_admin(store_name):
 @ login_required
 def profile():
     return render_template('profile.html')
+
+
+@ shop.route('/store/<string:store_name>/admin/products', methods=['GET', 'POST'])
+@ login_required
+def product_admin(store_name):
+    # get the current store object
+    store = Store.query.filter_by(name=store_name).first()
+    if (not store) or (store.user.id != current_user.id):
+        # Will be handled appropriately later. Just control access for now
+        abort(Response('''It seems either you don't possess access or
+                      you've input a wrong address'''))
+    if request.method == 'POST':
+        # Create a new product
+        pass
+    return render_template('products.html', store.products)
