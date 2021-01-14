@@ -144,29 +144,30 @@ def market():
 @ login_required
 def save_cart():
     # Still being worked on
-    cart_data = request.json()
+    cart_data = request.json
+    print(cart_data)
     cart = OrderLine.query.filter_by(order_id=cart_data['cart_id']).all()
-    if (cart.order.user_id == current_user.id):
+    if (cart[0].order.user_id == current_user.id):
         iso_code = request.cookies.get('iso_code')
-        prod_str = request.args.get('prod_id')
-        # Check if the current user has an hanging cart
-        cart = Order.cart().filter_by(user_id=current_user.id).first()
         # clear this cart OrderLines
         db.session.query(OrderLine).filter(
             OrderLine.order_id == cart_data['cart_id']).delete()
-        db.session.commit()
         # Recreate the orderlines
         for cart_line in cart_data['prod_data']:
             db.session.add(OrderLine(
                 order_id=cart_data['cart_id'],
                 product_id=cart_line['id'],
-                price=Product.get(cart_line['id']).sale_price(
+                qty=cart_line['qty'],
+                price=Product.query.get(cart_line['id']).sale_price(
                     current_app.config['PRODUCT_PRICING'], iso_code)
             ))
         db.session.commit()
         # load the newly populated cart
-        cart = OrderLine.query.filter_by(order_id=cart_data['cart_id']).all()
-        return render_template('cart.html', cart=cart)
+        flash("Cart was successfully saved", 'success')
+        cart = Order.cart().filter_by(user_id=current_user.id).first()
+        return "Success"
+    flash("Unable to save your cart", 'info')
+    return "Failed"
 
 
 @ shop.route('/store/new', methods=['GET', 'POST'])

@@ -5,7 +5,7 @@ from flask_security import current_user
 from requests import get, post
 
 from factory import db
-from shop_module.models import Dispatcher, Order, Store
+from shop_module.models import Dispatcher, Order, OrderLine, Store
 from .models import AccountDetail
 
 # Getting the bank details handy,
@@ -87,17 +87,20 @@ def confirm_store_reg(trans_id, store_reg_amt, flw_sec_key):
 
 def confirm_sales_payment(trans_id, flw_sec_key):
     # get the order data for comparism and verification
-    order = Order.cart().filter_by(user_id=current_user.id).first()
-    tx_ref = confirm_payment(trans_id, order.iso_code, order.amount,
+    cart = Order.cart().filter_by(user_id=current_user.id).first()
+    cart_tot = db.session.query(
+        db.func.sum(OrderLine.qty * OrderLine.price)).filter(
+        OrderLine.order_id == cart.id).group_by(OrderLine.order_id).first()
+    tx_ref = confirm_payment(trans_id, cart.iso_code, cart_tot[0],
                              flw_sec_key)
     if tx_ref:
         # Recall, txref = order/user_id/order_id.
         # Here user_id is no longer needed as order_id is sufficient
-        if int(tx_ref.split('/')[2]) == order.id:
+        if int(tx_ref.split('/')[2]) == cart.id:
             # Now, it's too good not to be true
             # We can now certify the order
-            order.status = 'done'
-            order.paid = True
+            order.status = 'paid'
+            order.amount = cart_tot[0]
             db.session.commit()
             return True
     return False
@@ -150,6 +153,6 @@ def flw_subaccount(partner, mode, split_ratio, account_form,
         account = AccountDetail.query.filter_by(
             account_num=account_form.account_num.data).first()
         if account:
-          partner.account_id = account.id
-          return('A similar account was found and assigned', 'info')
+            partner.account_id = account.id
+            return('A similar account was found and assigned', 'info')
     return('Crical error: contact us', 'danger')

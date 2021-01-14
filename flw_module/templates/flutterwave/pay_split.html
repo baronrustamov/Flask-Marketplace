@@ -31,7 +31,7 @@
       callback: function (flw_response) {
         $.ajax({
           type: 'POST',
-          url: "{{ url_for('flw.callback_store_payment') }}",
+          url: "{{ url_for('flw.callback_sales_payment') }}",
           data: JSON.stringify(flw_response),
           contentType: 'application/json; charset=utf-8',
           success: function (data, textStatus) {
