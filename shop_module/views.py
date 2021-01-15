@@ -203,7 +203,7 @@ def store_admin(store_name):
     if account_form.validate_on_submit():
         # Create a new account detail
         account = flw_subaccount(
-            store, 'create', current_app.config['STORE_SPLIT_RATIO'],
+            store, 'create', current_app.config['SPLIT_RATIO_STORE'],
             account_form, current_app.config['FLW_SEC_KEY'])
         if not 'danger' in account:
             flash('Account details: succesfully edited', 'success')
@@ -223,12 +223,6 @@ def store_admin(store_name):
         account_form.bank.data = store.account.bank
     return render_template('store_admin.html', store_form=store_form,
                            account_form=account_form)
-
-
-@ shop.route('/profile')
-@ login_required
-def profile():
-    return render_template('profile.html')
 
 
 @ shop.route('/store/<string:store_name>/admin/products', methods=['GET', 'POST'])

@@ -43,8 +43,8 @@ class Order(db.Model):
         * `dispatched`: It has been handed to the dispatcher
         * `fulfilled`: It has been delivered to the customer
       Note:
-        * When the `PAYMENT_METHOD = 'instant_split'`, the `dispatched` and
-        `fulfiled` status are not used.
+        * When the `PAYMENT_SPLIT_POINT = 'instant'`, the `dispatched`
+        and `fulfiled` status are not used.
     '''
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
