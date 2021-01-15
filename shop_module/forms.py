@@ -1,14 +1,15 @@
 from flask_wtf import FlaskForm
 from wtforms import (
     DecimalField, FileField, FloatField, IntegerField, SelectField, StringField,
-    SubmitField)
-from wtforms.validators import ValidationError, length, required
+    SubmitField, ValidationError)
+from wtforms.validators import length, required
 
 from .models import Currency, Store
 
 
 def unique_entry(form, field):
-    pass
+    if Store.query.filter_by(name=field.data) is not None:
+        raise ValidationError(f'{field.data} already exists')
 
 
 class StoreRegisterForm(FlaskForm):

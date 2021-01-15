@@ -28,27 +28,40 @@
 <h2> Dashboard </h2>
 
 {% block field_page %}
-<form method=post>
-  <h5 class='text-center'> Profile Information </h5>
-  <div class="form-inline">
-    <div class="form-group">
-      <label for="">Name</label>
-      <input type="text" name="" id="" class="form-control" placeholder="{{ current_user.name }}">
-    </div>
-    <div class="form-group">
-      <label for="">Email</label>
-      <input type="text" name="" id="" class="form-control" placeholder="{{ current_user.email }}">
-    </div>
-    <div class="col text-center">
-      <small>Still working on change of details</small>
+{% from 'custom_macro.html' import render_field_with_errors, render_field_btn %}
+<h5 class='text-center'>{{ current_user.name }}</h5>
+<div class="row">
+  <div class="form-group col-12 mt-5">
+    <fieldset disabled id='profile_form'>
+      <form method='POST' enctype='multipart/form-data'>
+        {{ profile_form.hidden_tag() }}
+        <div class='form-group col-12'>
+          {{ render_field_with_errors(profile_form.name) }}
+          {{ render_field_with_errors(profile_form.email) }}
+        </div>
+        <div class='d-none' id='profile_submit'>
+          {{ render_field_btn(profile_form.save) }}
+        </div>
+      </form>
+    </fieldset>
+    <div>
+      <button type="button" id="edit_profile"
+        class="btn btn-secondary m-4">Edit</button>
     </div>
   </div>
-</form>
+</div>
 {% endblock field_page %}
 
 {% endblock main_page %}
 
 {% block bottom_styles_scripts%}
-<script src="{{ url_for('static', filename='shop/js/table_cart.js') }}">
+<script>
+  $(function () {
+    $('#edit_profile').click(function () {
+      $('#profile_form').removeAttr('disabled');
+      $('#profile_submit').removeClass('d-none');
+      $(this).addClass('d-none')
+    });
+  });
 </script>
 {% endblock bottom_styles_scripts %}

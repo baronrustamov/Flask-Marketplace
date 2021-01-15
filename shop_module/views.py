@@ -13,7 +13,7 @@ from flw_module.forms import AccountDetailForm
 from flw_module.models import AccountDetail
 from flw_module.utilities import flw_subaccount
 from factory import db
-from users_module.forms import ExtendedRegisterForm
+from users_module.forms import ProfileForm
 
 
 # ---------- Declaring the blueprint ----------
@@ -123,6 +123,19 @@ def checkout():
 @ shop.route('/dashboard', methods=['GET'])
 @ login_required
 def dashboard():
+    profile_form = ProfileForm()
+    if profile_form.validate_on_submit():
+        # Changing the store detail
+        current_user.name =profile_form.name.data
+        current_user.about = profile_form.email.data
+        db.session.commit()
+        flash('Profile details: succesfully edited', 'success')
+        return redirect(url_for('.dashboard'))
+    # Pre-populating the form
+    profile_form.name.data = current_user.name
+    profile_form.email.data = current_user.email
+    return render_template('dashboard.html', profile_form=profile_form)
+
     return render_template('dashboard.html')
 
 
