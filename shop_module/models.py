@@ -51,7 +51,7 @@ class Order(db.Model):
     iso_code = db.Column(db.Integer, db.ForeignKey('currency.code'),
                          nullable=False)
     status = db.Column(db.String(5), default='open', nullable=False)
-    # paid = db.Column(db.Boolean, default=False)
+    amount = db.Column(db.String(20))
     created_at = db.Column(db.DateTime(), default=datetime.utcnow())
     last_modified_at = db.Column(db.DateTime(), default=datetime.utcnow())
     # relationship ---------------

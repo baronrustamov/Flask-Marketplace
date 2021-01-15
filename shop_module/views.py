@@ -8,7 +8,7 @@ from flask_login import current_user, login_required
 from .models import Currency, Dispatcher, \
     Order, OrderLine, Product, Store
 from . import utilities
-from .forms import StoreRegisterForm
+from .forms import StoreRegisterForm, ProductForm
 from flw_module.forms import AccountDetailForm
 from flw_module.models import AccountDetail
 from flw_module.utilities import flw_subaccount
@@ -236,11 +236,40 @@ def profile():
 def product_admin(store_name):
     # get the current store object
     store = Store.query.filter_by(name=store_name).first()
-    if (not store) or (store.user.id != current_user.id):
-        # Will be handled appropriately later. Just control access for now
-        abort(Response('''It seems either you don't possess access or
-                      you've input a wrong address'''))
-    if request.method == 'POST':
-        # Create a new product
-        pass
-    return render_template('products.html', store.products)
+    if store and (store.user.id == current_user.id):
+        prod = Product.query.get(request.args.get('id'))
+        prod_form = ProductForm()
+        if prod:
+            if prod.store_id == store.id:
+                # Permitted to edit this product
+                if prod_form.validate_on_submit():
+                    # Changing the store detail
+                    prod.name = prod_form.name.data
+                    prod.description = prod_form.description.data
+                    prod.price = prod_form.price.data
+                    prod.image = prod_form.image.data.read()
+                    prod.is_active = prod_form.is_active.data
+                    prod.store_id = store.id
+                    db.session.commit()
+                    flash('Product edited succesfully', 'success')
+            else:
+                flash("Unable to edit product", 'danger')
+            return redirect(url_for('.dashboard'))
+        if prod_form.validate_on_submit():
+            db.session.add(Product(
+                name=prod_form.name.data,
+                description=prod_form.description.data,
+                price=prod_form.price.data,
+                image=prod_form.image.data.read(),
+                is_active=prod_form.is_active.data,
+                store_id=store.id)
+            )
+            db.session()
+            flash('Product created successfully', 'success')
+            return redirect(url_for('.dashboard'))
+        # List the products
+        prod_list = Product.query.filter_by(store_id=store.id).all()
+        return render_template(url_for('.store_products'), prod_list)
+    else:
+        flash('Access Error', 'danger')
+        return redirect(url_for('.market'))
