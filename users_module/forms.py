@@ -3,6 +3,8 @@ from flask_wtf import FlaskForm
 from wtforms import SubmitField, StringField, ValidationError
 from wtforms.validators import required
 
+from .models import User
+
 
 def unique_entry(form, field):
     if User.query.filter_by(name=field.data) is not None:

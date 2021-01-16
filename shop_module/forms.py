@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import (
-    DecimalField, FileField, FloatField, IntegerField, SelectField, StringField,
-    SubmitField, ValidationError)
+    BooleanField, DecimalField, FileField, FloatField, IntegerField,
+    SelectField, StringField, SubmitField, ValidationError)
 from wtforms.validators import length, required
 
 from .models import Currency, Store
@@ -25,8 +25,9 @@ class StoreRegisterForm(FlaskForm):
 
 
 class ProductForm(FlaskForm):
-    name = StringField('Store name', [required(), unique_entry])
+    name = StringField('Store name', [required()])
     description = StringField('Short description', [required()])
-    price = DecimalField('Sale price', [required()], 0.01)
+    price = DecimalField('Sale price', [required()])
     image = FileField('Product image')
+    is_active = BooleanField('Publish')
     save = SubmitField()

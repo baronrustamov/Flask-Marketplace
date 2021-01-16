@@ -2,7 +2,7 @@
 
 {% block side_bar %}
 <div class="btn-group col-12 pb-3 pt-3">
-  <a class="btn btn-secondary text-white" href='/dashboard'>
+  <a class="btn btn-secondary text-white" href="url_for('.dashboard')">
     Profile </a>
 </div>
 
@@ -19,7 +19,7 @@
     <span class="dropdown-item disabled">No store</span>
     {% endif %}
     <div class="dropdown-divider"></div>
-    <a class="dropdown-item text-center bg-warning" href="/store/new">Add store</a>
+    <a class="dropdown-item text-center bg-warning" href="url_for('shop.store_new')">Add store</a>
   </div>
 </div>
 {% endblock side_bar %}

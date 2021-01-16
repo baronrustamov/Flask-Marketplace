@@ -93,7 +93,7 @@ def checkout():
     cart = Order.cart().filter_by(user_id=current_user.id).first()
     if cart:
         cart_lines = OrderLine.query.filter_by(order_id=cart.id).all()
-        # For security reason, let's update all the order line prices again
+        # For security reason, let's update all the order line prices
         for line in db.session.query(OrderLine).filter_by(order_id=1).all():
             line.price = line.product.sale_price(
                 current_app.config['PRODUCT_PRICING'], iso_code)
@@ -126,7 +126,7 @@ def dashboard():
     profile_form = ProfileForm()
     if profile_form.validate_on_submit():
         # Changing the store detail
-        current_user.name =profile_form.name.data
+        current_user.name = profile_form.name.data
         current_user.about = profile_form.email.data
         db.session.commit()
         flash('Profile details: succesfully edited', 'success')
@@ -139,18 +139,77 @@ def dashboard():
     return render_template('dashboard.html')
 
 
-@ shop.route('/img/product/<int:id>', methods=['GET'])
-def product_img(id):
-    product = Product.query.get_or_404(id)
-    return Response(product.image, mimetype='image/jpg')
-
-
 @ shop.route('/market', methods=['GET'])
 def market():
     iso_code = request.cookies.get('iso_code')
     products = Product.public()
     return render_template('market.html', products=products,
                            iso_code=iso_code)
+
+
+@ shop.route('/store/<string:store_name>/products', methods=['GET', 'POST'])
+def store_product(store_name):
+    # List the products
+    store = Store.query.filter_by(name=store_name).first()
+    prod_list = Product.query.filter_by(store_id=store.id).all()
+    return render_template('market.html', products=prod_list,
+                           iso_code=request.cookies.get('iso_code'))
+
+
+@ shop.route('/store/<string:store_name>/admin/products',
+             methods=['GET', 'POST'])
+@ login_required
+def store_product_admin(store_name):
+    # get the current store object
+    store = Store.query.filter_by(name=store_name).first()
+    if store and (store.user.id == current_user.id):
+        prod = Product.query.get(request.args.get('id'))
+        prod_form = ProductForm()
+        if prod:
+            if prod.store_id == store.id:
+                # Permitted to edit this product
+                if prod_form.validate_on_submit():
+                    # Changing the store detail
+                    prod.name = prod_form.name.data
+                    prod.description = prod_form.description.data
+                    prod.price = prod_form.price.data
+                    prod.image = prod_form.image.data.read()
+                    prod.is_active = prod_form.is_active.data
+                    prod.store_id = store.id
+                    db.session.commit()
+                    flash('Product edited succesfully', 'success')
+                else:
+                    prod_form.name.data = prod.name
+                    prod_form.description.data = prod.description
+                    prod_form.price.data = prod.price
+                    prod_form.is_active.data = prod.is_active
+                    return render_template('product.html',
+                                           product_form=prod_form)
+            else:
+                flash("Unable to edit product", 'danger')
+            return redirect(url_for('.store_product', store_name=store_name))
+        if prod_form.validate_on_submit():
+            db.session.add(Product(
+                name=prod_form.name.data,
+                description=prod_form.description.data,
+                price=prod_form.price.data,
+                image=prod_form.image.data.read(),
+                is_active=prod_form.is_active.data,
+                store_id=store.id)
+            )
+            db.session()
+            flash('Product created successfully', 'success')
+        # List the products
+        return redirect(url_for('.store_product', store_name=store_name))
+    else:
+        flash('Access Error', 'danger')
+        return redirect(url_for('.market'))
+
+
+@ shop.route('/img/product/<int:id>', methods=['GET'])
+def product_img(id):
+    product = Product.query.get_or_404(id)
+    return Response(product.image, mimetype='image/jpg')
 
 
 @ shop.route('/save-cart', methods=['POST'])
@@ -236,47 +295,3 @@ def store_admin(store_name):
         account_form.bank.data = store.account.bank
     return render_template('store_admin.html', store_form=store_form,
                            account_form=account_form)
-
-
-@ shop.route('/store/<string:store_name>/admin/products', methods=['GET', 'POST'])
-@ login_required
-def product_admin(store_name):
-    # get the current store object
-    store = Store.query.filter_by(name=store_name).first()
-    if store and (store.user.id == current_user.id):
-        prod = Product.query.get(request.args.get('id'))
-        prod_form = ProductForm()
-        if prod:
-            if prod.store_id == store.id:
-                # Permitted to edit this product
-                if prod_form.validate_on_submit():
-                    # Changing the store detail
-                    prod.name = prod_form.name.data
-                    prod.description = prod_form.description.data
-                    prod.price = prod_form.price.data
-                    prod.image = prod_form.image.data.read()
-                    prod.is_active = prod_form.is_active.data
-                    prod.store_id = store.id
-                    db.session.commit()
-                    flash('Product edited succesfully', 'success')
-            else:
-                flash("Unable to edit product", 'danger')
-            return redirect(url_for('.dashboard'))
-        if prod_form.validate_on_submit():
-            db.session.add(Product(
-                name=prod_form.name.data,
-                description=prod_form.description.data,
-                price=prod_form.price.data,
-                image=prod_form.image.data.read(),
-                is_active=prod_form.is_active.data,
-                store_id=store.id)
-            )
-            db.session()
-            flash('Product created successfully', 'success')
-            return redirect(url_for('.dashboard'))
-        # List the products
-        prod_list = Product.query.filter_by(store_id=store.id).all()
-        return render_template(url_for('.store_products'), prod_list)
-    else:
-        flash('Access Error', 'danger')
-        return redirect(url_for('.market'))
