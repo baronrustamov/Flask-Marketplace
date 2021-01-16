@@ -23,6 +23,7 @@ shop = Blueprint('shop', __name__, template_folder='templates')
 # Template accessible variables
 shop.add_app_template_global(can_edit_product)
 
+
 @shop.before_request
 def before_request():
     ''' Make sure that the currency is always known '''
@@ -209,11 +210,16 @@ def store_product_admin(store_name):
         return redirect(url_for('.market'))
 
 
-@ shop.route('/img/product/<int:id>', methods=['GET'])
-def product_img(id):
-    product = Product.query.get_or_404(id)
-    return Response(product.image, mimetype='image/jpg')
-
+@ shop.route('/img/<string:model>/<int:id>', methods=['GET'])
+def image(model, id):
+    if model == 'product':
+        product = Product.query.get_or_404(id)
+        return Response(product.image, mimetype='image/jpg')
+    elif model == 'store':
+        store = Store.query.get_or_404(id)
+        return Response(store.logo, mimetype='image/jpg')
+    abort(404)
+        
 
 @ shop.route('/save-cart', methods=['POST'])
 @ login_required

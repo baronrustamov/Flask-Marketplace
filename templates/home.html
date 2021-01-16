@@ -10,8 +10,9 @@
   </title>
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
-  <link rel="icon" type="image/jpg" href="static/shop/img/site-logo.jpg"/>
-  <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css' />
+  <link rel="icon" type="image/jpg" href="static/shop/img/site-logo.jpg" />
+  <link rel='stylesheet'
+    href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css' />
   <link rel="stylesheet" href="/static/fontawesome-5-13/css/all.min.css">
   <script src="/static/jquery-3.5.1.js"></script>
   {% block top_styles_scripts%}
@@ -32,19 +33,22 @@
                 <i class="fa fa-search" aria-hidden="true"></i>
               </span>
             </div>
-            <input type="search" class="form-control form-control-sm" placeholder="Search for product, stores ..."
+            <input type="search" class="form-control form-control-sm"
+              placeholder="Search for product, stores... Not yet implemented"
               id="query_param" required>
           </div>
-          <button class="btn btn-primary btn-sm d-none d-md-block col-md-3" type="submit" value="Submit">Search
+          <button class="btn btn-primary btn-sm d-none d-md-block col-md-3"
+            type="submit" value="Submit">Search
           </button>
         </div>
       </form>
     </div>
-    <button class='navbar-toggler' type='button' data-toggle='collapse' data-target='#navbarSupportedContent'
-      aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation'><span
-        class='navbar-toggler-icon'></span>
+    <button class='navbar-toggler' type='button' data-toggle='collapse'
+      data-target='#navbarSupportedContent'>
+      <span class='navbar-toggler-icon'></span>
     </button>
-    <div class='collapse navbar-collapse justify-content-end' id='navbarSupportedContent'>
+    <div class='collapse navbar-collapse justify-content-end'
+    id='navbarSupportedContent'>
       <ul class='navbar-nav'>
         {% if current_user.is_authenticated %}
         <li class='nav-item'>
