@@ -14,11 +14,14 @@ from flw_module.models import AccountDetail
 from flw_module.utilities import flw_subaccount
 from factory import db
 from users_module.forms import ProfileForm
+from .utilities import can_edit_product
 
 
 # ---------- Declaring the blueprint ----------
 shop = Blueprint('shop', __name__, template_folder='templates')
 
+# Template accessible variables
+shop.add_app_template_global(can_edit_product)
 
 @shop.before_request
 def before_request():
@@ -49,7 +52,7 @@ def index():
 @ login_required
 def cart():
     iso_code = request.cookies.get('iso_code')
-    prod_str = request.args.get('prod_id')
+    prod_str = request.args.get('id')
     # Check if the current user has an hanging cart
     cart = Order.cart().filter_by(user_id=current_user.id).first()
     if prod_str:
@@ -156,7 +159,7 @@ def store_product(store_name):
                            iso_code=request.cookies.get('iso_code'))
 
 
-@ shop.route('/store/<string:store_name>/admin/products',
+@ shop.route('/store/<string:store_name>/admin/product',
              methods=['GET', 'POST'])
 @ login_required
 def store_product_admin(store_name):

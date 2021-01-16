@@ -37,3 +37,23 @@ def amounts_sep(iso_code, pay_data):
         'shipping_costs': shipping,
         # 'ratios': payment_split_ratio(store_total+shipping),
     }
+
+
+def can_edit_product(current_user, product_store):
+    '''
+    Checks if a product is editable, returns True if either the
+    accessing user is a platform admin or the owner of the product.
+    It is also made a global jinja function as it is also used to
+    determine if an Edit button should be visible to the web user.
+    :param current_user: Flask-Security extended Flask-Login current
+                         user object
+    :type current_user: object
+    param product_store: The store of the given product
+    :type product_store: str
+    '''
+    if current_user.is_authenticated:
+        if current_user.has_role('Admin'):
+            return True
+        if product_store in current_user.stores:
+            return True
+    return False
