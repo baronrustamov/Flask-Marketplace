@@ -14,7 +14,7 @@ from flw_module.models import AccountDetail
 from flw_module.utilities import flw_subaccount
 from factory import db
 from users_module.forms import ProfileForm
-from .utilities import can_edit_product
+from .utilities import can_edit_product, currency_options
 
 
 # ---------- Declaring the blueprint ----------
@@ -22,6 +22,7 @@ shop = Blueprint('shop', __name__, template_folder='templates')
 
 # Template accessible variables
 shop.add_app_template_global(can_edit_product)
+shop.add_app_template_global(currency_options)
 
 
 @shop.before_request
@@ -46,7 +47,8 @@ def before_request():
 
 @ shop.route('/')
 def index():
-    return render_template('home.html')
+    latest = Product.query.order_by('created_at').limit(6).all()
+    return render_template('home.html', products=latest)
 
 
 @ shop.route('/cart', methods=['GET'])

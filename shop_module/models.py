@@ -105,15 +105,15 @@ class Product(db.Model):
         # only active products are made public
         return(Product.query.filter(Product.is_active == 1))
 
-    def sale_price(self, product_pricing, to_currency):
+    def sale_price(self, product_pricing, to_currency, multi_currency):
         '''
         Converts price of products to visitor's currency based on scale
         '''
-        if (product_pricing == 'localize' and to_currency):
+        if (product_pricing == 'localize' and multi_currency):
             scale = (
                 Currency.query.filter_by(code=to_currency).first().rate /
                 self.store.currency.rate)
-            return self.price * scale
+            return round(self.price * scale, 2)
         return self.price
 
 

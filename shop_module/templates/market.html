@@ -24,7 +24,8 @@
     <p class="card-title">{{ product.name }}</p>
     <p class="card-text font-weight-bold mt-n3">
       <span> {{ iso_code }} </span>
-      {{ product.sale_price(config.PRODUCT_PRICING, iso_code) }}
+      {{ product.sale_price(config.PRODUCT_PRICING, iso_code,
+        config.MULTICURRENCY) }}
     </p>
   </div>
   {% endfor %}

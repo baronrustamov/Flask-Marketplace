@@ -11,6 +11,7 @@ class Config:
 
     FLW_PUB_KEY = 'FLWPUBK_TEST-4b5acac8e21aceb3fc87f634a846c001-X'
     FLW_SEC_KEY = 'FLWSECK_TEST-604a7225885949af8eded44c605deb0c-X'
+    MULTICURRENCY = True
     PAYMENT_SPLIT_POINT = 'instant'
     PAYMENT_PLATFORM = 'flutterwave'
     PRODUCT_PRICING = 'localize'

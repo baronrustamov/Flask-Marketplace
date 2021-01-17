@@ -11,7 +11,9 @@
         <div class='form-group col-12'>
           {{ render_field_with_errors(store_form.name) }}
           {{ render_field_with_errors(store_form.about) }}
+          {% if config.MULTICURRENCY}
           {{ render_field_with_errors(store_form.iso_code) }}
+          {% endif %}
           {{ render_field_with_errors(store_form.phone) }}
           {{ render_field_with_errors(store_form.logo) }}
         </div>

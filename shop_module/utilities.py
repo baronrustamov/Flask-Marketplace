@@ -8,17 +8,17 @@ from factory import db
 
 
 def convert_currency(price, from_currency, to_currency):
-    ''' Converts price of products to visitor's currency based on scale'''
+    '''Converts price of products to visitor's currency based on scale'''
     if to_currency:
         scale = (
             Currency.query.filter_by(code=to_currency).first().rate /
             Currency.query.filter_by(code=from_currency).first().rate)
-        return price * scale
+        return round(price * scale, 2)
     return price
 
 
 def payment_split_ratio(amount_list):
-    ''' Converts amount_list to ratios usable for checkout split payments'''
+    '''Converts amount_list to ratios usable for checkout split payments'''
     return [round(x/sum(amount_list)*10000) for x in amount_list]
 
 
@@ -57,3 +57,7 @@ def can_edit_product(current_user, product_store):
         if product_store in current_user.stores:
             return True
     return False
+
+
+def currency_options():
+    return Currency.query.with_entities(Currency.code, Currency.code).all()

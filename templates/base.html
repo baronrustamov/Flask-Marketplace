@@ -11,6 +11,7 @@
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
   <link rel="icon" type="image/jpg" href="{{ url_for('static', filename='shop/img/site-logo.jpg') }}"/>
+  <link rel='stylesheet' href="{{ url_for('static', filename='shop/css/main.css') }}"/>
   <link rel='stylesheet' href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'/>
   <link rel="stylesheet" href="/static/fontawesome-5-13/css/all.min.css">
   <script src="/static/jquery-3.5.1.js"></script>
@@ -46,6 +47,13 @@
     </button>
     <div class='collapse navbar-collapse justify-content-end' id='navbarSupportedContent'>
       <ul class='navbar-nav'>
+        <li class='nav-item'>
+          <a class='nav-link text-white' href="{{url_for('shop.market')}}">Market
+          </a>
+        </li>
+        {% if config.MULTICURRENCY  and iso_code%}
+          {% include 'currency.html' %}
+        {% endif %}
         {% if current_user.is_authenticated %}
         <li class='nav-item'>
           <a class='nav-link text-white' href="{{url_for('security.logout')}}">Logout
@@ -71,28 +79,40 @@
   </nav>
   
   <div class='pt-3 mt-5 bg-light' style='min-height: 550px;'>
+    {% block side_bar_envelope %}
     <div class="col-12 col-md-2  d-none d-md-block card ml-2"
       style="position: fixed; top: 80px; bottom: 0;
         overflow-y: auto; z-index: 1000; display: block;">
       <div class="mt-5">
         {% block side_bar %}
+        <div class="card-body">
+          <p class="card-title">No.1 International market place</p>
+        </div>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item">Item 1</li>
+          <li class="list-group-item">Item 2</li>
+          <li class="list-group-item">Item 3</li>
+        </ul>
         {% endblock side_bar %}
       </div>
     </div>
+    {% endblock side_bar_envelope %}
     <!-- Main page Area -->
     <div class='container-fluid'>
-    <div class="col-md-10 offset-md-2 mt-3">
-      {% for category, message in get_flashed_messages(with_categories=True) %}
-      <div class='alert alert-{{category}}'>
-        <button type='button' class='close' data-dismiss='alert'>&times;
-        </button>
-        {{ message }}
-      </div>
-      {% endfor %}
+      {% block main_page_envelope %}
+      <div class="col-md-10 offset-md-2 mt-3">
+        {% for category, message in get_flashed_messages(with_categories=True) %}
+        <div class='alert alert-{{category}}'>
+          <button type='button' class='close' data-dismiss='alert'>&times;
+          </button>
+          {{ message }}
+        </div>
+        {% endfor %}
 
-      {% block main_page %}
-      {% endblock main_page %}
-    </div>
+        {% block main_page %}
+        {% endblock main_page %}
+      </div>
+      {% endblock main_page_envelope %}
     </div>
     
   </div>

@@ -27,7 +27,7 @@
         <input type='number' min='1' class='form-control qty' value={{line.qty}}>
       </td>
       <td class='align-middle'>{{ line.product.sale_price(config.PRODUCT_PRICING,
-        cart[0].order.iso_code) }}</td>
+        cart[0].order.iso_code, config.MULTICURRENCY) }}</td>
       <td class='line_amt align-middle'></td>
       <td class='align-middle'><i class='fas fa-minus-circle text-danger 
           btn remove'></i></td>
