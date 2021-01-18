@@ -14,7 +14,7 @@ from flw_module.models import AccountDetail
 from flw_module.utilities import flw_subaccount
 from factory import db
 from users_module.forms import ProfileForm
-from .utilities import can_edit_product, currency_options
+from .utilities import can_edit_product, currency_options, latest_stores
 
 
 # ---------- Declaring the blueprint ----------
@@ -23,6 +23,7 @@ shop = Blueprint('shop', __name__, template_folder='templates')
 # Template accessible variables
 shop.add_app_template_global(can_edit_product)
 shop.add_app_template_global(currency_options)
+shop.add_app_template_global(latest_stores)
 
 
 @shop.before_request

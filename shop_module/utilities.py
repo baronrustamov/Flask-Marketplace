@@ -61,3 +61,8 @@ def can_edit_product(current_user, product_store):
 
 def currency_options():
     return Currency.query.with_entities(Currency.code, Currency.code).all()
+
+
+def latest_stores():
+    return Store.query.with_entities(Store.name).order_by(
+        'created_at').limit(3).all()
