@@ -79,66 +79,6 @@
       </span>
     </div>
   </nav>
-  <!--nav class='navbar fixed-top navbar-expand-sm navbar-light bg-secondary'>
-    <a class="navbar-brand text-white" href="{{ url_for('shop.index') }}">
-      {{ config.APP_NAME }}
-      <img src="{{ url_for('static', filename='shop/img/site-logo.png') }}" width="30" height="30"
-        class="d-inline-block align-top" alt="">
-    </a>
-    <div class="col-8 justify-content-end">
-      <form class="form form-sm" method="POST">
-        <div class="form-inline">
-          <div class="input-group col-md-9">
-            <div class="input-group-prepend">
-              <span class="input-group-text">
-                <i class="fa fa-search" aria-hidden="true"></i>
-              </span>
-            </div>
-            <input type="search" class="form-control form-control-sm"
-              placeholder="Search for product, stores ... Not yet implemented" id="query_param" required>
-          </div>
-          <button class="btn btn-primary btn-sm d-none d-md-block col-md-3" type="submit" value="Submit">Search
-          </button>
-        </div>
-      </form>
-    </div>
-    <button class='navbar-toggler' type='button' data-toggle='collapse' data-target='#navbarSupportedContent'
-      aria-controls='navbarSupportedContent' aria-expanded='false' aria-label='Toggle navigation'><span
-        class='navbar-toggler-icon'></span>
-    </button>
-    <div class='collapse navbar-collapse justify-content-end' id='navbarSupportedContent'>
-      <ul class='navbar-nav'>
-        <li class='nav-item'>
-          <a class='nav-link text-white' href="{{url_for('shop.market')}}">Market
-          </a>
-        </li>
-        {% if config.MULTICURRENCY and iso_code and currency_options()%}
-        {% include 'currency.html' %}
-        {% endif %}
-        {% if current_user.is_authenticated %}
-        <li class='nav-item'>
-          <a class='nav-link text-white' href="{{url_for('security.logout')}}">Logout
-          </a>
-        </li>
-        <li class='nav-item'>
-          <a class='nav-link text-white' href="{{url_for('shop.cart')}}">Cart
-          </a>
-        </li>
-        <li class='nav-item'>
-          <a class='nav-link text-white' href="{{url_for('shop.dashboard')}}">
-            <i class="fa fa-user-circle" aria-hidden="true"></i>
-          </a>
-        </li>
-        {% else %}
-        <li class='nav-item'>
-          <a class='nav-link text-white' href="{{url_for('security.login')}}">Login
-          </a>
-        </li>
-        {% endif %}
-      </ul>
-    </div>
-  </nav-->
-
   <div class='pt-3 mt-5 bg-light' style='min-height: 550px;'>
     <div class="col-12 mt-3">
       {% for category, message in get_flashed_messages(with_categories=True) %}

@@ -8,7 +8,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = 'sqlite:///platform.sqlite3'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     # ----- Payment Info
-
+    CURRENCY_DISPATCHER = 'USD'
     FLW_PUB_KEY = 'FLWPUBK_TEST-4b5acac8e21aceb3fc87f634a846c001-X'
     FLW_SEC_KEY = 'FLWSECK_TEST-604a7225885949af8eded44c605deb0c-X'
     MULTICURRENCY = True
@@ -17,7 +17,7 @@ class Config:
     PRODUCT_PRICING = 'localize'
     SPLIT_RATIO_DISPATCHER = '0.8'
     SPLIT_RATIO_STORE = '0.975'
-    STORE_REG_AMT = '10 NGN'  # Note: value+space+iso_code
+    STORE_REG_AMT = '10 USD'  # Note: value+space+iso_code
 
 
 class DevelopmentConfig(Config):

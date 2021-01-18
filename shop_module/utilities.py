@@ -22,13 +22,13 @@ def payment_split_ratio(amount_list):
     return [round(x/sum(amount_list)*10000) for x in amount_list]
 
 
-def amounts_sep(iso_code, pay_data):
+def amounts_sep(iso_code, pay_data, dispatch_currency):
     shipping = []
     store_total = 0
     for i in range(len(pay_data)):
         shipping_charge = convert_currency(
             pay_data[i][0].dispatcher.charge,
-            pay_data[i][0].iso_code, iso_code) * pay_data[i][2]
+            dispatch_currency, iso_code) * pay_data[i][2]
         shipping.append(shipping_charge)
         store_total += pay_data[i][1]
     return {
