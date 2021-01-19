@@ -1,0 +1,17 @@
+<li class='nav-item btn btn-sm'>
+  <select class="form-control form-control-sm form-sm" id="currency">
+    {% for code in currency_options() %}
+      {% if code[0] == iso_code %}
+      <option value={{code[0]}} selected>{{code[1]}}</option>
+      {% else %}
+      <option value={{code[0]}}>{{code[1]}}</option>
+      {% endif %}
+    {% endfor %}
+  </select>
+</li>
+<script>
+  $('#currency').change(function () {
+    document.cookie = "iso_code="+$("#currency option:selected").val();
+    location.reload();
+  });
+</script>

@@ -21,9 +21,8 @@
   <!-- Shipping -->
   <div class='card mt-3'>
     <div class='card-header'>
-      <span class='collapsed' data-toggle='collapse'
-        data-target='#dispatch_name'>
-        Shipping Cost: {{ store_value.iso_code }} 
+      <span class='collapsed' data-toggle='collapse' data-target='#dispatch_name'>
+        Shipping Cost: {{ store_value.iso_code }}
         {{ '{:,.2f}'.format(store_value.shipping_costs | sum()) }}
         <button class='badge badge-secondary'>Show</button>
       </span>
@@ -42,9 +41,8 @@
   <!-- Cart content-->
   <div class='card mt-3'>
     <div class='card-header'>
-      <span class='collapsed' data-toggle='collapse'
-        data-target='#cart_content'>
-        Your cart value is {{ store_value.iso_code }} 
+      <span class='collapsed' data-toggle='collapse' data-target='#cart_content'>
+        Your cart value is {{ store_value.iso_code }}
         {{ '{:,.2f}'.format(store_value.store_total) }}
         <button class='badge badge-secondary'>Show</button>
       </span>
@@ -73,7 +71,8 @@
                   value={{line.qty}} readonly>
               </td>
               <td class='align-middle'>{{ line.product.sale_price(
-                config.PRODUCT_PRICING, cart[0].order.iso_code) }}
+                config.PRODUCT_PRICING, cart[0].order.iso_code,
+                config.MULTICURRENCY) }}
               </td>
               <td class='line_amt align-middle'></td>
             </tr>
@@ -87,30 +86,19 @@
   <!-- Total -->
   <p class='font-weight-bold mt-3 ml-4'>
     Total payout: {{ store_value.iso_code }} {{ '{:,.2f}'.format(
-      store_value.shipping_costs | sum() + store_value.store_total) }}
+    store_value.shipping_costs | sum() + store_value.store_total) }}
   </p>
   <div class='row justify-content-center m-3 pb-3'>
-    <form>
-      <script src="https://checkout.flutterwave.com/v3.js"></script>
-      <button class='btn btn-primary btn-md' type="button"
-        onClick="makePayment()">
-        Pay {{ store_value.iso_code }} 
-        {{ '{:,.2f}'.format(store_value.shipping_costs | sum() +
-          store_value.store_total) }}</button>
-    </form>
+    {% include config.PAYMENT_PLATFORM+'/pay_split.html' %}
   </div>
 </div>
 {% endif %}
 {% endblock main_page %}
 
 {% block bottom_styles_scripts%}
-<script
-  src="{{ url_for('static', filename='shop/js/loadingoverlay.js') }}">
+<script src="{{ url_for('static', filename='shop/js/loadingoverlay.js') }}">
 </script>
 <script src="{{ url_for('static', filename='shop/js/table_cart.js') }}">
 </script>
-
-{% include config.PAYMENT_PLATFORM+'/pay_split.html' %}
-
 
 {% endblock bottom_styles_scripts %}

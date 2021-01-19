@@ -11,7 +11,9 @@
         <div class='form-group col-12'>
           {{ render_field_with_errors(store_form.name) }}
           {{ render_field_with_errors(store_form.about) }}
+          {% if config.MULTICURRENCY}
           {{ render_field_with_errors(store_form.iso_code) }}
+          {% endif %}
           {{ render_field_with_errors(store_form.phone) }}
           {{ render_field_with_errors(store_form.logo) }}
         </div>
@@ -31,9 +33,8 @@
       <form method='POST'>
         {{ account_form.hidden_tag() }}
         <div class='form-group col-12'>
-          {{ render_field_with_errors(account_form.account_name) }}
           {{ render_field_with_errors(account_form.account_num) }}
-          {{ render_field_with_errors(account_form.bank_name) }}
+          {{ render_field_with_errors(account_form.bank) }}
         </div>
 
         <div class='text-right d-none' id='account_submit'>

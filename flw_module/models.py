@@ -6,10 +6,13 @@ Human related models are located here, currently we have:
 from factory import db
 
 
-class FlwSubAccount(db.Model):
-    # Note that a subaccount can be used by multiple store,
-    # for example, if a user registered multiple stores
-    sub_account_id = db.Column(db.Integer, primary_key=True)
-    sub_account_number = db.Column(db.Integer)
-    stores = db.relationship('Store', backref='flw_subaccount')
-
+class AccountDetail(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    account_name = db.Column(db.String(50), nullable=False)
+    account_num = db.Column(db.Integer, nullable=False)
+    bank = db.Column(db.String(100), nullable=False)
+    sub_number = db.Column(db.Integer)
+    sub_id = db.Column(db.Integer,)
+    # relationships --------------------------------------
+    stores = db.relationship('Store', backref='account')
+    dispatchers = db.relationship('Dispatcher', backref='account')

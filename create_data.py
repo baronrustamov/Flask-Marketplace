@@ -15,14 +15,12 @@ from flask_security import utils, SQLAlchemyUserDatastore
 from demo_data import dummy_data
 from factory import db
 from run import app
+import flw_module.models
 import shop_module.models
 import users_module.models
 
 
 def create_roles(user_datastore):
-    # Create the tables, if they don't exist
-    db.create_all()
-
     # Create the Roles if they don't exist
     for key in dummy_data.roles:
         user_datastore.find_or_create_role(name=key,
@@ -46,7 +44,7 @@ def create_users(user_datastore):
 
 def create_currencies():
     for country in dummy_data.currencies:
-        currency = shop_module.models.Currency(
+        currency = flw_module.models.Currency(
             country=country,
             code=dummy_data.currencies[country][0],
             rate=dummy_data.currencies[country][1],
@@ -58,12 +56,15 @@ def create_dispatchers():
     i = 1
     for name, details in dummy_data.dispatchers.items():
         dispatcher = shop_module.models.Dispatcher(
-            name=name, charge=details[3])
-        account = shop_module.models.AccountDetail(
-            account_name=details[0],
-            account_num=details[1],
-            bank_name=details[2],
+            name=name, charge=details[0],
+            phone=details[1], email=details[2])
+        account = flw_module.models.AccountDetail(
+            account_name=details[3],
+            account_num=details[4],
+            bank=details[5],
             dispatcher_id=i,
+            sub_id=8096,
+            sub_number="RS_A3E2FD71C09B59048859458ACD3ECFCF",
         )
         db.session.add(dispatcher)
         db.session.add(account)
@@ -80,12 +81,16 @@ def create_stores():
             iso_code=details[2],
             dispatcher_id=details[3],
             user_id=details[4],
+            phone=details[5],
+            email=details[6],
         )
-        account = shop_module.models.AccountDetail(
-            account_name=details[5][0],
-            account_num=details[5][1],
-            bank_name=details[5][2],
+        account = flw_module.models.AccountDetail(
+            account_name=details[7][0],
+            account_num=details[7][1],
+            bank=details[7][2],
             store_id=i,
+            sub_id=8096,
+            sub_number="RS_A3E2FD71C09B59048859458ACD3ECFCF",
         )
         db.session.add(store)
         db.session.add(account)
@@ -121,6 +126,8 @@ def create_dummy_db():
     with app.app_context():
         from users_module import user_datastore, User, Role
         user_datastore = SQLAlchemyUserDatastore(db, User, Role)
+        # Create the tables, if they don't exist
+        db.create_all()
         # Create the Roles
         create_roles(user_datastore)
         # Create four Users for testing and debugging purposes

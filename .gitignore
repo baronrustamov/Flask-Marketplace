@@ -7,8 +7,8 @@ __pycache__/
 
 # Files and Folders for workings
 *trash*
+*test*
 shell.py
 
 # Data files
-*.json
 *.sqlite3

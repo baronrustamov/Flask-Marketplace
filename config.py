@@ -7,14 +7,17 @@ class Config:
     SECURITY_REGISTERABLE = True
     SQLALCHEMY_DATABASE_URI = 'sqlite:///platform.sqlite3'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
-    TESTING = False
     # ----- Payment Info
-    PRODUCT_PRICING = 'localize'
-    STORE_REG_AMT = '5000 NGN'  # Note: value+space+iso_code
-    PAYMENT_METHOD = 'instant_split'
-    PAYMENT_PLATFORM = 'flutterwave'
-    FLW_SEC_KEY = 'FLWSECK_TEST-604a7225885949af8eded44c605deb0c-X'
+    CURRENCY_DISPATCHER = 'USD'
     FLW_PUB_KEY = 'FLWPUBK_TEST-4b5acac8e21aceb3fc87f634a846c001-X'
+    FLW_SEC_KEY = 'FLWSECK_TEST-604a7225885949af8eded44c605deb0c-X'
+    MULTICURRENCY = True
+    PAYMENT_SPLIT_POINT = 'instant'
+    PAYMENT_PLATFORM = 'flutterwave'
+    PRODUCT_PRICING = 'localize'
+    SPLIT_RATIO_DISPATCHER = '0.8'
+    SPLIT_RATIO_STORE = '0.975'
+    STORE_REG_AMT = '10 USD'  # Note: value+space+iso_code
 
 
 class DevelopmentConfig(Config):

@@ -1,16 +1,15 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField
-
-from wtforms import (FileField, IntegerField, SelectField, StringField,
-                     SubmitField)
-from wtforms.validators import ValidationError, length, required
+from wtforms import (
+    BooleanField, DecimalField, FileField, FloatField, IntegerField,
+    SelectField, StringField, SubmitField, ValidationError)
+from wtforms.validators import length, required
 
 from .models import Currency, Store
-from flw_module.utilities import bank_options
 
 
 def unique_entry(form, field):
-    pass
+    if Store.query.filter_by(name=field.data) is not None:
+        raise ValidationError(f'{field.data} already exists')
 
 
 class StoreRegisterForm(FlaskForm):
@@ -25,9 +24,10 @@ class StoreRegisterForm(FlaskForm):
     save = SubmitField()
 
 
-class AccountDetailForm(FlaskForm):
-    account_name = StringField('Account Name', [required()])
-    account_num = IntegerField('Account Number', [required()])
-    bank_name = SelectField('Select a bank', [required()],
-                            choices=bank_options,)
+class ProductForm(FlaskForm):
+    name = StringField('Store name', [required()])
+    description = StringField('Short description', [required()])
+    price = DecimalField('Sale price', [required()])
+    image = FileField('Product image')
+    is_active = BooleanField('Publish')
     save = SubmitField()

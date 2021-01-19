@@ -1,50 +1,57 @@
+<form>
+  <script src="https://checkout.flutterwave.com/v3.js"></script>
+  <button class='btn btn-primary btn-md' type="button" onClick="makePayment()">
+    Pay {{ store_value.iso_code }}
+    {{ '{:,.2f}'.format(store_value.shipping_costs | sum() +
+    store_value.store_total) }}</button>
+</form>
+
 <script>
-    function makePayment() {
-      FlutterwaveCheckout({
-        public_key: "FLWPUBK_TEST-SANDBOXDEMOKEY-X",
-        tx_ref: 'hooli-tx-1920bbtytty',
-        amount: {{ store_value.shipping_costs | sum() + store_value.store_total }},
-        currency: '{{ store_value.iso_code }}',
-        redirect_url: "https://webhook.site/9d0b00ba-9a69-44fa-a43d-a82c33c36fdc",
-        payment_options: "card",
-        meta: {
-          consumer_id: '{{ current_user.id }}',
-          sales_order_number: "92a3-912ba-1192a"
-        },
-        customer: {
-          email: '{{ current_user.email }}',
-          phone_number: '08102909304',
-          name: '{{ current_user.name }}',
-        },
-        callback: function (data) {
-          console.log(data);
-        },
-        onclose: function() {
-          // close modal
-        },
-        customizations: {
-          title: '{{ config.APPNAME }}',
-          description: 'Pay with your card',
-          logo: '/static/img/logo.png',
-        },
-      });
-    }
-    
-    /*
-    function compute_split(){
-      var shippings = {{ store_value.shipping_costs[1] }};
-      var store_amts = []
-      var ratios = [];
-      {{ pay_data }}.forEach(function(line) {
-        store_amts.push(line[1])
-      });
-      amount = store_amts.concat(shippings)
-      var sum_amt =  .reduce(function(a, b){
-          return a + b;
-      }, 0);
-      amount.forEach(function(d){
-        ratio.push(parseInt(d/sum_amt * 10000));
-      });
-      return ratio
-    }*/
-  </script>
+
+  function makePayment() {
+    var split_data = []
+    {% for line in pay_data %}
+    split_data.push({ id: "{{line[0].account.sub_number}}",
+      split:90 })
+      split_data.push({ id: "{{line[0].dispatcher.account.sub_number}}",
+      split:15 })
+    {% endfor %}
+    console.log(split_data)
+    FlutterwaveCheckout({
+      public_key: '{{ config.FLW_PUB_KEY }}',
+      tx_ref: 'Reg/{{ current_user.id }}/{{ cart[0].order_id }}',
+      amount: '{{ store_value.shipping_costs | sum() + store_value.store_total }}',
+      currency: 'NGN',
+      payment_options: 'card',
+      customer: {
+        email: '{{ current_user.email }}',
+        name: '{{ current_user.name }}',
+      },
+      subaccounts: split_data,
+      callback: function (flw_response) {
+        $.ajax({
+          type: 'POST',
+          url: "{{ url_for('flw.callback_sales_payment') }}",
+          data: JSON.stringify(flw_response),
+          contentType: 'application/json; charset=utf-8',
+          success: function (data, textStatus) {
+            console.log(data)
+            if (data.redirect) {
+              // data.redirect contains the string URL to redirect to
+              window.location.href = data.redirect;
+            } else {
+              console.log('This should never happen: contact us')
+            }
+          },
+        });
+      },
+      onclose: function () {
+        console.log('Closed')
+      },
+      customizations: {
+        title: 'Pay for your order',
+        logo: '{{ request.url_root }}' + 'static/shop/img/site-logo.png',
+      },
+    });
+  }
+</script>
