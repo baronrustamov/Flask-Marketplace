@@ -57,13 +57,18 @@ This web application provides a Jumia-Like online market features where differen
 * Fills the registration form with a unique email address, and instantly got registered and logged-in.
 
 ### Store
+<div align='center'>
+  <img src="./readme_assets/store and product reg.gif"
+    title="Registration process" width='100%'>
+</div>
+
 Any registered user can create a store, after the payment of a store registration fee specified by the `STORE_REG_AMT`(default is 10 USD) configuration variable. After payment has been confirmed, an editable store is automatically generated and a dispatcher got assigned to the new store. An account detail form is also presented to the store owners, the values of which are sent to flutterwave for the creation or modification of subaccounts.  
 When multicurrency in set to true, stores are allowed to quote the prices of their products in one of the supported currencies.  
-For every store sales, the share of the store owner is picked up from the `SPLIT_RATIO_STORE`(default is 0.975) configuration variable and when the `PAYMENT_SPLIT_POINT` is set to instant, the disbursement is achieved with flutterwaves split payment feature. Check [payments and calculations](#Payments-and-calculations) for more.
+For every store sales, the share of the store owner is picked up from the `SPLIT_RATIO_STORE` (default is 0.975) configuration variable and when the `PAYMENT_SPLIT_POINT` is set to instant, the disbursement is achieved with flutterwaves split payment feature. Check [payments and calculations](#Payments-and-calculations) for more.
 
 ### Dispatcher
 Dispatchers are created by Jumga, each dispatcher can charge different delivery rates which is specified during creation. Just like the stores, their account details are sent to flutterwave for the creation or modification of subaccounts.
-For every product sales, the dispatcher receives `SPLIT_RATIO_DISPATCHER`(default to 0.8) fraction of it's sum of delivery charge. Check [payments and calculations](#Payments-and-calculations) for more.
+For every product sales, the dispatcher receives `SPLIT_RATIO_DISPATCHER` (default to 0.8) fraction of it's sum of delivery charge. Check [payments and calculations](#Payments-and-calculations) for more.
 
 ### Shopping and checking out
 * A vistor visit the website, the platform guesses the currency of the visitor from the its IP Address and sets it as a cookie.

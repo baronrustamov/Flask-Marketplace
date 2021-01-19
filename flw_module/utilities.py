@@ -139,15 +139,15 @@ def flw_subaccount(partner, mode, split_ratio, account_form,
                 bank=result['data']['account_bank'],
                 sub_id=result['data']['id'],
                 sub_number=result['data']['subaccount_id'],)
-            store.account = account
+            partner.account = account
             db.session.commit()
         else:
             # The store owner is trying to change the attached account
-            store.account.account_name=result['data']['bank_name']
-            store.account.account_num=result['data']['account_number']
-            store.account.bank=result['data']['account_bank']
-            store.account.sub_id=result['data']['id']
-            store.account.sub_number=result['data']['subaccount_id']
+            partner.account.account_name=result['data']['bank_name']
+            partner.account.account_num=result['data']['account_number']
+            partner.account.bank=result['data']['account_bank']
+            partner.account.sub_id=result['data']['id']
+            partner.account.sub_number=result['data']['subaccount_id']
         db.session.commit()
         return('Your account has been successfully verified', 'success')
     elif ('kindly pass a valid account' in result['message']):
