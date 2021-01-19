@@ -20,9 +20,9 @@
 * [Testing Data](#Testing)
 * [How it works](#How-it-works)
   * [Registration](#Registration)
-  * [Store](#Store)
+  * [Store](#Store-and-Product-Registration)
   * [Dispatcher](#Dispatcher)
-  * [Shopping and Checkout](#Shopping-and-checkout)
+  * [Shopping and Checkout](#Shopping-and-checking-out)
   * [Payment and Calculations](#Payments-and-calculations)
   * [Configuration Parameters](#Configuration-parameters)
 * [Upcoming improvements](#Upcoming-improvements)
@@ -56,7 +56,7 @@ This web application provides a Jumia-Like online market features where differen
 * Clicks on the sign up link
 * Fills the registration form with a unique email address, and instantly got registered and logged-in.
 
-### Store
+### Store and Product Registration
 <div align='center'>
   <img src="./readme_assets/store and product reg.gif"
     title="Registration process" width='100%'>
@@ -70,7 +70,12 @@ For every store sales, the share of the store owner is picked up from the `SPLIT
 Dispatchers are created by Jumga, each dispatcher can charge different delivery rates which is specified during creation. Just like the stores, their account details are sent to flutterwave for the creation or modification of subaccounts.
 For every product sales, the dispatcher receives `SPLIT_RATIO_DISPATCHER` (default to 0.8) fraction of it's sum of delivery charge. Check [payments and calculations](#Payments-and-calculations) for more.
 
-### Shopping and checking out
+### Shopping and checking-out
+<div align='center'>
+  <img src="./readme_assets/shopping and checkout.gif"
+    title="Registration process" width='100%'>
+</div>
+
 * A vistor visit the website, the platform guesses the currency of the visitor from the its IP Address and sets it as a cookie.
 based on the visitors currency, values of all products are converted to the visitors' currency value.
 * A user selects all the desired products which could possibly be from different stores

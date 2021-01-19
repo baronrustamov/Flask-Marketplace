@@ -15,8 +15,8 @@ class Config:
     PAYMENT_SPLIT_POINT = 'instant'
     PAYMENT_PLATFORM = 'flutterwave'
     PRODUCT_PRICING = 'localize'
-    SPLIT_RATIO_DISPATCHER = '0.8'
-    SPLIT_RATIO_STORE = '0.975'
+    SPLIT_RATIO_DISPATCHER = 0.8
+    SPLIT_RATIO_STORE = 0.975
     STORE_REG_AMT = '10 USD'  # Note: value+space+iso_code
 
 

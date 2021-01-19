@@ -30,8 +30,7 @@ def callback_sales_payment():
     flw_data = request.json
     print(flw_data)
     if utilities.confirm_sales_payment(
-            flw_data['transaction_id'], flw_data['tx_ref'],
-            flw_data['currency'], flw_data['amount'],
+            flw_data['transaction_id'],
             current_app.config['FLW_SEC_KEY']):
         flash("Payment confirmed, thank you", 'success')
     else:

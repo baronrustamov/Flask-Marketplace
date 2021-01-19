@@ -101,8 +101,8 @@ def confirm_sales_payment(trans_id, flw_sec_key):
         if int(tx_ref.split('/')[2]) == cart.id:
             # Now, it's too good not to be true
             # We can now certify the order
-            order.status = 'paid'
-            order.amount = cart_tot[0]
+            cart.status = 'paid'
+            cart.amount = str(cart_tot[0])
             db.session.commit()
             return True
     return False
@@ -121,8 +121,8 @@ def flw_subaccount(partner, mode, split_ratio, account_form,
         'account_number': account_form.account_num.data,
         'business_name': partner.name,
         'country': country,
-        'split_value': split_ratio,
-        'split_tupe': 'percentage',
+        'split_value': str(1-float(split_ratio)),
+        'split_type': 'percentage',
         'business_mobile': partner.phone,
         'business_email': partner.email
     }
