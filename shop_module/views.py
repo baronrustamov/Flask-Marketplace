@@ -213,6 +213,7 @@ def store_admin(store_name):
         store.about = store_form.about.data
         store.iso_code = store_form.iso_code.data
         store.phone = store_form.phone.data
+        store.email = store_form.email.data
         if store_form.logo.data:
             store.logo = store_form.logo.data.read()
         store.user_id = current_user.id
@@ -236,6 +237,7 @@ def store_admin(store_name):
     store_form.iso_code.data = store.iso_code
     store_form.logo.data = store.logo
     store_form.phone.data = store.phone
+    store_form.email.data = store.email
     # New stores don't posses account details
     if store.account:
         account_form.account_num.data = store.account.account_num
@@ -301,10 +303,11 @@ def store_product_admin(store_name):
                 is_active=prod_form.is_active.data,
                 store_id=store.id)
             )
-            db.session()
+            db.session.commit()
             flash('Product created successfully', 'success')
-        # List the products
-        return redirect(url_for('.store_product', store_name=store_name))
+            # List the products
+            return redirect(url_for('.store_product', store_name=store_name))
+        return render_template('product.html', product_form=prod_form, currency=store.iso_code)
     else:
         flash('Access Error', 'danger')
         return redirect(url_for('.market'))

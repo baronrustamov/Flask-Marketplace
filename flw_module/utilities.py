@@ -77,6 +77,8 @@ def confirm_store_reg(trans_id, store_reg_amt, flw_sec_key):
                     iso_code='USD',
                     dispatcher_id=dispatcher,
                     user_id=current_user.id,
+                    phone='e.g. 08123456789',
+                    email='e.g. abc@gmail.com'
                 )
                 db.session.add(store)
                 db.session.commit()
@@ -131,28 +133,29 @@ def flw_subaccount(partner, mode, split_ratio, account_form,
     # Record the created subaccount
     if result['data']:
         if not partner.account:
-            db.session.add(AccountDetail(
+            account = AccountDetail(
                 account_name=result['data']['bank_name'],
                 account_num=result['data']['account_number'],
                 bank=result['data']['account_bank'],
                 sub_id=result['data']['id'],
                 sub_number=result['data']['subaccount_id'],)
-            )
+            store.account = account
+            db.session.commit()
         else:
             # The store owner is trying to change the attached account
-            store.account.account_name = result['data']['bank_name']
-            store.account.account_num = result['data']['account_number']
-            store.account.bank = result['data']['account_bank']
-            store.account.sub_id = result['data']['id']
-            store.account.sub_number = result['data']['subaccount_id']
+            store.account.account_name=result['data']['bank_name']
+            store.account.account_num=result['data']['account_number']
+            store.account.bank=result['data']['account_bank']
+            store.account.sub_id=result['data']['id']
+            store.account.sub_number=result['data']['subaccount_id']
         db.session.commit()
         return('Your account has been successfully verified', 'success')
     elif ('kindly pass a valid account' in result['message']):
         return('Your account number and/or bank is invalid', 'danger')
     elif ('number and bank already exists' in result['message']):
-        account = AccountDetail.query.filter_by(
-            account_num=account_form.account_num.data).first()
+        account=AccountDetail.query.filter_by(
+            account_num = account_form.account_num.data).first()
         if account:
-            partner.account_id = account.id
+            partner.account_id=account.id
             return('A similar account was found and assigned', 'info')
     return('Crical error: contact us', 'danger')

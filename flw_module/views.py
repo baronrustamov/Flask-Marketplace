@@ -18,7 +18,8 @@ def callback_store_payment():
         current_app.config['STORE_REG_AMT'],
         current_app.config['FLW_SEC_KEY'])
     if store_name:
-        flash("Payment confirmed, thank you", 'success')
+        flash("Payment confirmed. Edit your store details to get started.",
+              'success')
         return {'redirect': url_for('shop.store_admin', store_name=store_name)}
     flash("Unable to confirm payment, contact us", 'danger')
     return {'redirect': url_for('shop.dashboard')}

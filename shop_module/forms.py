@@ -8,8 +8,7 @@ from .models import Currency, Store
 
 
 def unique_entry(form, field):
-    if Store.query.filter_by(name=field.data) is not None:
-        raise ValidationError(f'{field.data} already exists')
+    pass
 
 
 class StoreRegisterForm(FlaskForm):
@@ -20,12 +19,14 @@ class StoreRegisterForm(FlaskForm):
             Currency.code, Currency.code).all())
     phone = StringField('Business Phone Number',
                         [required(), length(min=10, max=15)])
+    email = StringField('Valid Email',
+                        [required(), length(min=10, max=15)])
     logo = FileField()
     save = SubmitField()
 
 
 class ProductForm(FlaskForm):
-    name = StringField('Store name', [required()])
+    name = StringField('Product name', [required()])
     description = StringField('Short description', [required()])
     price = DecimalField('Sale price', [required()])
     image = FileField('Product image')

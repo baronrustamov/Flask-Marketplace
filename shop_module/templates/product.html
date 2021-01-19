@@ -12,6 +12,7 @@ render_field_btn, render_field_check %}
         <div class='form-group col-12'>
           {{ render_field_with_errors(product_form.name) }}
           {{ render_field_with_errors(product_form.description) }}
+          <small> Sales price in {{currency}}</small>
           {{ render_field_with_errors(product_form.price) }}
           {{ render_field_with_errors(product_form.image) }}
           {{ render_field_check(product_form.is_active) }}
