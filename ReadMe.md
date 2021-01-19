@@ -5,7 +5,7 @@
 ![Flutterwave API V3](https://img.shields.io/badge/FlutterwaveApi-V3-orange "Flask-SQLAlchemy==2.4.4")
 ![JQuery-3.5.1](https://img.shields.io/badge/JQuery-3.5.1-yellow "JQuery-3.5.1")
 
-> A modular multi-store marketplace web applicatiion with full online payment solution  
+> A modular multi-store marketplace web application with full online payment solution  
 > Developed during Flutterwave's Developer Challenge 2021
 <hr>
 <div align='center'>
