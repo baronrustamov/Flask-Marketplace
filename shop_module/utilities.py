@@ -1,3 +1,4 @@
+from decimal import Decimal
 from requests import get
 
 from flask import make_response, redirect, request, render_template
@@ -13,7 +14,7 @@ def convert_currency(price, from_currency, to_currency):
         scale = (
             Currency.query.filter_by(code=to_currency).first().rate /
             Currency.query.filter_by(code=from_currency).first().rate)
-        return round(price * scale, 2)
+        return round(Decimal(price) * scale, 2)
     return price
 
 

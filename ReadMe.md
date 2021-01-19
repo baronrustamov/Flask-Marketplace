@@ -5,7 +5,7 @@
 ![Flutterwave API V3](https://img.shields.io/badge/FlutterwaveApi-V3-orange "Flask-SQLAlchemy==2.4.4")
 ![JQuery-3.5.1](https://img.shields.io/badge/JQuery-3.5.1-yellow "JQuery-3.5.1")
 
-> A multi-vendor modular marketplace web applicatiion with full online payment solution  
+> A modular multi-store marketplace web applicatiion with full online payment solution  
 > Developed during Flutterwave's Developer Challenge 2021
 <hr>
 <div align='center'>
@@ -13,26 +13,28 @@
 </div>
 <hr>
 
-# Table of Contents
+
+## Table of Contents
 * [Introduction](#Introduction)
 * [Setup](#Setup)
 * [Testing Data](#Testing)
 * [How it works](#How-it-works)
   * [Registration](#Registration)
-  * [Store](#Store)
+  * [Store](#Store-and-Product-Registration)
   * [Dispatcher](#Dispatcher)
-  * [Shopping and Checkout](#Shopping-and-checkout)
+  * [Shopping and Checkout](#Shopping-and-checking-out)
   * [Payment and Calculations](#Payments-and-calculations)
   * [Configuration Parameters](#Configuration-parameters)
 * [Upcoming improvements](#Upcoming-improvements)
 <hr>
 
 ## Introduction
-This web application provides a Jumia-Like online market features where different vendors register their stores and publish products for sale. This app also provide some features, notable of which are:
-  * Multicurrency: By default the platform allows customers to switch currency. This could be fixed to a desired currency in the configuration file by setting the `PRODUCT_PRICING` value[See configurations section](#Configuration-parameters). 
-  * Vendor Registration Token: For registration, a fee whose value and currency could be set by setting the `STORE_REG_AMT (defaults to 10 USD) value in the config [Read more in the config section]().
-  * Dispatcher Assignment: Upon successful registration, a JUMGA dispatcher is randomly assigned to each store.
-  * Revenue sharing: For every checked-out order, the total revenue is shared based on the value of the `STORE_PAY_RATIO` and `SPLIT_RATIO_DISPATCHER` configuration values. But by default:
+This web application provides a Jumia-Like online market features where different vendors register their stores and publish products for sale and also posses some additional features, notable of which are:
+  * **Multicurrency**: By default the platform allows customers to switch currency. This could be fixed to a desired currency in the configuration file by setting the `PRODUCT_PRICING` value. [More in the configurations section](#Configuration-parameters). 
+  * **Vendor Registration Token**: For registration, a fee whose value and currency could be set by setting the `STORE_REG_AMT 
+  (defaults to 10 USD) value in the config. [Read more in the config section]().
+  * **Dispatcher Assignment**: Upon successful registration, a JUMGA dispatcher is randomly assigned to each store.
+  * **Revenue sharing**: For every checked-out order, the total revenue is shared based on the value of the `STORE_PAY_RATIO` and `SPLIT_RATIO_DISPATCHER` configuration values. But by default:
     * Vendor:Jumga = 0.97:0.03 of the product prices
     * Dispatcher:Jumga = 0.80:0.2 of delivery fee.  
   Note: The point at which the splitting occurs is defined by the `PAYMENT_SPLIT_POINT` (defaults to `'instant'`) [see the Configuration section]().
@@ -54,19 +56,26 @@ This web application provides a Jumia-Like online market features where differen
 * Clicks on the sign up link
 * Fills the registration form with a unique email address, and instantly got registered and logged-in.
 
+### Store and Product Registration
+<div align='center'>
+  <img src="./readme_assets/store and product reg.gif"
+    title="Registration process" width='100%'>
+</div>
 
-
-
-### Store
 Any registered user can create a store, after the payment of a store registration fee specified by the `STORE_REG_AMT`(default is 10 USD) configuration variable. After payment has been confirmed, an editable store is automatically generated and a dispatcher got assigned to the new store. An account detail form is also presented to the store owners, the values of which are sent to flutterwave for the creation or modification of subaccounts.  
 When multicurrency in set to true, stores are allowed to quote the prices of their products in one of the supported currencies.  
-For every store sales, the share of the store owner is picked up from the `SPLIT_RATIO_STORE`(default is 0.975) configuration variable and when the `PAYMENT_SPLIT_POINT` is set to instant, the disbursement is achieved with flutterwaves split payment feature. Check [payments and calculations](#Payments-and-calculations) for more.
+For every store sales, the share of the store owner is picked up from the `SPLIT_RATIO_STORE` (default is 0.975) configuration variable and when the `PAYMENT_SPLIT_POINT` is set to instant, the disbursement is achieved with flutterwaves split payment feature. Check [payments and calculations](#Payments-and-calculations) for more.
 
 ### Dispatcher
 Dispatchers are created by Jumga, each dispatcher can charge different delivery rates which is specified during creation. Just like the stores, their account details are sent to flutterwave for the creation or modification of subaccounts.
-For every product sales, the dispatcher receives `SPLIT_RATIO_DISPATCHER`(default to 0.8) fraction of it's sum of delivery charge. Check [payments and calculations](#Payments-and-calculations) for more.
+For every product sales, the dispatcher receives `SPLIT_RATIO_DISPATCHER` (default to 0.8) fraction of it's sum of delivery charge. Check [payments and calculations](#Payments-and-calculations) for more.
 
-### Shopping and checking out
+### Shopping and checking-out
+<div align='center'>
+  <img src="./readme_assets/shopping and checkout.gif"
+    title="Registration process" width='100%'>
+</div>
+
 * A vistor visit the website, the platform guesses the currency of the visitor from the its IP Address and sets it as a cookie.
 based on the visitors currency, values of all products are converted to the visitors' currency value.
 * A user selects all the desired products which could possibly be from different stores
@@ -74,7 +83,7 @@ based on the visitors currency, values of all products are converted to the visi
 * Clicks on paynow will trigger the flutterwave inline payment form with the parsed order details and respective stores and dispatcher split payment arguement when the payment mode is set to instant.
 
 ### Payments and Calculations:
-Say, a customer ordered for two products, Fanta 30cl and Nokia 2.4
+Say, a customer whose currency iso_code is NGN ordered for two products, Fanta 30cl and Nokia 2.4
 
 
 **| Fanta 30cl | Nokia 2.4
@@ -96,7 +105,7 @@ In this scenario:
 * Kwik(Dispatcher attched to Cocacola) gets 2820 * 0.8 = 2,256 NGN
 * Nokia gets 118000 * 0.975 = 115,050 NGN
 * Max(Dispatcher attched to Cocacola) gets 1880 * 0.8 = 1,504 NGN
-* Transaction charges are deducted from Jumga's share
+* Jumga receives the balance less the fluttewaves tranction charges
 
 
 ## Configuration Parameters
@@ -112,6 +121,7 @@ PRODUCT_PRICING | String (defaults to 'localize') | The currencu to display the 
 STORE_REG_AMT | String of value+space+code (defaults to '10 USD') | The registration fee to charge Vendors
 
 ## Upcoming Improvements
-(An evolving list)
+An evolving list
 * Dispatcher Assignment should be currency-aware
 * `pay_after_done` option for the `PAYMENT_SPLIT_POINT` configuration variable: When the `pay_after_done` is used, disbursement of partners payments will only be effected after the order has been marked as delivered by the store owner.
+* Writing of tests

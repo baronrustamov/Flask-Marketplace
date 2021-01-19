@@ -77,6 +77,8 @@ def confirm_store_reg(trans_id, store_reg_amt, flw_sec_key):
                     iso_code='USD',
                     dispatcher_id=dispatcher,
                     user_id=current_user.id,
+                    phone='e.g. 08123456789',
+                    email='e.g. abc@gmail.com'
                 )
                 db.session.add(store)
                 db.session.commit()
@@ -99,8 +101,8 @@ def confirm_sales_payment(trans_id, flw_sec_key):
         if int(tx_ref.split('/')[2]) == cart.id:
             # Now, it's too good not to be true
             # We can now certify the order
-            order.status = 'paid'
-            order.amount = cart_tot[0]
+            cart.status = 'paid'
+            cart.amount = str(cart_tot[0])
             db.session.commit()
             return True
     return False
@@ -119,8 +121,8 @@ def flw_subaccount(partner, mode, split_ratio, account_form,
         'account_number': account_form.account_num.data,
         'business_name': partner.name,
         'country': country,
-        'split_value': split_ratio,
-        'split_tupe': 'percentage',
+        'split_value': str(1-float(split_ratio)),
+        'split_type': 'percentage',
         'business_mobile': partner.phone,
         'business_email': partner.email
     }
@@ -131,28 +133,29 @@ def flw_subaccount(partner, mode, split_ratio, account_form,
     # Record the created subaccount
     if result['data']:
         if not partner.account:
-            db.session.add(AccountDetail(
+            account = AccountDetail(
                 account_name=result['data']['bank_name'],
                 account_num=result['data']['account_number'],
                 bank=result['data']['account_bank'],
                 sub_id=result['data']['id'],
                 sub_number=result['data']['subaccount_id'],)
-            )
+            partner.account = account
+            db.session.commit()
         else:
             # The store owner is trying to change the attached account
-            store.account.account_name = result['data']['bank_name']
-            store.account.account_num = result['data']['account_number']
-            store.account.bank = result['data']['account_bank']
-            store.account.sub_id = result['data']['id']
-            store.account.sub_number = result['data']['subaccount_id']
+            partner.account.account_name=result['data']['bank_name']
+            partner.account.account_num=result['data']['account_number']
+            partner.account.bank=result['data']['account_bank']
+            partner.account.sub_id=result['data']['id']
+            partner.account.sub_number=result['data']['subaccount_id']
         db.session.commit()
         return('Your account has been successfully verified', 'success')
     elif ('kindly pass a valid account' in result['message']):
         return('Your account number and/or bank is invalid', 'danger')
     elif ('number and bank already exists' in result['message']):
-        account = AccountDetail.query.filter_by(
-            account_num=account_form.account_num.data).first()
+        account=AccountDetail.query.filter_by(
+            account_num = account_form.account_num.data).first()
         if account:
-            partner.account_id = account.id
+            partner.account_id=account.id
             return('A similar account was found and assigned', 'info')
     return('Crical error: contact us', 'danger')

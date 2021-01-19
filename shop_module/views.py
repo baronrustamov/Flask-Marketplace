@@ -85,7 +85,8 @@ def cart():
             db.session.add(cart_line)
             db.session.add(cart)
         db.session.commit()
-        return redirect('/cart')
+        flash("Item has been added to cart", 'success')
+        return redirect(url_for('shop.cart', cart=cart))
     if cart:
         cart = OrderLine.query.filter_by(order_id=cart.id).all()
     return render_template('cart.html', cart=cart)
@@ -103,7 +104,8 @@ def checkout():
         # For security reason, let's update all the order line prices
         for line in db.session.query(OrderLine).filter_by(order_id=1).all():
             line.price = line.product.sale_price(
-                current_app.config['PRODUCT_PRICING'], iso_code)
+                current_app.config['PRODUCT_PRICING'], iso_code,
+                current_app.config['MULTICURRENCY'])
 
         db.session.commit()  # To ensure the updated figures are picked up
     # Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
@@ -138,7 +140,7 @@ def dashboard():
         current_user.about = profile_form.email.data
         db.session.commit()
         flash('Profile details: succesfully edited', 'success')
-        return redirect(url_for('.dashboard'))
+        return redirect(url_for('shop.dashboard'))
     # Pre-populating the form
     profile_form.name.data = current_user.name
     profile_form.email.data = current_user.email
@@ -185,7 +187,8 @@ def save_cart():
                 product_id=cart_line['id'],
                 qty=cart_line['qty'],
                 price=Product.query.get(cart_line['id']).sale_price(
-                    current_app.config['PRODUCT_PRICING'], iso_code)
+                    current_app.config['PRODUCT_PRICING'], iso_code,
+                    current_app.config['MULTICURRENCY'])
             ))
         db.session.commit()
         # load the newly populated cart
@@ -213,12 +216,13 @@ def store_admin(store_name):
         store.about = store_form.about.data
         store.iso_code = store_form.iso_code.data
         store.phone = store_form.phone.data
+        store.email = store_form.email.data
         if store_form.logo.data:
             store.logo = store_form.logo.data.read()
         store.user_id = current_user.id
         db.session.commit()
         flash('Store details: succesfully edited', 'success')
-        return redirect(url_for('.dashboard'))
+        return redirect(url_for('shop.store_admin', store_name=store.name))
     if account_form.validate_on_submit():
         # Create a new account detail
         account = flw_subaccount(
@@ -229,19 +233,21 @@ def store_admin(store_name):
         else:
             flash('Account details: unsuccesful', 'danger')
         flash(account[0], account[1])
-        return redirect(url_for('.dashboard'))
+        return redirect(url_for('shop.store_admin', store_name=store.name))
     # Pre-populating the form
     store_form.name.data = store.name
     store_form.about.data = store.about
     store_form.iso_code.data = store.iso_code
     store_form.logo.data = store.logo
     store_form.phone.data = store.phone
+    store_form.email.data = store.email
     # New stores don't posses account details
     if store.account:
         account_form.account_num.data = store.account.account_num
         account_form.bank.data = store.account.bank
     return render_template('store_admin.html', store_form=store_form,
-                           account_form=account_form)
+                           account_form=account_form,
+                           activated=store.account)
 
 
 @ shop.route('/store/new', methods=['GET', 'POST'])
@@ -291,7 +297,7 @@ def store_product_admin(store_name):
                                            product_form=prod_form)
             else:
                 flash("Unable to edit product", 'danger')
-            return redirect(url_for('.store_product', store_name=store_name))
+            return redirect(url_for('shop.store_product', store_name=store_name))
         if prod_form.validate_on_submit():
             db.session.add(Product(
                 name=prod_form.name.data,
@@ -301,10 +307,11 @@ def store_product_admin(store_name):
                 is_active=prod_form.is_active.data,
                 store_id=store.id)
             )
-            db.session()
+            db.session.commit()
             flash('Product created successfully', 'success')
-        # List the products
-        return redirect(url_for('.store_product', store_name=store_name))
+            # List the products
+            return redirect(url_for('shop.store_product', store_name=store_name))
+        return render_template('product.html', product_form=prod_form, currency=store.iso_code)
     else:
         flash('Access Error', 'danger')
-        return redirect(url_for('.market'))
+        return redirect(url_for('shop.market'))

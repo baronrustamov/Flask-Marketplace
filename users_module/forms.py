@@ -7,8 +7,7 @@ from .models import User
 
 
 def unique_entry(form, field):
-    if User.query.filter_by(name=field.data) is not None:
-        raise ValidationError(f'{field.data} already exists')
+    pass
 
 
 class ExtendedRegisterForm(RegisterForm):

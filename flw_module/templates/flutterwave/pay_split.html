@@ -9,25 +9,28 @@
 <script>
 
   function makePayment() {
-    var split_data = []
-    {% for line in pay_data %}
-    split_data.push({ id: "{{line[0].account.sub_number}}",
-      split:90 })
-      split_data.push({ id: "{{line[0].dispatcher.account.sub_number}}",
-      split:15 })
-    {% endfor %}
-    console.log(split_data)
     FlutterwaveCheckout({
       public_key: '{{ config.FLW_PUB_KEY }}',
       tx_ref: 'Reg/{{ current_user.id }}/{{ cart[0].order_id }}',
-      amount: '{{ store_value.shipping_costs | sum() + store_value.store_total }}',
-      currency: 'NGN',
+      amount: '{{ store_value.shipping_costs|sum() + store_value.store_total }}',
+      currency: '{{ store_value.iso_code }}',
       payment_options: 'card',
       customer: {
         email: '{{ current_user.email }}',
         name: '{{ current_user.name }}',
       },
-      subaccounts: split_data,
+      subaccounts: [
+        {% for line in pay_data %}
+        { id: "{{line[0].account.sub_number}}",
+          transaction_charge_type:"flat_subaccount",
+          transaction_charge: "{{line[1]|float * config.SPLIT_RATIO_STORE}}" },
+        { id: "{{line[0].dispatcher.account.sub_number}}",
+          transaction_charge_type:"flat_subaccount",
+          transaction_charge: `{{'%.2f'|format(
+            store_value['shipping_costs'][loop.index-1]|float *
+            config.SPLIT_RATIO_DISPATCHER)}}` },
+        {% endfor %}
+      ],
       callback: function (flw_response) {
         $.ajax({
           type: 'POST',
