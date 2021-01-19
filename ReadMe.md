@@ -121,6 +121,7 @@ PRODUCT_PRICING | String (defaults to 'localize') | The currencu to display the 
 STORE_REG_AMT | String of value+space+code (defaults to '10 USD') | The registration fee to charge Vendors
 
 ## Upcoming Improvements
-(An evolving list)
+An evolving list
 * Dispatcher Assignment should be currency-aware
 * `pay_after_done` option for the `PAYMENT_SPLIT_POINT` configuration variable: When the `pay_after_done` is used, disbursement of partners payments will only be effected after the order has been marked as delivered by the store owner.
+* Writing of tests

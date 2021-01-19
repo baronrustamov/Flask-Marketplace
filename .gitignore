@@ -9,6 +9,3 @@ __pycache__/
 *trash*
 *tests*
 shell.py
-
-# Data files
-*.sqlite3
