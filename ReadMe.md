@@ -1,12 +1,12 @@
-# JUMGA MARKETPLACE
+# [JUMGA MARKETPLACE](http://ewetoye.pythonanywhere.com/)
 ![Bootstrap-4.4.1](https://img.shields.io/badge/Bootstrap-4.4.1-blue "Bootstrap-4.4.1")
 ![Flask==1.2.2](https://img.shields.io/badge/Flask-1.1.2-black "Flask==1.2.2")
 ![Flask-SQLAlchemy==2.4.4](https://img.shields.io/badge/FlaskSQLAlchemy-2.4.4-black "Flask-SQLAlchemy==2.4.4")
 ![Flutterwave API V3](https://img.shields.io/badge/FlutterwaveApi-V3-orange "Flask-SQLAlchemy==2.4.4")
 ![JQuery-3.5.1](https://img.shields.io/badge/JQuery-3.5.1-yellow "JQuery-3.5.1")
 
-> A modular multi-store marketplace web application with a full online payment solution powered by Flutterwave.  
-> Developed during Flutterwave's Developer Challenge 2021.
+> A modular multi-store marketplace web application with a full online payment solution powered by Flutterwave. Developed during Flutterwave's Developer Challenge 2021.
+> [Try out a working version here.](http://ewetoye.pythonanywhere.com/)
 <hr>
 <div align='center'>
   <img src="./static/shop/img/site-banner.jpg" title="Medsaf banner" width='100%'>
@@ -39,13 +39,14 @@ This web application provides a Jumia-Like online market features where differen
     Note: The point at which the splitting occurs is defined by the PAYMENT_SPLIT_POINT (defaults to 'instant') see the Configuration section.
 
 ## Setup
+[See a working version here](http://ewetoye.pythonanywhere.com/)
 1. _[required]_ Install the requirements file by doing `python -m pip install -r requirements.txt`
 2. _[optional]_ During production, it is advisable to set configuration variables as explained in the [configuration section](#Configuration-parameters) but can be skipped during testing
-3. _[optional]_ For testing purpose if desired some dummy data (products, users, stores, and dispatchers) can be automatically bootstrapped to the database by running `python create_dummy.py`. [see more](testing)
-4. _[required]_ launch the app by doing `python run.py`
+3. _[required]_ launch the app by doing `python run.py`
 
 ## How it Works
 ### Registration
+[Try the steps below from a this working version](http://ewetoye.pythonanywhere.com/)
 <div align='center'>
   <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Jumga/readme_files/registration.gif"
     title="Registration process" width='100%'>
@@ -57,6 +58,7 @@ This web application provides a Jumia-Like online market features where differen
 * Fills the registration form with a unique email address, and instantly got registered and logged in.
 
 ### Store and Product Registration
+[Try registering a store](http://ewetoye.pythonanywhere.com/)
 <div align='center'>
   <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Jumga/readme_files/store and product reg.gif"
     title="Registration process" width='100%'>
@@ -71,6 +73,7 @@ Dispatchers are created by Jumga, each dispatcher can charge different delivery 
 For every product sales, the dispatcher receives `SPLIT_RATIO_DISPATCHER` (default to 0.8) fraction of it's sum of delivery charge. Check [payments and calculations](#Payments-and-calculations) for more.
 
 ### Shopping and checking-out
+[Try shopping and checking out](http://ewetoye.pythonanywhere.com/)
 <div align='center'>
   <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Jumga/readme_files/shopping and checkout.gif"
     title="Registration process" width='100%'>
