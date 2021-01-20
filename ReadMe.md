@@ -5,8 +5,10 @@
 ![Flutterwave API V3](https://img.shields.io/badge/FlutterwaveApi-V3-orange "Flask-SQLAlchemy==2.4.4")
 ![JQuery-3.5.1](https://img.shields.io/badge/JQuery-3.5.1-yellow "JQuery-3.5.1")
 
+
 > A modular multi-store marketplace web application with a full online payment solution powered by Flutterwave. Developed during Flutterwave's Developer Challenge 2021.
 > [Try out a working version here.](http://ewetoye.pythonanywhere.com/)
+
 <hr>
 <div align='center'>
   <img src="./static/shop/img/site-banner.jpg" title="Medsaf banner" width='100%'>
