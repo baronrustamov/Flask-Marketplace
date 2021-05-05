@@ -6,8 +6,8 @@ roles = {
 }
 
 users = {
-    'Jumga Admin': [
-        'admin@jumga.com',
+    'Admin': [
+        'admin@market.com',
         'password',
         'Admin'
     ],

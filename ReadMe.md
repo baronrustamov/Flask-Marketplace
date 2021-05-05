@@ -1,4 +1,4 @@
-# [JUMGA MARKETPLACE](http://ewetoye.pythonanywhere.com/)
+# [Flask-Marketplace](http://ewetoye.pythonanywhere.com/)
 ![Bootstrap-4.4.1](https://img.shields.io/badge/Bootstrap-4.4.1-blue "Bootstrap-4.4.1")
 ![Flask==1.2.2](https://img.shields.io/badge/Flask-1.1.2-black "Flask==1.2.2")
 ![Flask-SQLAlchemy==2.4.4](https://img.shields.io/badge/FlaskSQLAlchemy-2.4.4-black "Flask-SQLAlchemy==2.4.4")
@@ -34,10 +34,10 @@
 This web application provides a Jumia-Like online market features where different vendors register their stores and publish products for sale and also posses some additional features, notable of which are:
   * **Multicurrency:** By default the platform allows customers to switch currency. This could be fixed to the desired currency in the configuration file by setting the `PRODUCT_PRICING` value. [More in the configurations section](#Configuration-parameters). 
   * **Vendor Registration Token:** For registration, a fee whose value and currency could be set by setting the `STORE_REG_AMT` (defaults to 10 USD) value in the config. Read more in the config section.
-  * **Dispatcher Assignment:** Upon successful registration, a JUMGA dispatcher is randomly assigned to each store.
+  * **Dispatcher Assignment:** Upon successful registration, a registered dispatcher is randomly assigned to each store.
   * **Revenue sharing:** For every checked-out order, the total revenue is shared based on the value of the `STORE_PAY_RATIO` and `SPLIT_RATIO_DISPATCHER` configuration values. But by default:
-    * Vendor:Jumga = 0.97:0.03 of the product prices
-    * Dispatcher:Jumga = 0.80:0.2 of delivery fee.
+    * Vendor:Platform = 0.97:0.03 of the product prices
+    * Dispatcher:Platform = 0.80:0.2 of delivery fee.
     Note: The point at which the splitting occurs is defined by the PAYMENT_SPLIT_POINT (defaults to 'instant') see the Configuration section.
 
 ## Setup
@@ -50,7 +50,7 @@ This web application provides a Jumia-Like online market features where differen
 ### Registration
 [Try the steps below from a this working version](http://ewetoye.pythonanywhere.com/)
 <div align='center'>
-  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Jumga/readme_files/registration.gif"
+  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Flask-Marketplace/readme_files/registration.gif"
     title="Registration process" width='100%'>
 </div>
 
@@ -62,7 +62,7 @@ This web application provides a Jumia-Like online market features where differen
 ### Store and Product Registration
 [Try registering a store](http://ewetoye.pythonanywhere.com/)
 <div align='center'>
-  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Jumga/readme_files/store and product reg.gif"
+  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Flask-Marketplace/readme_files/store and product reg.gif"
     title="Registration process" width='100%'>
 </div>
 
@@ -71,13 +71,13 @@ When multicurrency in set to true, stores are allowed to quote the prices of the
 For every store sales, the share of the store owner is picked up from the `SPLIT_RATIO_STORE` (default is 0.975) configuration variable and when the `PAYMENT_SPLIT_POINT` is set to instant, the disbursement is achieved with Flutterwave's split payment feature. Check [payments and calculations](#Payments-and-calculations) for more.
 
 ### Dispatcher
-Dispatchers are created by Jumga, each dispatcher can charge different delivery rates which is specified during creation. Just like the stores, their account details are sent to flutterwave for the creation or modification of subaccounts.
+Dispatchers are created on the platform, each dispatcher can charge different delivery rates which is specified during creation. Just like the stores, their account details are sent to flutterwave for the creation or modification of subaccounts.
 For every product sales, the dispatcher receives `SPLIT_RATIO_DISPATCHER` (default to 0.8) fraction of it's sum of delivery charge. Check [payments and calculations](#Payments-and-calculations) for more.
 
 ### Shopping and checking-out
 [Try shopping and checking out](http://ewetoye.pythonanywhere.com/)
 <div align='center'>
-  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Jumga/readme_files/shopping and checkout.gif"
+  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Flask-Marketplace/readme_files/shopping and checkout.gif"
     title="Registration process" width='100%'>
 </div>
 
@@ -108,7 +108,7 @@ In this scenario:
 * Kwik(Dispatcher attched to Cocacola) gets 2820 * 0.8 = 2,256 NGN
 * Nokia gets 118000 * 0.975 = 115,050 NGN
 * Max(Dispatcher attched to Cocacola) gets 1880 * 0.8 = 1,504 NGN
-* Jumga receives the balance less the fluttewaves tranction charges
+* The platform receives the balance less the fluttewaves tranction charges
 
 
 ## Configuration Parameters

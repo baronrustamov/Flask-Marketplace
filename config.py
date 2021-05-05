@@ -1,5 +1,5 @@
 class Config:
-    APP_NAME = 'JUMGA'
+    APP_NAME = 'Flask'
     DEBUG = True
     SECRET_KEY = 'Ir$6789BoknbgRt678/;oAp[@.kjhgHfdsaw34I&?lP56789M'
     SECURITY_PASSWORD_HASH = 'sha512_crypt'
