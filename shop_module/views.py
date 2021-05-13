@@ -42,7 +42,7 @@ def before_request():
             if not((code,) in Currency.query.with_entities(
                     Currency.code).all()):
                 code = 'USD'
-        response.set_cookie('iso_code', code, samesite='None')
+        response.set_cookie('iso_code', code)
         return response
 
 
