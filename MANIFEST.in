@@ -1,0 +1,7 @@
+  
+include ReadMe.md
+include requirements.txt
+include Flask_Marketplace/flw_module/bank_data.json
+graft Flask_Marketplace/*/static
+graft Flask_Marketplace/*/templates
+exclude Flask_Marketplace/*/trash*

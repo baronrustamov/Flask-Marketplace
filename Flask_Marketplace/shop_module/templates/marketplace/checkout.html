@@ -1,0 +1,104 @@
+{% extends 'marketplace/base.html' %}
+
+{% block main_page %}
+<h2> Checkout </h2>
+{% if cart %}
+<form class='col-12'>
+  <div class='pb-2'>
+    <label>Delivery Address</label>
+    <textarea class='form-control' name='' id='' rows='3' required
+      placeholder='Provide us the address you want us to deliver to'>
+    </textarea>
+  </div>
+  <div class='form-group'>
+    <label for=''>Phone Number: </label>
+    <input type='text' name='' id='' class='form-control'>
+  </div>
+</form>
+
+<div class='col-12'>
+  Summary of Order
+  <!-- Shipping -->
+  <div class='card mt-3'>
+    <div class='card-header'>
+      <span class='collapsed' data-toggle='collapse' data-target='#dispatch_name'>
+        Shipping Cost: {{ store_value.iso_code }}
+        {{ '{:,.2f}'.format(store_value.shipping_costs | sum()) }}
+        <button class='badge badge-secondary'>Show</button>
+      </span>
+    </div>
+    <div id='dispatch_name' class='collapse'>
+      <div class='card-body'>
+        <h5>To be fulfilled by:</h5>
+        <ul>
+          {% for line in pay_data %}
+          <li>{{line[0].dispatcher.name}}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!-- Cart content-->
+  <div class='card mt-3'>
+    <div class='card-header'>
+      <span class='collapsed' data-toggle='collapse' data-target='#cart_content'>
+        Your cart value is {{ store_value.iso_code }}
+        {{ '{:,.2f}'.format(store_value.store_total) }}
+        <button class='badge badge-secondary'>Show</button>
+      </span>
+    </div>
+    <div id='cart_content' class='collapse'>
+      <div class='card-body'>
+        <table class='display table table-striped table-responsive mt-3'>
+          <thead>
+            <tr>
+              <th class='' style='max-width: 20px;'>No.</th>
+              <th class='d-none'>Id</th>
+              <th class='col-lg-6 col-sm-4'>Item</th>
+              <th class='col-lg-2 col-sm-2'>Qty</th>
+              <th class='col-lg-2 col-sm-2'>Unit Price</th>
+              <th class='col-lg-1 col-sm-2'>Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for line in cart %}
+            <tr>
+              <td class='s_n align-middle'></td>
+              <td class='align-middle d-none'>{{ line.id }}</td>
+              <td class='align-middle'>{{ line.product.name }}</td>
+              <td class='align-middle'>
+                <input type='number' min='1' class='form-control qty'
+                  value={{line.qty}} readonly>
+              </td>
+              <td class='align-middle'>{{ line.product.sale_price(
+                config.PRODUCT_PRICING, cart[0].order.iso_code,
+                config.MULTICURRENCY) }}
+              </td>
+              <td class='line_amt align-middle'></td>
+            </tr>
+            {% endfor %}
+            <!-- Area will be populated when shoping-->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <!-- Total -->
+  <p class='font-weight-bold mt-3 ml-4'>
+    Total payout: {{ store_value.iso_code }} {{ '{:,.2f}'.format(
+    store_value.shipping_costs | sum() + store_value.store_total) }}
+  </p>
+  <div class='row justify-content-center m-3 pb-3'>
+    {% include config.PAYMENT_PLATFORM+'/pay_split.html' %}
+  </div>
+</div>
+{% endif %}
+{% endblock main_page %}
+
+{% block bottom_styles_scripts%}
+<script src="{{ url_for('marketplace.static', filename='base/js/loadingoverlay.js') }}">
+</script>
+<script src="{{ url_for('marketplace.static', filename='base/js/table_cart.js') }}">
+</script>
+
+{% endblock bottom_styles_scripts %}

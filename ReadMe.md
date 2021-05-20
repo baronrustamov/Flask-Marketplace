@@ -11,7 +11,7 @@
 <hr>
 
 <div align='center'>
-  <img src="./static/shop/img/site-banner.jpg" title="Medsaf banner" width='100%'>
+  <img src="https://github.com/EwetoyeIbrahim/Flask-Marketplace/raw/master/static/shop/img/site-banner.jpg" title="Medsaf banner" width='100%'>
 </div>
 <hr>
 
