@@ -14,4 +14,3 @@ shell.py
 build/
 dist/
 *.egg-info
-testrun.py
