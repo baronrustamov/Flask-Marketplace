@@ -6,12 +6,12 @@
 ![JQuery-3.5.1](https://img.shields.io/badge/JQuery-3.5.1-yellow "JQuery-3.5.1")
 
 
-> A modular multi-store marketplace web application with a full online payment solution powered by Flutterwave. Developed during Flutterwave's Developer Challenge 2021.
+> A modular multi-store marketplace extension with a full online payment solution. Can be deployed as a standalone application or installed to provide marketplace features to an existing application.
 > [Try out a working version here.](http://ewetoye.pythonanywhere.com/)
 <hr>
 
 <div align='center'>
-  <img src="https://github.com/EwetoyeIbrahim/Flask-Marketplace/raw/master/static/shop/img/site-banner.jpg" title="Medsaf banner" width='100%'>
+  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/Flask-Marketplace/master/Flask_Marketplace/shop_module/static/marketplace/img/site-banner.jpg" title="Flask-Marketplace Banner" width='100%'>
 </div>
 <hr>
 
@@ -19,6 +19,8 @@
 ## Table of Contents
 * [Introduction](#Introduction)
 * [Setup](#Setup)
+  * [Setup Steps](#Steps)
+  * [Minimal Example](#Minimal-Example)
 * [Testing Data](#Testing)
 * [How it works](#How-it-works)
   * [Registration](#Registration)
@@ -41,10 +43,21 @@ This web application provides a Jumia-Like online market features where differen
     Note: The point at which the splitting occurs is defined by the PAYMENT_SPLIT_POINT (defaults to 'instant') see the Configuration section.
 
 ## Setup
-[See a working version here](http://ewetoye.pythonanywhere.com/)
-1. _[required]_ Install the requirements file by doing `python -m pip install -r requirements.txt`
+See a [working version here](http://ewetoye.pythonanywhere.com/),
+See a [minimal example here](#Minimal-Example)
+### Steps
+1. _[required]_ Install the requirements file by doing `pip install Flask-Marketplace`
 2. _[optional]_ During production, it is advisable to set configuration variables as explained in the [configuration section](#Configuration-parameters) but can be skipped during testing
-3. _[required]_ launch the app by doing `python run.py`
+3. _[required]_ Call the Marketplace function with an app object, as shown below.
+### Minimal Example
+```
+from Flask_Marketplace import marketplace
+
+if __name__ == '__main__':
+    from flask import Flask
+    app = Flask(__name__)
+    marketplace(app).run(port=6060, host='0.0.0.0', debug=True)
+```
 
 ## How it Works
 ### Registration
