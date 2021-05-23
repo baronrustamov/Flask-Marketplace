@@ -39,7 +39,7 @@
       customizations: {
         title: 'Registration Fee',
         description: 'This is a one-off fee',
-        logo: '{{ request.url_root }}' + "{{ url_for('marketplace.static', filename='marketplace/img/site-logo.png') }}",
+        logo: "{{ url_for('marketplace.static', filename='marketplace/img/site-logo.png', _external=True) }}",
       },
     });
   }

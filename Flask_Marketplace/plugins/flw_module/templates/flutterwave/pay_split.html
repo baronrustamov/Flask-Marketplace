@@ -53,7 +53,7 @@
       },
       customizations: {
         title: 'Pay for your order',
-        logo: '{{ request.url_root }}' + "{{ url_for('marketplace.static', filename='marketplace/img/site-logo.png') }}",
+        logo: "{{ url_for('marketplace.static', filename='marketplace/img/site-logo.png', _external=True) }}",
       },
     });
   }

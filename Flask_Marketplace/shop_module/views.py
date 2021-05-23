@@ -9,9 +9,9 @@ from .models import Currency, Dispatcher, \
     Order, OrderLine, Product, Store
 from . import utilities
 from .forms import StoreRegisterForm, ProductForm
-from flw_module.forms import AccountDetailForm
-from flw_module.models import AccountDetail
-from flw_module.utilities import flw_subaccount
+from plugins.flw_module.forms import AccountDetailForm
+from plugins.flw_module.models import AccountDetail
+from plugins.flw_module.utilities import flw_subaccount
 from factory import db
 from users_module.forms import ProfileForm
 from .utilities import can_edit_product, currency_options, latest_stores

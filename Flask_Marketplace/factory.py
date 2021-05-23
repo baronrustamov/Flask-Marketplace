@@ -63,10 +63,18 @@ def marketplace(
             flash('You were successfully registered', 'success')
 
         # ----- Setup flw_moodule
+        import importlib
+        plugins = [{'path': 'flw_module', 'bp_name': 'flw'}]
+        for plugin in plugins:
+            importlib.import_module('plugins.'+plugin['path']+'.models') 
+            #importlib.import_module('models', package='plugins.'+plugin['path'])
+            module = importlib.import_module('plugins.'+plugin['path']+'.views') 
+            app.register_blueprint(getattr(module, plugin['bp_name']), url_prefix=url_prefix+'/'+plugin['bp_name'])
+        '''
         import flw_module.models
         from flw_module.views import flw
         app.register_blueprint(flw, url_prefix=url_prefix+'/flw')
-
+        '''
         # ----- Setup shop_module
         import shop_module.models
         # After the last models,
