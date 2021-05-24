@@ -5,13 +5,13 @@ from flask import abort, Blueprint, current_app, flash, make_response, \
     redirect, render_template, request, Response, url_for
 from flask_login import current_user, login_required
 
-from .models import Currency, Dispatcher, \
-    Order, OrderLine, Product, Store
+from .models import (
+    AccountDetail, Currency, Dispatcher, Order, OrderLine, Product, Store)
 from . import utilities
-from .forms import StoreRegisterForm, ProductForm
-from plugins.flw_module.forms import AccountDetailForm
-from plugins.flw_module.models import AccountDetail
-from plugins.flw_module.utilities import flw_subaccount
+from .forms import AccountForm, ProductForm, StoreRegisterForm
+from .utilities import account_detail #from plugins.flw_module.forms import AccountDetailForm
+#from plugins.flw_module.models import AccountDetail
+#from plugins.flw_module.utilities import flw_subaccount
 from factory import db
 from users_module.forms import ProfileForm
 from .utilities import can_edit_product, currency_options, latest_stores
@@ -216,7 +216,7 @@ def store_admin(store_name):
         abort(Response('''It seems either you don't possess access or
                       you've input a wrong address'''))
     store_form = StoreRegisterForm()
-    account_form = AccountDetailForm()
+    account_form = AccountForm()
     if store_form.validate_on_submit():
         # Changing the store detail
         store.name = store_form.name.data
@@ -230,17 +230,13 @@ def store_admin(store_name):
         db.session.commit()
         flash('Store details: succesfully edited', 'success')
         return redirect(url_for('marketplace.store_admin', store_name=store.name))
+    
     if account_form.validate_on_submit():
         # Create a new account detail
-        account = flw_subaccount(
-            store, 'create', current_app.config['SPLIT_RATIO_STORE'],
-            account_form, current_app.config['FLW_SEC_KEY'])
-        if not 'danger' in account:
-            flash('Account details: succesfully edited', 'success')
-        else:
-            flash('Account details: unsuccesful', 'danger')
+        account = account_detail(store)
         flash(account[0], account[1])
         return redirect(url_for('marketplace.store_admin', store_name=store.name))
+    
     # Pre-populating the form
     store_form.name.data = store.name
     store_form.about.data = store.about
@@ -248,10 +244,12 @@ def store_admin(store_name):
     store_form.logo.data = store.logo
     store_form.phone.data = store.phone
     store_form.email.data = store.email
+
     # New stores don't posses account details
     if store.account:
         account_form.account_num.data = store.account.account_num
         account_form.bank.data = store.account.bank
+
     return render_template('marketplace/store_admin.html',
                            store_form=store_form,
                            account_form=account_form,
@@ -276,7 +274,7 @@ def store_product(store_name):
 
 
 @ marketplace.route('/store/<string:store_name>/admin/product',
-             methods=['GET', 'POST'])
+                    methods=['GET', 'POST'])
 @ login_required
 def store_product_admin(store_name):
     # get the current store object

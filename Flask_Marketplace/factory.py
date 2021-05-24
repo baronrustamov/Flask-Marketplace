@@ -66,8 +66,9 @@ def marketplace(
         import importlib
         plugins = [{'path': 'flw_module', 'bp_name': 'flw'}]
         for plugin in plugins:
-            importlib.import_module('plugins.'+plugin['path']+'.models') 
-            #importlib.import_module('models', package='plugins.'+plugin['path'])
+            print (globals())
+            importlib.import_module('plugins.'+plugin['path'], '*')
+            print (globals())
             module = importlib.import_module('plugins.'+plugin['path']+'.views') 
             app.register_blueprint(getattr(module, plugin['bp_name']), url_prefix=url_prefix+'/'+plugin['bp_name'])
         '''

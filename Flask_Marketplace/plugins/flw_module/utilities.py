@@ -5,8 +5,7 @@ from flask_security import current_user
 from requests import get, post
 
 from factory import db
-from shop_module.models import Dispatcher, Order, OrderLine, Store
-from .models import AccountDetail
+from Flask_Marketplace.shop_module.models import AccountDetail, Dispatcher, Order, OrderLine, Store
 
 # Getting the bank details handy,
 # Banks don't get created every year

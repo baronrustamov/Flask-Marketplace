@@ -4,14 +4,32 @@ from requests import get
 from flask import make_response, redirect, request, render_template
 from flask_security import current_user
 
-from .models import Currency, Dispatcher, Order, Store
+from .models import AccountDetail, Currency, Dispatcher, Order, Store
+from .forms import AccountForm
 from factory import db
+
+
+def account_detail(partner):
+    account_form = AccountForm()
+    if not partner.account:
+        account = AccountDetail(
+            account_name=account_form.name.data,
+            account_num=account_form.account_num.data,
+            bank=account_form.bank.data,)
+        partner.account=account
+    else:
+        # The store owner is trying to change the attached account
+        partner.account.account_name=account_form.name.data
+        partner.account.account_num=account_form.account_num.data
+        partner.account.bank=account_form.bank.data
+    db.session.commit()
+    return('Your account has been edited', 'success')
 
 
 def convert_currency(price, from_currency, to_currency):
     '''Converts price of products to visitor's currency based on scale'''
     if to_currency:
-        scale = (
+        scale=(
             Currency.query.filter_by(code=to_currency).first().rate /
             Currency.query.filter_by(code=from_currency).first().rate)
         return round(Decimal(price) * scale, 2)
@@ -24,10 +42,10 @@ def payment_split_ratio(amount_list):
 
 
 def amounts_sep(iso_code, pay_data, dispatch_currency):
-    shipping = []
-    store_total = 0
+    shipping=[]
+    store_total=0
     for i in range(len(pay_data)):
-        shipping_charge = convert_currency(
+        shipping_charge=convert_currency(
             pay_data[i][0].dispatcher.charge,
             dispatch_currency, iso_code) * pay_data[i][2]
         shipping.append(shipping_charge)
