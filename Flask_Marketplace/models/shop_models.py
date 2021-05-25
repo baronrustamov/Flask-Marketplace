@@ -13,7 +13,6 @@ from factory import db
 
 
 class Currency(db.Model):
-    print("jojojo")
     code = db.Column(db.String(3), primary_key=True)
     country = db.Column(db.String(50), nullable=False)
     rate = db.Column(db.Numeric(12, 6), nullable=False)

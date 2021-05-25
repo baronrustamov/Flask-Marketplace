@@ -5,7 +5,7 @@ from flask_security import current_user
 from requests import get, post
 
 from factory import db
-from Flask_Marketplace.shop_module.models import AccountDetail, Dispatcher, Order, OrderLine, Store
+from Flask_Marketplace.models.shop_models import AccountDetail, Dispatcher, Order, OrderLine, Store
 
 # Getting the bank details handy,
 # Banks don't get created every year
@@ -127,8 +127,6 @@ def flw_subaccount(partner, mode, split_ratio, account_form,
     }
 
     result = post(url, headers=headers, data=json.dumps(payload),).json()
-    print(payload)
-    print(result)
     # Record the created subaccount
     if result['data']:
         if not partner.account:

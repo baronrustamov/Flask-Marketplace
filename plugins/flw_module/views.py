@@ -12,7 +12,6 @@ flw = Blueprint('flw', __name__, template_folder='templates')
 @flw.route('/callback/store_payment', methods=['POST'])
 def callback_store_payment():
     flw_data = request.json
-    print(flw_data)
     store_name = utilities.confirm_store_reg(
         flw_data['transaction_id'],
         current_app.config['STORE_REG_AMT'],
@@ -28,7 +27,6 @@ def callback_store_payment():
 @flw.route('/callback/sales_payment', methods=['POST'])
 def callback_sales_payment():
     flw_data = request.json
-    print(flw_data)
     if utilities.confirm_sales_payment(
             flw_data['transaction_id'],
             current_app.config['FLW_SEC_KEY']):

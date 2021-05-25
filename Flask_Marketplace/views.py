@@ -64,29 +64,29 @@ class MarketViews:
         iso_code = request.cookies.get('iso_code')
         prod_str = request.args.get('id')
         # Check if the current user has an hanging cart
-        cart = Order.cart().filter_by(user_id=current_user.id).first()
+        cart = self.Order.cart().filter_by(user_id=current_user.id).first()
         if prod_str:
             # ---- The user is adding a product to cart ------
             prod_id = int(prod_str)
             # Get the selected product detail
-            cart_line = Product.public().filter_by(id=prod_id).first()
+            cart_line = self.Product.public().filter_by(id=prod_id).first()
             if cart:
                 # Check if this product already exist in the cart
-                prev_prod_line = db.session.query(OrderLine).filter_by(
+                prev_prod_line = db.session.query(self.OrderLine).filter_by(
                     order_id=cart.id, product_id=prod_id).first()
                 if prev_prod_line:
                     # Add one to the quantity of this product
                     prev_prod_line.qty += 1
                 else:
                     # Include this product in the previous cart
-                    db.session.add(OrderLine(order_id=cart.id,
+                    db.session.add(self.OrderLine(order_id=cart.id,
                                              product_id=cart_line.id,
                                              price=cart_line.price,))
             else:
                 # Take the product with price tag and add it to an new cart
-                cart_line = OrderLine(product_id=cart_line.id,
+                cart_line = self.OrderLine(product_id=cart_line.id,
                                       price=cart_line.price,)
-                cart = Order(user_id=current_user.id, iso_code=iso_code,
+                cart = self.Order(user_id=current_user.id, iso_code=iso_code,
                              orderlines=[cart_line])
                 db.session.add(cart_line)
                 db.session.add(cart)
@@ -94,7 +94,7 @@ class MarketViews:
             flash("Item has been added to cart", 'success')
             return redirect(url_for('marketplace.cart', cart=cart))
         if cart:
-            cart = OrderLine.query.filter_by(order_id=cart.id).all()
+            cart = self.OrderLine.query.filter_by(order_id=cart.id).all()
         return render_template('marketplace/cart.html', cart=cart)
 
     @login_required
@@ -167,7 +167,6 @@ class MarketViews:
     def save_cart(self):
         # Still being worked on
         cart_data = request.json
-        print(cart_data)
         cart = OrderLine.query.filter_by(order_id=cart_data['cart_id']).all()
         if (cart[0].order.user_id == current_user.id):
             iso_code = request.cookies.get('iso_code')

@@ -33,32 +33,32 @@ def marketplace(
             os.path.dirname(__file__)), 'platform.sqlite3')
         app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + test_db
 
-    # --- This section won't have been needed if don't want to customize security views by default
+    # This section won't have been needed if I don't want to customize 
+    # security views by default.
     # I found it difficult to overide security blueprint template for login and registration
     # Thus, a quick fix will be to manually direct Jinja Loader.
     # I can think of some possible issues now, but untill then...
+    
     shop_module_temps = os.path.join(
-        os.path.abspath(os.path.dirname(__file__)), 'shop_module', 'templates')
-    main_temps = (os.path.join(os.path.abspath(
-        os.path.dirname(sys.modules['__main__'].__name__)), 'templates'))
-    print(shop_module_temps)
+        os.path.abspath(os.path.dirname(__file__)), 'templates')
     enhanced_jinja_loader = jinja2.ChoiceLoader([
         app.jinja_loader,
-        jinja2.FileSystemLoader(main_temps),
         jinja2.FileSystemLoader(shop_module_temps),
     ])
     app.jinja_loader = enhanced_jinja_loader
-
+    
     db.init_app(app)
     with app.app_context():
-        # ----- Setup users_module
-        from Flask_Marketplace.users_module import models
-        from users_module import user_datastore, User, Role, UserAdmin, RoleAdmin
-        from users_module.forms import ExtendedRegisterForm
-        security = Security(app, user_datastore,
-                            register_form=ExtendedRegisterForm)
+        
+        from Flask_Marketplace.models import user_models
+        from models import user_datastore, User, Role, UserAdmin, RoleAdmin
+        from Flask_Marketplace.models.shop_models import AccountDetail, Currency, Dispatcher, Order, OrderLine, Product, Store
+        from Flask_Marketplace.forms.shop_forms import AccountForm, ProductForm, StoreRegisterForm
+        from Flask_Marketplace.forms.user_forms import ExtendedRegisterForm, ProfileForm
+        from Flask_Marketplace import MarketViews
 
-        # ----- Setup admin
+        # Setting up Security and Admins
+        security = Security(app, user_datastore, register_form=ExtendedRegisterForm)
         admin = Admin(app)
         admin.add_view(UserAdmin(User, db.session))
         admin.add_view(RoleAdmin(Role, db.session))
@@ -67,28 +67,19 @@ def marketplace(
         def no_emails(payload):
             flash('You were successfully registered', 'success')
 
-        # ----- Setup shop_module and plugins
-        from Flask_Marketplace.shop_module.models import AccountDetail, Currency, Dispatcher, Order, OrderLine, Product, Store
-        from Flask_Marketplace.shop_module.forms import AccountForm, ProductForm, StoreRegisterForm
-        from Flask_Marketplace.users_module.forms import ProfileForm
-        from Flask_Marketplace import MarketViews
 
-        # ----- Setup flw_moodule
+        # ----- Setup Plugins
         import importlib
         plugins = [{'path': 'flw_module', 'bp_name': 'flw'}]
         for plugin in plugins:
             my_module = importlib.import_module('plugins.'+plugin['path'], '*')
             module_dict = my_module.__dict__
-            try:
-                to_import = my_module.__all__
-            except AttributeError:
-                to_import = [
-                    name for name in module_dict if not name.startswith('_')]
-            globals().update({name: module_dict[name] for name in to_import})
-
-            print(locals())
-            module = importlib.import_module(
-                'plugins.'+plugin['path']+'.views')
+            to_import = [
+                name for name in module_dict if not name.startswith('_')]
+            locals().update({name: module_dict[name] for name in to_import})
+            # print(locals())
+            
+            module = importlib.import_module('plugins.'+plugin['path']+'.views')
             app.register_blueprint(
                 getattr(module, plugin['bp_name']), url_prefix=url_prefix+'/'+plugin['bp_name'])
         
@@ -124,7 +115,7 @@ def marketplace(
         shop.add_url_rule('/store/<string:store_name>/admin/product',
                          view_func=marketends.store_product_admin, methods=['GET', 'POST'])
         # Template accessible variables
-        from Flask_Marketplace.shop_module.utilities import can_edit_product, currency_options, latest_stores
+        from Flask_Marketplace.utilities import can_edit_product, currency_options, latest_stores
         shop.add_app_template_global(can_edit_product)
         shop.add_app_template_global(currency_options)
         shop.add_app_template_global(latest_stores)

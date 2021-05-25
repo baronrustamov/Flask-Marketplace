@@ -1,1 +1,0 @@
-''' Module for handling shop products interactions '''

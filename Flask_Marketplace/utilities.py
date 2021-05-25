@@ -4,7 +4,7 @@ from requests import get
 from flask import make_response, redirect, request, render_template
 from flask_security import current_user
 
-from Flask_Marketplace.shop_module.models import AccountDetail, Currency, Dispatcher, Order, Store
+from Flask_Marketplace.models.shop_models import AccountDetail, Currency, Dispatcher, Order, Store
 
 from factory import db
 

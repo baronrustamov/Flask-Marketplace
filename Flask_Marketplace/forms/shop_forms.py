@@ -4,7 +4,7 @@ from wtforms import (
     SelectField, StringField, SubmitField, ValidationError)
 from wtforms.validators import length, required
 
-from Flask_Marketplace.shop_module.models import AccountDetail, Currency, Dispatcher, Order, OrderLine, Store
+from Flask_Marketplace.models.shop_models import AccountDetail, Currency, Dispatcher, Order, OrderLine, Store
 
 
 def unique_entry(form, field):
