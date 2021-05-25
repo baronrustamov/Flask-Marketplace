@@ -4,13 +4,13 @@ from requests import get
 from flask import make_response, redirect, request, render_template
 from flask_security import current_user
 
-from .models import AccountDetail, Currency, Dispatcher, Order, Store
-from .forms import AccountForm
+from Flask_Marketplace.shop_module.models import AccountDetail, Currency, Dispatcher, Order, Store
+
 from factory import db
 
 
-def account_detail(partner):
-    account_form = AccountForm()
+def account_detail(partner, account_form):
+    account_form = account_form()
     if not partner.account:
         account = AccountDetail(
             account_name=account_form.name.data,

@@ -3,7 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import SubmitField, StringField, ValidationError
 from wtforms.validators import required
 
-from .models import User
+from Flask_Marketplace.users_module.models import User
 
 
 def unique_entry(form, field):

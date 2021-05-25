@@ -15,3 +15,12 @@ class AccountForm(AccountForm):
                                   'data-live-search': 'true'}
                        )
     save = SubmitField()
+
+from Flask_Marketplace import MarketViews as ujik
+from flask import render_template
+class MarketViews(ujik):
+    def index(self):
+        print("asdfghjklpuy What")
+        latest = self.Product.query.limit(3).all()
+        return render_template('marketplace/h8ome.html', products=latest)
+

@@ -4,20 +4,29 @@ from requests import get
 from flask import (abort, current_app, flash, make_response, redirect,
                    render_template, request, Response, url_for)
 from flask_login import current_user, login_required
+from sqlalchemy import text
 
-from .models import (
-    AccountDetail, Currency, Dispatcher, Order, OrderLine, Product, Store)
 from . import utilities
-from .forms import AccountForm, ProductForm, StoreRegisterForm
-# from plugins.flw_module.forms import AccountDetailForm
-from .utilities import account_detail
-#from plugins.flw_module.models import AccountDetail
-#from plugins.flw_module.utilities import flw_subaccount
 from factory import db
-from users_module.forms import ProfileForm
 
 
-class MarketViews():
+class MarketViews:
+    def __init__(self, AccountDetail, Currency, Dispatcher, Order, OrderLine, Product, Store,
+                 AccountForm, ProductForm, ProfileForm, StoreRegisterForm):
+        # Models
+        self.AccountDetail = AccountDetail
+        self.Currency = Currency
+        self.Dispatcher = Dispatcher
+        self.Order = Order
+        self.OrderLine = OrderLine
+        self.Product = Product
+        self.Store = Store
+        # Forms
+        self.AccountForm = AccountForm
+        self.ProductForm = ProductForm
+        self.ProfileForm = ProfileForm
+        self.StoreRegisterForm = StoreRegisterForm
+
     def before_request(self):
         ''' Make sure that the currency is always known '''
         if not(request.cookies.get('iso_code')):
@@ -30,17 +39,28 @@ class MarketViews():
                     code = get('https://ipapi.co/currency/').text
                 except Exception:
                     code = 'USD'
-                if not((code,) in Currency.query.with_entities(
-                        Currency.code).all()):
+                if not((code,) in self.Currency.query.with_entities(
+                        self.Currency.code).all()):
                     code = 'USD'
             response.set_cookie('iso_code', code)
             return response
 
     def index(self):
-        latest = Product.query.order_by('created_at').limit(6).all()
+        """Homepage of marketplace
+
+        Returns:
+            template: marketplace/home.html
+        """
+        latest = self.Product.query.limit(6).all()
         return render_template('marketplace/home.html', products=latest)
 
+    @login_required
     def cart(self):
+        """Add or view items in cart
+
+        Returns:
+            template: marketplace/cart.html
+        """
         iso_code = request.cookies.get('iso_code')
         prod_str = request.args.get('id')
         # Check if the current user has an hanging cart
@@ -77,15 +97,16 @@ class MarketViews():
             cart = OrderLine.query.filter_by(order_id=cart.id).all()
         return render_template('marketplace/cart.html', cart=cart)
 
+    @login_required
     def checkout(self):
         iso_code = request.cookies.get('iso_code')
         # Get the last hanging cart
         cart_lines = None
-        cart = Order.cart().filter_by(user_id=current_user.id).first()
+        cart = self.Order.cart().filter_by(user_id=current_user.id).first()
         if cart:
-            cart_lines = OrderLine.query.filter_by(order_id=cart.id).all()
+            cart_lines = self.OrderLine.query.filter_by(order_id=cart.id).all()
             # For security reason, let's update all the order line prices
-            for line in db.session.query(OrderLine).filter_by(order_id=1).all():
+            for line in db.session.query(self.OrderLine).filter_by(order_id=1).all():
                 line.price = line.product.sale_price(
                     current_app.config['PRODUCT_PRICING'], iso_code,
                     current_app.config['MULTICURRENCY'])
@@ -94,26 +115,24 @@ class MarketViews():
         # Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
         # Why sum of quantities per store? Recall, dispatchers rates are per qty
         store_value_sq = db.session.query(
-            Product.store_id.label('store_id'),
-            db.func.sum(OrderLine.qty *
-                        OrderLine.price).label('store_amt_sum'),
-            db.func.sum(OrderLine.qty).label(
+            self.Product.store_id.label('store_id'),
+            db.func.sum(self.OrderLine.qty *
+                        self.OrderLine.price).label('store_amt_sum'),
+            db.func.sum(self.OrderLine.qty).label(
                 'store_qty_sum').label('store_qty_sum'),
-        ).join(Product).filter(OrderLine.order_id == cart.id).group_by(
-            Product.store_id).subquery()
+        ).join(self.Product).filter(self.OrderLine.order_id == cart.id).group_by(
+            self.Product.store_id).subquery()
         # All other payment data are related to the store
         pay_data = db.session.query(
-            Store, store_value_sq.c.store_amt_sum,
+            self.Store, store_value_sq.c.store_amt_sum,
             store_value_sq.c.store_qty_sum).join(
-            store_value_sq, Store.id == store_value_sq.c.store_id).all()
+            store_value_sq, self.Store.id == store_value_sq.c.store_id).all()
         # Compute amounts
         store_value = utilities.amounts_sep(
             iso_code, pay_data, current_app.config['CURRENCY_DISPATCHER'])
-        return render_template('marketplace/checkout.html',
-                               cart=cart_lines,
-                               store_value=store_value,
-                               pay_data=pay_data)
+        return (cart_lines, store_value, pay_data)
 
+    @login_required
     def dashboard(self):
         profile_form = ProfileForm()
         if profile_form.validate_on_submit():
@@ -131,20 +150,20 @@ class MarketViews():
 
     def image(self, model, id):
         if model == 'product':
-            product = Product.query.get_or_404(id)
+            product = self.Product.query.get_or_404(id)
             return Response(product.image, mimetype='image/jpg')
         elif model == 'store':
-            store = Store.query.get_or_404(id)
+            store = self.Store.query.get_or_404(id)
             return Response(store.logo, mimetype='image/jpg')
-        abort(404)
+        return False
 
     def market(self):
         iso_code = request.cookies.get('iso_code')
-        products = Product.public()
+        products = self.Product.public()
         return render_template('marketplace/market.html',
                                products=products,
                                iso_code=iso_code)
-
+    @login_required
     def save_cart(self):
         # Still being worked on
         cart_data = request.json
@@ -173,6 +192,7 @@ class MarketViews():
         flash("Unable to save your cart", 'info')
         return "Failed"
 
+    @login_required
     def store_admin(self, store_name):
         # get the current store object
         store = Store.query.filter_by(name=store_name).first()
@@ -198,7 +218,7 @@ class MarketViews():
 
         if account_form.validate_on_submit():
             # Create a new account detail
-            account = account_detail(store)
+            account = utilities.account_detail(store, self.AccountForm)
             flash(account[0], account[1])
             return redirect(url_for('marketplace.store_admin', store_name=store.name))
 
