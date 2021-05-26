@@ -27,6 +27,14 @@ class MarketViews:
         self.ProfileForm = ProfileForm
         self.StoreRegisterForm = StoreRegisterForm
 
+    @classmethod
+    def get_all_subclasses(cls):
+        all_subclasses = []
+        for subclass in cls.__subclasses__():
+            all_subclasses.append(subclass)
+            all_subclasses.extend(subclass.get_all_subclasses())
+        return all_subclasses
+
     def before_request(self):
         ''' Make sure that the currency is always known '''
         if not(request.cookies.get('iso_code')):
@@ -80,14 +88,14 @@ class MarketViews:
                 else:
                     # Include this product in the previous cart
                     db.session.add(self.OrderLine(order_id=cart.id,
-                                             product_id=cart_line.id,
-                                             price=cart_line.price,))
+                                                  product_id=cart_line.id,
+                                                  price=cart_line.price,))
             else:
                 # Take the product with price tag and add it to an new cart
                 cart_line = self.OrderLine(product_id=cart_line.id,
-                                      price=cart_line.price,)
+                                           price=cart_line.price,)
                 cart = self.Order(user_id=current_user.id, iso_code=iso_code,
-                             orderlines=[cart_line])
+                                  orderlines=[cart_line])
                 db.session.add(cart_line)
                 db.session.add(cart)
             db.session.commit()
@@ -163,6 +171,7 @@ class MarketViews:
         return render_template('marketplace/market.html',
                                products=products,
                                iso_code=iso_code)
+
     @login_required
     def save_cart(self):
         # Still being worked on

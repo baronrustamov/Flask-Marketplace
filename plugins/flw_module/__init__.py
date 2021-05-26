@@ -1,2 +1,2 @@
-from .models import FlwDetail
-from .forms import AccountForm
+from . import models
+from . import forms

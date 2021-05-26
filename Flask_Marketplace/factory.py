@@ -74,10 +74,7 @@ def marketplace(
         for plugin in plugins:
             my_module = importlib.import_module('plugins.'+plugin['path'], '*')
             module_dict = my_module.__dict__
-            to_import = [
-                name for name in module_dict if not name.startswith('_')]
-            locals().update({name: module_dict[name] for name in to_import})
-            # print(locals())
+            imports = {name: module_dict[name] for name in module_dict if not name.startswith('_')}
             
             module = importlib.import_module('plugins.'+plugin['path']+'.views')
             app.register_blueprint(
@@ -86,12 +83,22 @@ def marketplace(
         # Make sure all models exists
         db.create_all()
 
+        """Overiding default market views from plugins
+        """
+        mod_views = [MarketViews]
+        sub_views = MarketViews.get_all_subclasses()
+        if sub_views:
+            mod_views.extend(sub_views)
+            _def_view, *args = mod_views
+            class NewMarketViews(*args): pass
+        else:
+            NewMarketViews = MarketViews
         
-        marketends = MarketViews(
+        marketends = NewMarketViews(
             AccountDetail, Currency, Dispatcher, Order, OrderLine, Product, Store,
             AccountForm, ProductForm, ProfileForm, StoreRegisterForm)
 
-        # Register Marketplace rules
+        # Registering Marketplace rules
         shop = Blueprint('marketplace', __name__, template_folder='templates', static_folder='static',
                          static_url_path='/static/marketplace')
         shop.before_request(marketends.before_request)
@@ -114,7 +121,9 @@ def marketplace(
                          view_func=marketends.store_product_admin, methods=['GET', 'POST'])
         shop.add_url_rule('/store/<string:store_name>/admin/product',
                          view_func=marketends.store_product_admin, methods=['GET', 'POST'])
-        # Template accessible variables
+        
+        
+        # Template-wide accessible variables
         from Flask_Marketplace.utilities import can_edit_product, currency_options, latest_stores
         shop.add_app_template_global(can_edit_product)
         shop.add_app_template_global(currency_options)
