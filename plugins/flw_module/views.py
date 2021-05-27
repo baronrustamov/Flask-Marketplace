@@ -1,8 +1,10 @@
 ''' Defination of all shop views in `shop` blueprint '''
-from flask import Blueprint, current_app, flash, request, url_for
 import json
+
+from flask import Blueprint, current_app, flash, request, url_for, render_template
+from Flask_Marketplace.factory import db
+from Flask_Marketplace import MarketViews
 from . import utilities
-from factory import db
 
 
 # ---------- Declaring the blueprint ----------
@@ -34,3 +36,15 @@ def callback_sales_payment():
     else:
         flash("Unable to confirm payment, contact us", 'danger')
     return {'redirect': url_for('marketplace.market')}
+
+'''
+class OverideIndex(MarketViews):
+    def index(self):
+        """Homepage of marketplace
+
+        Returns:
+            template: marketplace/home.html
+        """
+        latest = self.Product.query.limit(4).all()
+        return render_template('marketplace/home.html', products=latest)
+'''

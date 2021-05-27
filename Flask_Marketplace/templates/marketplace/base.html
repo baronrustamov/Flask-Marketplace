@@ -10,8 +10,7 @@
   </title>
   <meta charset='utf-8'>
   <meta name='viewport' content='width=device-width, initial-scale=1, shrink-to-fit=no'>
-  <link rel="icon" type="image/jpg"
-    href="{{ url_for('marketplace.static', filename='marketplace/img/site-logo.png') }}" />
+  link rel="icon" type="image/jpg" href="{{ url_for('static', filename='favicon.png') }}" />
   <link rel='stylesheet'
     href='https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css'/>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css"
@@ -27,7 +26,7 @@
   <nav class="navbar fixed-top navbar-expand-sm navbar-light bg-secondary">
     <a class="navbar-brand text-white border-right border-white pr-3 font-weight-bold" href="{{ url_for('marketplace.index') }}">
       {{ config.APP_NAME }}
-      <img src="{{ url_for('marketplace.static', filename='marketplace/img/site-logo.png') }}" width="30" height="30"
+      <img src="{{ url_for('marketplace.static', filename='marketplace/img/site_logo.png') }}" width="30" height="30"
         class="d-inline-block align-top" alt="">
     </a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">

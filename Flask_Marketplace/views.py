@@ -1,4 +1,5 @@
 ''' Defination of all marketplace views in `marketplace` blueprint '''
+import os
 from requests import get
 
 from flask import (abort, current_app, flash, make_response, redirect,
@@ -8,11 +9,12 @@ from sqlalchemy import text
 
 from . import utilities
 from factory import db
+from Flask_Marketplace.models.shop_models import (
+    AccountDetail, Currency, Dispatcher, Order, OrderLine, Product, Store)
 
 
 class MarketViews:
-    def __init__(self, AccountDetail, Currency, Dispatcher, Order, OrderLine, Product, Store,
-                 AccountForm, ProductForm, ProfileForm, StoreRegisterForm):
+    def __init__(self, AccountForm, ProductForm, ProfileForm, StoreRegisterForm):
         # Models
         self.AccountDetail = AccountDetail
         self.Currency = Currency
@@ -26,14 +28,6 @@ class MarketViews:
         self.ProductForm = ProductForm
         self.ProfileForm = ProfileForm
         self.StoreRegisterForm = StoreRegisterForm
-
-    @classmethod
-    def get_all_subclasses(cls):
-        all_subclasses = []
-        for subclass in cls.__subclasses__():
-            all_subclasses.append(subclass)
-            all_subclasses.extend(subclass.get_all_subclasses())
-        return all_subclasses
 
     def before_request(self):
         ''' Make sure that the currency is always known '''
@@ -59,8 +53,19 @@ class MarketViews:
         Returns:
             template: marketplace/home.html
         """
+        # Get all banners
+        ban_dir = 'marketplace/img/banners/'
+        try:
+            # Use the user defined ones, if present
+            banners = [
+                ban_dir + file for file in os.listdir('static/'+ban_dir)]
+        except FileNotFoundError:
+            # Use the default place holders
+            banners = os.listdir(os.path.join(os.path.abspath(
+                os.path.dirname(__file__)), 'static/'+ban_dir))
+            banners = ['marketplace/' + ban_dir + file for file in banners]
         latest = self.Product.query.limit(6).all()
-        return render_template('marketplace/home.html', products=latest)
+        return render_template('marketplace/home.html', products=latest, banners=banners)
 
     @login_required
     def cart(self):
