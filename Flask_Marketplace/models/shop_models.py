@@ -148,3 +148,13 @@ class Store(db.Model):
     def public(cls):
         # only products from active stores are made public
         return(Store.query.filter(Store.is_active == 1))
+
+
+class AccountDetail(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    account_name = db.Column(db.String(50), nullable=False)
+    account_num = db.Column(db.Integer, nullable=False)
+    bank = db.Column(db.String(100), nullable=False)
+    # relationships --------------------------------------
+    stores = db.relationship('Store', backref='account')
+    dispatchers = db.relationship('Dispatcher', backref='account')

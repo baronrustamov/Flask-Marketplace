@@ -4,9 +4,10 @@ from wtforms import (IntegerField, SelectField, StringField,
 from wtforms.validators import required
 
 from .utilities import bank_options
+from Flask_Marketplace.forms.shop_forms import AccountForm
 
 
-class AccountDetailForm(FlaskForm):
+class AccountForm(AccountForm):
     account_num = IntegerField('Account Number', [required()])
     bank = SelectField('Select a bank', [required()],
                        choices=bank_options,

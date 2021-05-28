@@ -14,3 +14,6 @@ shell.py
 build/
 dist/
 *.egg-info
+
+# Database
+*platform.sqlite3

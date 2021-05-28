@@ -4,11 +4,17 @@ from wtforms import (
     SelectField, StringField, SubmitField, ValidationError)
 from wtforms.validators import length, required
 
-from .models import Currency, Store
+from Flask_Marketplace.models.shop_models import AccountDetail, Currency, Dispatcher, Order, OrderLine, Store
 
 
 def unique_entry(form, field):
     pass
+
+
+class AccountForm(FlaskForm):
+    account_num = IntegerField('Account Number', [required()])
+    bank = StringField('Bank Name', [required()])
+    save = SubmitField()
 
 
 class StoreRegisterForm(FlaskForm):

@@ -4,8 +4,25 @@ from requests import get
 from flask import make_response, redirect, request, render_template
 from flask_security import current_user
 
-from .models import Currency, Dispatcher, Order, Store
-from factory import db
+from Flask_Marketplace.models.shop_models import AccountDetail, Currency, Dispatcher, Order, Store
+from Flask_Marketplace.factory import db
+
+
+def account_detail(partner, account_form):
+    account_form = account_form()
+    if not partner.account:
+        account = AccountDetail(
+            account_name=account_form.name.data,
+            account_num=account_form.account_num.data,
+            bank=account_form.bank.data,)
+        partner.account = account
+    else:
+        # The store owner is trying to change the attached account
+        partner.account.account_name = account_form.name.data
+        partner.account.account_num = account_form.account_num.data
+        partner.account.bank = account_form.bank.data
+    db.session.commit()
+    return('Your account has been edited', 'success')
 
 
 def convert_currency(price, from_currency, to_currency):
@@ -67,3 +84,29 @@ def currency_options():
 def latest_stores():
     return Store.query.with_entities(Store.name).order_by(
         'created_at').limit(3).all()
+
+
+def _get_all_subclasses(cls):
+    # Recursively get all subclasses
+    all_subclasses = []
+    for subclass in cls.__subclasses__():
+        all_subclasses.append(subclass)
+        all_subclasses.extend(_get_all_subclasses(subclass))
+    return all_subclasses
+
+
+def create_new(cls):
+    """[summary]
+
+    Returns:
+        [type]: [description]
+    """
+    mod_views = [cls]
+    all_subclasses = _get_all_subclasses(cls)
+    if all_subclasses:
+        mod_views.extend(all_subclasses)
+        _def_view, *args = mod_views
+        class NewClass(*args): pass
+    else:
+        NewClass = cls
+    return NewClass
