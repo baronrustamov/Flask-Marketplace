@@ -45,6 +45,7 @@
       <form method='POST'>
         {{ account_form.hidden_tag() }}
         <div class='form-group col-12'>
+          {{ render_field_with_errors(account_form.account_name) }}
           {{ render_field_with_errors(account_form.account_num) }}
           {{ render_field_with_errors(account_form.bank) }}
         </div>

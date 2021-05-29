@@ -1,0 +1,5 @@
+<button class='btn btn-primary btn-md' type="button" onClick="makePayment()">
+  Pay {{ store_value.iso_code }}
+  {{ '{:,.2f}'.format(store_value.shipping_costs | sum() +
+  store_value.store_total) }}
+</button>

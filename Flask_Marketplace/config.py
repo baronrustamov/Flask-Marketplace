@@ -6,6 +6,8 @@ class Config:
     SECURITY_PASSWORD_SALT = 'vcxdse4r6yu8ijjnb$cde456y7fc'
     SECURITY_REGISTERABLE = True
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # ----- Plugins
+    PLUGINS_FOLDER = 'plugins' # folder of plugins relative to the app root
     # ----- Payment Info
     CURRENCY_DISPATCHER = 'USD'
     FLW_PUB_KEY = 'FLWPUBK_TEST-4b5acac8e21aceb3fc87f634a846c001-X'

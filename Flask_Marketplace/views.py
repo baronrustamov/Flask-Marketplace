@@ -53,18 +53,17 @@ class MarketViews:
         Returns:
             template: marketplace/home.html
         """
-        # Get all banners
-        ban_dir = 'marketplace/img/banners/'
         try:
             # Use the user defined ones, if present
-            banners = [
-                ban_dir + file for file in os.listdir('static/'+ban_dir)]
+            ban_dir = 'static/marketplace_assets/img/banners/'
+            banners = [ban_dir + img for img in os.listdir(ban_dir)]
         except FileNotFoundError:
             # Use the default place holders
+            ban_dir = 'marketplace/img/banners/'
             banners = os.listdir(os.path.join(os.path.abspath(
                 os.path.dirname(__file__)), 'static/'+ban_dir))
-            banners = ['marketplace/' + ban_dir + file for file in banners]
-        latest = self.Product.query.limit(6).all()
+            banners = ['/static/marketplace/' + ban_dir + img for img in banners]
+        latest = self.Product.query.order_by(self.Product.created_at.desc()).limit(6).all()
         return render_template('marketplace/home.html', products=latest, banners=banners)
 
     @login_required
@@ -143,11 +142,12 @@ class MarketViews:
         # Compute amounts
         store_value = utilities.amounts_sep(
             iso_code, pay_data, current_app.config['CURRENCY_DISPATCHER'])
-        return (cart_lines, store_value, pay_data)
+        return render_template('marketplace/checkout.html', cart=cart_lines,
+                           store_value=store_value, pay_data=pay_data)
 
     @login_required
     def dashboard(self):
-        profile_form = ProfileForm()
+        profile_form = self.ProfileForm()
         if profile_form.validate_on_submit():
             # Changing the store detail
             current_user.name = profile_form.name.data
@@ -164,10 +164,10 @@ class MarketViews:
     def image(self, model, id):
         if model == 'product':
             product = self.Product.query.get_or_404(id)
-            return Response(product.image, mimetype='image/jpg')
+            if product: return Response(product.image, mimetype='image/jpg')
         elif model == 'store':
             store = self.Store.query.get_or_404(id)
-            return Response(store.logo, mimetype='image/jpg')
+            if store: return Response(store.logo, mimetype='image/jpg')
         return False
 
     def market(self):
@@ -213,8 +213,8 @@ class MarketViews:
             # Will be handled appropriately later. Just control access for now
             abort(Response('''It seems either you don't possess access or
                         you've input a wrong address'''))
-        store_form = StoreRegisterForm()
-        account_form = AccountForm()
+        store_form = self.StoreRegisterForm()
+        account_form = self.AccountForm()
         if store_form.validate_on_submit():
             # Changing the store detail
             store.name = store_form.name.data
@@ -270,7 +270,7 @@ class MarketViews:
         store = Store.query.filter_by(name=store_name).first()
         if store and (store.user.id == current_user.id):
             prod = Product.query.get(request.args.get('id'))
-            prod_form = ProductForm()
+            prod_form = self.ProductForm()
             if prod:
                 if prod.store_id == store.id:
                     # Permitted to edit this product

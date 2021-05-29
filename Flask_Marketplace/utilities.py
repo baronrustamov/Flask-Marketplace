@@ -4,7 +4,8 @@ from requests import get
 from flask import make_response, redirect, request, render_template
 from flask_security import current_user
 
-from Flask_Marketplace.models.shop_models import AccountDetail, Currency, Dispatcher, Order, Store
+from Flask_Marketplace.models.shop_models import (
+    AccountDetail, Currency, Dispatcher, Order, Store)
 from Flask_Marketplace.factory import db
 
 
@@ -12,7 +13,7 @@ def account_detail(partner, account_form):
     account_form = account_form()
     if not partner.account:
         account = AccountDetail(
-            account_name=account_form.name.data,
+            account_name=account_form.account_name.data,
             account_num=account_form.account_num.data,
             bank=account_form.bank.data,)
         partner.account = account
@@ -83,7 +84,7 @@ def currency_options():
 
 def latest_stores():
     return Store.query.with_entities(Store.name).order_by(
-        'created_at').limit(3).all()
+        Store.created_at.desc()).limit(3).all()
 
 
 def _get_all_subclasses(cls):
@@ -106,7 +107,9 @@ def create_new(cls):
     if all_subclasses:
         mod_views.extend(all_subclasses)
         _def_view, *args = mod_views
-        class NewClass(*args): pass
+
+        class NewClass(*args):
+            pass
     else:
         NewClass = cls
     return NewClass
