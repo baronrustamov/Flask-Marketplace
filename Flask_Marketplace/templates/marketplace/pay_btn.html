@@ -3,3 +3,22 @@
   {{ '{:,.2f}'.format(store_value.shipping_costs | sum() +
   store_value.store_total) }}
 </button>
+<script>
+  function (flw_response) {
+    $.ajax({
+      type: 'POST',
+      url: "{{ url_for('flutterwave.callback_sales_payment') }}",
+      data: JSON.stringify(flw_response),
+      contentType: 'application/json; charset=utf-8',
+      success: function (data, textStatus) {
+        console.log(data)
+        if (data.redirect) {
+          // data.redirect contains the string URL to redirect to
+          window.location.href = data.redirect;
+        } else {
+          console.log('This should never happen: contact us')
+        }
+      },
+    });
+  }
+</script>

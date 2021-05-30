@@ -1,11 +1,28 @@
 {% extends 'marketplace/dashboard.html' %}
 {% block field_page %}
-<h5 class='text-center pb-5'> Register a Store</h5>
+<h5 class='text-center pb-5'> Register a New Store</h5>
 <p class='col-12'>
-  Before proceeding, you are required to pay a store registration fee
-  of {{config.STORE_REG_AMT}} or its
-  equivalent in your currency.
-  Kindly click on the payment button below to get started
+  Creating a store means you accept our terms and conditions.
 </p>
-{% include 'flutterwave/store_reg.html' %}
+<form class='col text-center'>
+  <button type='button' onClick='createStore()' class='btn btn-success col-6 m-4'>Create Store</button>
+</form>
+<script>
+  function createStore() {
+    $.ajax({
+      type: 'POST',
+      url: "{{ url_for('marketplace.store_new') }}",
+      contentType: 'application/json; charset=utf-8',
+      success: function (data, textStatus) {
+        console.log(data)
+        if (data.redirect) {
+          // data.redirect contains the string URL to redirect to
+          window.location.href = data.redirect;
+        } else {
+          console.log('This should never happen: contact us')
+        }
+      },
+    });
+  }
+</script>
 {% endblock field_page %}

@@ -62,8 +62,10 @@ class MarketViews:
             ban_dir = 'marketplace/img/banners/'
             banners = os.listdir(os.path.join(os.path.abspath(
                 os.path.dirname(__file__)), 'static/'+ban_dir))
-            banners = ['/static/marketplace/' + ban_dir + img for img in banners]
-        latest = self.Product.query.order_by(self.Product.created_at.desc()).limit(6).all()
+            banners = ['/static/marketplace/' +
+                       ban_dir + img for img in banners]
+        latest = self.Product.query.order_by(
+            self.Product.created_at.desc()).limit(6).all()
         return render_template('marketplace/home.html', products=latest, banners=banners)
 
     @login_required
@@ -122,7 +124,6 @@ class MarketViews:
                 line.price = line.product.sale_price(
                     current_app.config['PRODUCT_PRICING'], iso_code,
                     current_app.config['MULTICURRENCY'])
-
             db.session.commit()  # To ensure the updated figures are picked up
         # Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
         # Why sum of quantities per store? Recall, dispatchers rates are per qty
@@ -143,7 +144,11 @@ class MarketViews:
         store_value = utilities.amounts_sep(
             iso_code, pay_data, current_app.config['CURRENCY_DISPATCHER'])
         return render_template('marketplace/checkout.html', cart=cart_lines,
-                           store_value=store_value, pay_data=pay_data)
+                               store_value=store_value, pay_data=pay_data)
+
+    @login_required
+    def checked_out(self):
+        pass
 
     @login_required
     def dashboard(self):
@@ -164,10 +169,12 @@ class MarketViews:
     def image(self, model, id):
         if model == 'product':
             product = self.Product.query.get_or_404(id)
-            if product: return Response(product.image, mimetype='image/jpg')
+            if product:
+                return Response(product.image, mimetype='image/jpg')
         elif model == 'store':
             store = self.Store.query.get_or_404(id)
-            if store: return Response(store.logo, mimetype='image/jpg')
+            if store:
+                return Response(store.logo, mimetype='image/jpg')
         return False
 
     def market(self):
@@ -230,9 +237,20 @@ class MarketViews:
             return redirect(url_for('marketplace.store_admin', store_name=store.name))
 
         if account_form.validate_on_submit():
-            # Create a new account detail
-            account = utilities.account_detail(store, self.AccountForm)
-            flash(account[0], account[1])
+            # Create or edit a account detail
+            if not store.account:
+                account = AccountDetail(
+                    account_name=account_form.account_name.data,
+                    account_num=account_form.account_num.data,
+                    bank=account_form.bank.data,)
+                store.account = account
+            else:
+                # The store owner is trying to change the attached account
+                store.account.account_name = account_form.account_name.data
+                store.account.account_num = account_form.account_num.data
+                store.account.bank = account_form.bank.data
+            db.session.commit()
+            flash('Your account has been edited', 'success')
             return redirect(url_for('marketplace.store_admin', store_name=store.name))
 
         # Pre-populating the form
@@ -242,24 +260,35 @@ class MarketViews:
         store_form.logo.data = store.logo
         store_form.phone.data = store.phone
         store_form.email.data = store.email
-
+        print(store.account)
         # New stores don't posses account details
-        if store.account:
-            account_form.account_num.data = store.account.account_num
-            account_form.bank.data = store.account.bank
+        #if store.account:
+        account_form.account_name.data = store.account.account_name
+        account_form.account_num.data = store.account.account_num
+        account_form.bank.data = store.account.bank
 
         return render_template('marketplace/store_admin.html',
                                store_form=store_form,
-                               account_form=account_form,
-                               activated=store.account)
+                               account_form=account_form)
 
-    def store_new(self):
-        return render_template('marketplace/store_new.html',
-                               store_num=len(current_user.stores))
+    def store_new(self, name=None):
+        if request.method == 'POST':
+            if not name:
+                name = current_app.config['DEFAULT_STORE_NAME']
+            dispatcher = db.session.query(
+                Dispatcher).order_by(db.func.random()).first().id
+            store = Store(name=name, about='Give your store a short Description',
+                          iso_code='USD', dispatcher_id=dispatcher, user_id=current_user.id,
+                          phone='e.g. 08123456789', email='e.g. abc@gmail.com')
+            db.session.add(store)
+            db.session.commit()
+            return {'redirect': url_for('marketplace.store_admin', store_name=name)}
+        return render_template('marketplace/store_new.html')
 
     def store_product(self, store_name):
         # List the products
         store = Store.query.filter_by(name=store_name).first()
+        print(store.account)
         prod_list = Product.query.filter_by(store_id=store.id).all()
         return render_template('marketplace/market.html',
                                products=prod_list,

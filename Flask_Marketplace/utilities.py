@@ -7,23 +7,7 @@ from flask_security import current_user
 from Flask_Marketplace.models.shop_models import (
     AccountDetail, Currency, Dispatcher, Order, Store)
 from Flask_Marketplace.factory import db
-
-
-def account_detail(partner, account_form):
-    account_form = account_form()
-    if not partner.account:
-        account = AccountDetail(
-            account_name=account_form.account_name.data,
-            account_num=account_form.account_num.data,
-            bank=account_form.bank.data,)
-        partner.account = account
-    else:
-        # The store owner is trying to change the attached account
-        partner.account.account_name = account_form.name.data
-        partner.account.account_num = account_form.account_num.data
-        partner.account.bank = account_form.bank.data
-    db.session.commit()
-    return('Your account has been edited', 'success')
+from Flask_Marketplace.models.shop_models import AccountDetail, Dispatcher, Order, OrderLine, Store
 
 
 def convert_currency(price, from_currency, to_currency):
@@ -76,6 +60,43 @@ def can_edit_product(current_user, product_store):
         if product_store in current_user.stores:
             return True
     return False
+
+
+def update_cart_status(status='order'):
+    """Update cart status
+
+    Args:
+        user_id (int): DB id of the user
+        status (str, optional): stage of the cart. Defaults to 'order'.
+    """
+    # get the order data for comparism and verification
+    cart = Order.cart().filter_by(user_id=current_user.id).first()
+    cart_tot = db.session.query(
+        db.func.sum(OrderLine.qty * OrderLine.price)).filter(
+        OrderLine.order_id == cart.id).group_by(OrderLine.order_id).first()
+    # We can now certify the order
+    cart.status = status
+    cart.amount = str(cart_tot[0])
+    db.session.commit()
+    return "Transaction updated to {}".format(status)
+
+
+def create_new_store(name=None):
+    name = len(Store)
+    dispatcher = db.session.query(
+        Dispatcher).order_by(db.func.random()).first().id
+    store = Store(
+        name=name,
+        about='Give your store a short Description',
+        iso_code='USD',
+        dispatcher_id=dispatcher,
+        user_id=current_user.id,
+        phone='e.g. 08123456789',
+        email='e.g. abc@gmail.com'
+    )
+    db.session.add(store)
+    db.session.commit()
+    return name
 
 
 def currency_options():

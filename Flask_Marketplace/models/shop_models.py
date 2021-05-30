@@ -12,6 +12,16 @@ from datetime import datetime
 from factory import db
 
 
+class AccountDetail(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    account_name = db.Column(db.String(50), nullable=False)
+    account_num = db.Column(db.Integer, nullable=False)
+    bank = db.Column(db.String(100), nullable=False)
+    # relationships --------------------------------------
+    stores = db.relationship('Store', backref='account')
+    dispatchers = db.relationship('Dispatcher', backref='account')
+
+
 class Currency(db.Model):
     code = db.Column(db.String(3), primary_key=True)
     country = db.Column(db.String(50), nullable=False)
@@ -38,7 +48,7 @@ class Order(db.Model):
     '''
       Table of orders: status can be one of
         * `cart`: The order havenot been checked-out
-        * `placed`: It has been checkout, but not yet paid for
+        * `order`: It has been checkout, but not yet paid for
         * `paid`: It has been fully paid for
         * `dispatched`: It has been handed to the dispatcher
         * `fulfilled`: It has been delivered to the customer
@@ -131,8 +141,7 @@ class Store(db.Model):
     about = db.Column(db.String(150), nullable=False)
     iso_code = db.Column(db.Integer, db.ForeignKey('currency.code'),
                          nullable=False)
-    account_id = db.Column(db.Integer,
-                           db.ForeignKey('account_detail.id'))
+    account_id = db.Column(db.Integer, db.ForeignKey('account_detail.id'))
     dispatcher_id = db.Column(db.Integer, db.ForeignKey('dispatcher.id'),
                               nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
@@ -150,11 +159,18 @@ class Store(db.Model):
         return(Store.query.filter(Store.is_active == 1))
 
 
-class AccountDetail(db.Model):
+class SalesJournal(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    account_name = db.Column(db.String(50), nullable=False)
-    account_num = db.Column(db.Integer, nullable=False)
-    bank = db.Column(db.String(100), nullable=False)
+    order_id = db.Column(db.Integer, db.ForeignKey('order.id'),
+                         nullable=False)
+    partner_id = db.Column(db.Integer, db.ForeignKey('order.id'),
+                         nullable=False)
+    total = db.Column(db.Integer, nullable=False)
+    payout = db.Column(db.Integer, nullable=False)
+    status = db.Column(db.String, nullable=False, default='paid')
     # relationships --------------------------------------
     stores = db.relationship('Store', backref='account')
     dispatchers = db.relationship('Dispatcher', backref='account')
+
+    def __init__(self, order_id, partner_id, fraction, status):
+        self.payout = total*1
