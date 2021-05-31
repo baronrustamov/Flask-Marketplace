@@ -13,6 +13,8 @@ class Config:
     MULTICURRENCY = True
     PRODUCT_PRICING = 'localize'
     DEFAULT_STORE_NAME = 'Name your store'
+    SPLIT_RATIO_STORE = 0.9
+    SPLIT_RATIO_DISPATCHER = 0.85
 
 
 class DevelopmentConfig(Config):

@@ -9,6 +9,7 @@ Shop related models, currently we have:
 '''
 from datetime import datetime
 
+from flask import current_app
 from factory import db
 
 
@@ -37,8 +38,8 @@ class Dispatcher(db.Model):
     charge = db.Column(db.Integer, nullable=False)
     phone = db.Column(db.String(15), nullable=False)
     email = db.Column(db.String(100), nullable=False)
-    account_id = db.Column(db.Integer,
-                           db.ForeignKey('account_detail.id'))
+    account_id = db.Column(db.Integer, db.ForeignKey('account_detail.id'))
+    sales_id = db.Column(db.Integer, db.ForeignKey('sales_journal.id'))
     is_active = db.Column(db.Boolean(), default=True)
     # relationships --------------------------------------
     stores = db.relationship('Store', backref='dispatcher')
@@ -142,6 +143,7 @@ class Store(db.Model):
     iso_code = db.Column(db.Integer, db.ForeignKey('currency.code'),
                          nullable=False)
     account_id = db.Column(db.Integer, db.ForeignKey('account_detail.id'))
+    sales_id = db.Column(db.Integer, db.ForeignKey('sales_journal.id'))
     dispatcher_id = db.Column(db.Integer, db.ForeignKey('dispatcher.id'),
                               nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'),
@@ -163,14 +165,15 @@ class SalesJournal(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'),
                          nullable=False)
-    partner_id = db.Column(db.Integer, db.ForeignKey('order.id'),
-                         nullable=False)
     total = db.Column(db.Integer, nullable=False)
     payout = db.Column(db.Integer, nullable=False)
     status = db.Column(db.String, nullable=False, default='paid')
     # relationships --------------------------------------
-    stores = db.relationship('Store', backref='account')
-    dispatchers = db.relationship('Dispatcher', backref='account')
+    stores = db.relationship('Store', backref='sales')
+    dispatchers = db.relationship('Dispatcher', backref='sales')
 
-    def __init__(self, order_id, partner_id, fraction, status):
-        self.payout = total*1
+    def __init__(self, order_id, status, share=1):
+        self.order_id = order_id
+        self.total = total
+        self.payout = self.total*share
+        self.status = status
