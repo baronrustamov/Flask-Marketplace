@@ -33,7 +33,7 @@
       <div class="carousel-inner">
         {% for banner in banners %}
         <div class="carousel-item {% if loop.first %}active{% endif %}">
-          <img class="d-block w-100" src="/static/{{banner}}" alt="Banner">
+          <img class="d-block w-100" src="{{banner}}" alt="Banner">
         </div>
         {% endfor %}
       </div>

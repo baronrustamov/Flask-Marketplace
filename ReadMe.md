@@ -11,7 +11,7 @@
 <hr>
 
 <div align='center'>
-  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/Flask-Marketplace/master/Flask_Marketplace/shop_module/static/marketplace/img/site-banner.jpg" title="Flask-Marketplace Banner" width='100%'>
+  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/Flask-Marketplace/master/Flask_Marketplace/static/marketplace/img/site_logo.png" title="Flask-Marketplace Banner" width='100%'>
 </div>
 <hr>
 

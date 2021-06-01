@@ -1,18 +1,13 @@
 {% extends 'marketplace/dashboard.html' %}
 {% block field_page %}
-
 {% from 'marketplace/custom_macro.html' import render_field_with_errors, render_field_btn %}
 <h5 class='text-center'> Store Details
-  {% if activated %}
   <a  class="btn btn-sm btn-secondary" href="{{ url_for('marketplace.store_product', store_name=store_form.name.data) }}">
     View Products
   </a>
   <a class="btn btn-sm btn-secondary" href="{{ url_for('marketplace.store_product_admin', store_name=store_form.name.data) }}">
     Add New Product
   </a>
-  {% else %}
-  <small class='text-info'>Attach a valid to start adding products</small>
-  {% endif %}
 </h5>
 <div class="row">
   <div class="form-group col-md-6 mt-5">
@@ -45,6 +40,7 @@
       <form method='POST'>
         {{ account_form.hidden_tag() }}
         <div class='form-group col-12'>
+          {{ render_field_with_errors(account_form.account_name) }}
           {{ render_field_with_errors(account_form.account_num) }}
           {{ render_field_with_errors(account_form.bank) }}
         </div>

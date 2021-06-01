@@ -89,7 +89,7 @@
     store_value.shipping_costs | sum() + store_value.store_total) }}
   </p>
   <div class='row justify-content-center m-3 pb-3'>
-    {% include config.PAYMENT_PLATFORM+'/pay_split.html' %}
+    {% include '/marketplace/pay_btn.html' %}
   </div>
 </div>
 {% endif %}

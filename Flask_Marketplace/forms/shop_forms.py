@@ -12,6 +12,7 @@ def unique_entry(form, field):
 
 
 class AccountForm(FlaskForm):
+    account_name = StringField('Bank Name', [required()])
     account_num = IntegerField('Account Number', [required()])
     bank = StringField('Bank Name', [required()])
     save = SubmitField()

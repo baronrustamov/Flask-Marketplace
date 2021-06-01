@@ -2,8 +2,6 @@
 The Factory Function:  
 The aim of this file is to return a fully decorated app object through the
 `marketplace` function
-  - The database is initialised here, thus to add table(s) db must be inherited from here
-  - All blueprint are stitched within the app_context
 '''
 import jinja2
 import os
@@ -14,29 +12,44 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_security import Security, login_required, SQLAlchemyUserDatastore
 from flask_admin import Admin
 
-from config import config
 try:
     import db
 except ImportError:
     db = SQLAlchemy()
 from Flask_Marketplace import utilities as util
 
-sys.path.append(os.path.dirname(__file__))
+
+default_config = {
+    'APP_NAME': 'Flask',
+    'DEBUG': True,
+    'SECRET_KEY': 'Ir$6789BoknbgRt678/;oAp[@.kjhgHfdsaw34I&?lP56789M',
+    'SECURITY_PASSWORD_HASH': 'sha512_crypt',
+    'SECURITY_PASSWORD_SALT': 'vcxdse4r6yu8ijjnb$cde456y7fc',
+    'SECURITY_REGISTERABLE': True,
+    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+    # ----- Plugins
+    'PLUGINS_FOLDER': 'plugins',  # plugins folder relative to the app root
+    # ----- Payment Info
+    'CURRENCY_DISPATCHER': 'USD',
+    'MULTICURRENCY': True,
+    'PRODUCT_PRICING': 'localize',
+    'DEFAULT_STORE_NAME': 'Name your store',
+    'SPLIT_RATIO_STORE': 0.9,
+    'SPLIT_RATIO_DISPATCHER': 0.85,
+    'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + os.path.join(os.path.abspath(
+        os.path.dirname(__file__)), 'platform.sqlite3')
+}
 
 
-def marketplace(
-        app,
-        config_name=os.getenv('CONFIG_NAME', default='default'),
-        url_prefix=''):
-    app.config.from_object(config[config_name])
-    if not 'SQLALCHEMY_DATABASE_URI' in app.config:
-        test_db = os.path.join(os.path.abspath(
-            os.path.dirname(__file__)), 'platform.sqlite3')
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + test_db
+def marketplace(app, url_prefix=''):
+    # Configs
+    for config in default_config:
+        if not config in app.config:
+            app.config[config] = default_config[config]
 
     # This section won't have been needed if I don't want to customize
     # security views by default.
-    # I found it difficult to overide security blueprint template for login and registration
+    # It's difficult to overide security blueprint template for login and registration
     # Thus, a quick fix will be to manually direct Jinja Loader.
     # I can think of some possible issues now, but untill then...
 
@@ -71,29 +84,37 @@ def marketplace(
             flash('You were successfully registered', 'success')
 
         # ----- Setup Plugins
-        import importlib
-        plugins = [{'path': 'flw_module', 'bp_name': 'flw'}]
-        for plugin in plugins:
-            my_module = importlib.import_module('plugins.'+plugin['path'], '*')
-            module_dict = my_module.__dict__
-            imports = {name: module_dict[name]
-                       for name in module_dict if not name.startswith('_')}
-
-            module = importlib.import_module(
-                'plugins.'+plugin['path']+'.views')
-            app.register_blueprint(
-                getattr(module, plugin['bp_name']), url_prefix=url_prefix+'/'+plugin['bp_name'])
-
+        plugins_path = app.config['PLUGINS_FOLDER']
+        if os.path.isdir(plugins_path):
+            from importlib import import_module
+            plugins = os.listdir(plugins_path)  # List of plugins
+            for plugin in plugins:
+                # import everything exposed through the __init__ of each plugins
+                my_module = import_module(plugins_path+'.'+plugin, '*')
+                module_dict = my_module.__dict__
+                plugin_imports = {name: module_dict[name]
+                                  for name in module_dict if not name.startswith('_')}
+                # If present, register a blueprint found in views.py file
+                # Note that the blueprint name must be the same as the plugin.
+                try:
+                    view_mod = import_module(plugins_path+'.'+plugin+'.views')
+                    app.register_blueprint(
+                        getattr(view_mod, plugin), url_prefix=url_prefix+'/'+plugin)
+                except (ModuleNotFoundError, AttributeError) as e:
+                    print('Info:', e)
+        else:
+            print('Info: No plugins folder found')
         # Make sure all models exists
         db.create_all()
 
         """Overiding default market views from plugins"""
         # views can be subclassed to overide some default routes
-        marketends = util.create_new(MarketViews)(
-            util.create_new(AccountForm), util.create_new(
-                ProductForm), util.create_new(ProfileForm),
-            util.create_new(StoreRegisterForm))
-
+        marketends = util.inherit_classes(MarketViews)(
+            util.inherit_classes(
+                AccountForm), util.inherit_classes(ProductForm),
+            util.inherit_classes(ProfileForm), util.inherit_classes(StoreRegisterForm))
+        print('Info: Views inheritance is as stated below \n',
+              marketends.__class__.__mro__)
         # Registering Marketplace rules
         shop = Blueprint('marketplace', __name__, template_folder='templates',
                          static_folder='static', static_url_path='/static/marketplace')

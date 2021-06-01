@@ -1,0 +1,24 @@
+<button class='btn btn-primary btn-md' type="button" onClick="#">
+  Pay {{ store_value.iso_code }}
+  {{ '{:,.2f}'.format(store_value.shipping_costs | sum() +
+  store_value.store_total) }}
+</button>
+<script>
+  function (flw_response) {
+    $.ajax({
+      type: 'POST',
+      url: "{{ 2 }}",
+      data: JSON.stringify(flw_response),
+      contentType: 'application/json; charset=utf-8',
+      success: function (data, textStatus) {
+        console.log(data)
+        if (data.redirect) {
+          // data.redirect contains the string URL to redirect to
+          window.location.href = data.redirect;
+        } else {
+          console.log('This should never happen: contact us')
+        }
+      },
+    });
+  }
+</script>

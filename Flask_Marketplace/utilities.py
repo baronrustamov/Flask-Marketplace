@@ -1,28 +1,12 @@
 from decimal import Decimal
 from requests import get
 
-from flask import make_response, redirect, request, render_template
+from flask import current_app, make_response, redirect, request, render_template
 from flask_security import current_user
 
-from Flask_Marketplace.models.shop_models import AccountDetail, Currency, Dispatcher, Order, Store
+from Flask_Marketplace.models.shop_models import (
+    Currency, Dispatcher, Order, OrderLine, Product, Store)
 from Flask_Marketplace.factory import db
-
-
-def account_detail(partner, account_form):
-    account_form = account_form()
-    if not partner.account:
-        account = AccountDetail(
-            account_name=account_form.name.data,
-            account_num=account_form.account_num.data,
-            bank=account_form.bank.data,)
-        partner.account = account
-    else:
-        # The store owner is trying to change the attached account
-        partner.account.account_name = account_form.name.data
-        partner.account.account_num = account_form.account_num.data
-        partner.account.bank = account_form.bank.data
-    db.session.commit()
-    return('Your account has been edited', 'success')
 
 
 def convert_currency(price, from_currency, to_currency):
@@ -77,13 +61,50 @@ def can_edit_product(current_user, product_store):
     return False
 
 
+def update_cart_status(status='order'):
+    """Update cart status
+
+    Args:
+        user_id (int): DB id of the user
+        status (str, optional): stage of the cart. Defaults to 'order'.
+    """
+    # get the order data for comparism and verification
+    cart = Order.cart().filter_by(user_id=current_user.id).first()
+    cart_tot = db.session.query(
+        db.func.sum(OrderLine.qty * OrderLine.price)).filter(
+        OrderLine.order_id == cart.id).group_by(OrderLine.order_id).first()
+    # We can now certify the order
+    cart.status = status
+    cart.amount = str(cart_tot[0])
+    db.session.commit()
+    return "Transaction updated to {}".format(status)
+
+
+def create_new_store(name=None):
+    name = len(Store)
+    dispatcher = db.session.query(
+        Dispatcher).order_by(db.func.random()).first().id
+    store = Store(
+        name=name,
+        about='Give your store a short Description',
+        iso_code='USD',
+        dispatcher_id=dispatcher,
+        user_id=current_user.id,
+        phone='e.g. 08123456789',
+        email='e.g. abc@gmail.com'
+    )
+    db.session.add(store)
+    db.session.commit()
+    return name
+
+
 def currency_options():
     return Currency.query.with_entities(Currency.code, Currency.code).all()
 
 
 def latest_stores():
     return Store.query.with_entities(Store.name).order_by(
-        'created_at').limit(3).all()
+        Store.created_at.desc()).limit(3).all()
 
 
 def _get_all_subclasses(cls):
@@ -95,18 +116,57 @@ def _get_all_subclasses(cls):
     return all_subclasses
 
 
-def create_new(cls):
-    """[summary]
+def inherit_classes(cls):
+    """Creates a new class that Inherits all subclasses
 
     Returns:
-        [type]: [description]
+        class: new common child class
     """
     mod_views = [cls]
     all_subclasses = _get_all_subclasses(cls)
     if all_subclasses:
         mod_views.extend(all_subclasses)
         _def_view, *args = mod_views
-        class NewClass(*args): pass
+
+        class NewClass(*args):
+            pass
     else:
         NewClass = cls
     return NewClass
+
+
+def compute_checkout(self, cart_id, iso_code):
+    """Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
+    Why sum of quantities per store? Recall, dispatchers rates are per qty
+
+    Args:
+        cart_id ([type]): [description]
+        iso_code (bool): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    # Subquery of store values
+    store_value_sq = db.session.query(
+        Product.store_id.label('store_id'),
+        db.func.sum(OrderLine.qty * OrderLine.price).label('store_amt_sum'),
+        db.func.sum(OrderLine.qty).label('store_qty_sum').label('store_qty_sum'),
+    ).join(Product).filter(OrderLine.order_id == cart_id).group_by(
+        Product.store_id).subquery()
+    # All other payment data are related to the store
+    pay_data = db.session.query(
+        Store, store_value_sq.c.store_amt_sum,
+        store_value_sq.c.store_qty_sum).join(
+        store_value_sq, Store.id == store_value_sq.c.store_id).all()
+    # Compute amounts
+    store_value = amounts_sep(
+        iso_code, pay_data, current_app.config['CURRENCY_DISPATCHER'])
+    '''for i in range(len(pay_data)):
+            store_charge = float(pay_data[i][1]) * \
+                current_app.config['SPLIT_RATIO_STORE']
+            dispatch_charge = float('%.2f'.format(store_value['shipping_costs'][i])
+                                    ) * current_app.config['SPLIT_RATIO_DISPATCHER']
+            print(store_charge)
+            print(dispatch_charge)
+        '''
+    return (pay_data, store_value)
