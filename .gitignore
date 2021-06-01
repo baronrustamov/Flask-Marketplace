@@ -16,4 +16,4 @@ dist/
 *.egg-info
 
 # Database
-*platform.sqlite3
+*.sqlite3

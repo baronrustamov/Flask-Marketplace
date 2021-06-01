@@ -1,13 +1,12 @@
 from decimal import Decimal
 from requests import get
 
-from flask import make_response, redirect, request, render_template
+from flask import current_app, make_response, redirect, request, render_template
 from flask_security import current_user
 
 from Flask_Marketplace.models.shop_models import (
-    AccountDetail, Currency, Dispatcher, Order, Store)
+    Currency, Dispatcher, Order, OrderLine, Product, Store)
 from Flask_Marketplace.factory import db
-from Flask_Marketplace.models.shop_models import AccountDetail, Dispatcher, Order, OrderLine, Store
 
 
 def convert_currency(price, from_currency, to_currency):
@@ -117,11 +116,11 @@ def _get_all_subclasses(cls):
     return all_subclasses
 
 
-def create_new(cls):
-    """[summary]
+def inherit_classes(cls):
+    """Creates a new class that Inherits all subclasses
 
     Returns:
-        [type]: [description]
+        class: new common child class
     """
     mod_views = [cls]
     all_subclasses = _get_all_subclasses(cls)
@@ -134,3 +133,40 @@ def create_new(cls):
     else:
         NewClass = cls
     return NewClass
+
+
+def compute_checkout(self, cart_id, iso_code):
+    """Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
+    Why sum of quantities per store? Recall, dispatchers rates are per qty
+
+    Args:
+        cart_id ([type]): [description]
+        iso_code (bool): [description]
+
+    Returns:
+        [type]: [description]
+    """
+    # Subquery of store values
+    store_value_sq = db.session.query(
+        Product.store_id.label('store_id'),
+        db.func.sum(OrderLine.qty * OrderLine.price).label('store_amt_sum'),
+        db.func.sum(OrderLine.qty).label('store_qty_sum').label('store_qty_sum'),
+    ).join(Product).filter(OrderLine.order_id == cart_id).group_by(
+        Product.store_id).subquery()
+    # All other payment data are related to the store
+    pay_data = db.session.query(
+        Store, store_value_sq.c.store_amt_sum,
+        store_value_sq.c.store_qty_sum).join(
+        store_value_sq, Store.id == store_value_sq.c.store_id).all()
+    # Compute amounts
+    store_value = amounts_sep(
+        iso_code, pay_data, current_app.config['CURRENCY_DISPATCHER'])
+    '''for i in range(len(pay_data)):
+            store_charge = float(pay_data[i][1]) * \
+                current_app.config['SPLIT_RATIO_STORE']
+            dispatch_charge = float('%.2f'.format(store_value['shipping_costs'][i])
+                                    ) * current_app.config['SPLIT_RATIO_DISPATCHER']
+            print(store_charge)
+            print(dispatch_charge)
+        '''
+    return (pay_data, store_value)

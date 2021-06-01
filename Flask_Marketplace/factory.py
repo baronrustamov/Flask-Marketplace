@@ -12,25 +12,40 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_security import Security, login_required, SQLAlchemyUserDatastore
 from flask_admin import Admin
 
-from config import config
 try:
     import db
 except ImportError:
     db = SQLAlchemy()
 from Flask_Marketplace import utilities as util
 
-sys.path.append(os.path.dirname(__file__))
+
+default_config = {
+    'APP_NAME': 'Flask',
+    'DEBUG': True,
+    'SECRET_KEY': 'Ir$6789BoknbgRt678/;oAp[@.kjhgHfdsaw34I&?lP56789M',
+    'SECURITY_PASSWORD_HASH': 'sha512_crypt',
+    'SECURITY_PASSWORD_SALT': 'vcxdse4r6yu8ijjnb$cde456y7fc',
+    'SECURITY_REGISTERABLE': True,
+    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+    # ----- Plugins
+    'PLUGINS_FOLDER': 'plugins',  # plugins folder relative to the app root
+    # ----- Payment Info
+    'CURRENCY_DISPATCHER': 'USD',
+    'MULTICURRENCY': True,
+    'PRODUCT_PRICING': 'localize',
+    'DEFAULT_STORE_NAME': 'Name your store',
+    'SPLIT_RATIO_STORE': 0.9,
+    'SPLIT_RATIO_DISPATCHER': 0.85,
+    'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + os.path.join(os.path.abspath(
+        os.path.dirname(__file__)), 'platform.sqlite3')
+}
 
 
-def marketplace(
-        app,
-        config_name=os.getenv('CONFIG_NAME', default='default'),
-        url_prefix=''):
-    app.config.from_object(config[config_name])
-    if not 'SQLALCHEMY_DATABASE_URI' in app.config:
-        test_db = os.path.join(os.path.abspath(
-            os.path.dirname(__file__)), 'platform.sqlite3')
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + test_db
+def marketplace(app, url_prefix=''):
+    # Configs
+    for config in default_config:
+        if not config in app.config:
+            app.config[config] = default_config[config]
 
     # This section won't have been needed if I don't want to customize
     # security views by default.
@@ -94,9 +109,10 @@ def marketplace(
 
         """Overiding default market views from plugins"""
         # views can be subclassed to overide some default routes
-        marketends = util.create_new(MarketViews)(
-            util.create_new(AccountForm), util.create_new(ProductForm),
-            util.create_new(ProfileForm), util.create_new(StoreRegisterForm))
+        marketends = util.inherit_classes(MarketViews)(
+            util.inherit_classes(
+                AccountForm), util.inherit_classes(ProductForm),
+            util.inherit_classes(ProfileForm), util.inherit_classes(StoreRegisterForm))
         print('Info: Views inheritance is as stated below \n',
               marketends.__class__.__mro__)
         # Registering Marketplace rules

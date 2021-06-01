@@ -127,7 +127,7 @@ class MarketViews:
             cart_lines = self.OrderLine.query.filter_by(order_id=cart.id).all()
         # Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
         # Why sum of quantities per store? Recall, dispatchers rates are per qty
-        pay_data, store_value = self.compute_checkout(cart.id, iso_code)
+        pay_data, store_value = utilities.compute_checkout(cart.id, iso_code)
         return render_template('marketplace/checkout.html', cart=cart_lines,
                                store_value=store_value, pay_data=pay_data)
 
@@ -326,32 +326,6 @@ class MarketViews:
             flash('Access Error', 'danger')
             return redirect(url_for('marketplace.market'))
 
-    def compute_checkout(self, cart_id, iso_code):
-        # Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
-        # Why sum of quantities per store? Recall, dispatchers rates are per qty
-        store_value_sq = db.session.query(
-            self.Product.store_id.label('store_id'),
-            db.func.sum(self.OrderLine.qty *
-                        self.OrderLine.price).label('store_amt_sum'),
-            db.func.sum(self.OrderLine.qty).label(
-                'store_qty_sum').label('store_qty_sum'),
-        ).join(self.Product).filter(self.OrderLine.order_id == cart_id).group_by(
-            self.Product.store_id).subquery()
-        # All other payment data are related to the store
-        pay_data = db.session.query(
-            self.Store, store_value_sq.c.store_amt_sum,
-            store_value_sq.c.store_qty_sum).join(
-            store_value_sq, self.Store.id == store_value_sq.c.store_id).all()
-        # Compute amounts
-        store_value = utilities.amounts_sep(
-            iso_code, pay_data, current_app.config['CURRENCY_DISPATCHER'])
-        '''for i in range(len(pay_data)):
-            store_charge = float(pay_data[i][1]) * \
-                current_app.config['SPLIT_RATIO_STORE']
-            dispatch_charge = float('%.2f'.format(store_value['shipping_costs'][i])
-                                    ) * current_app.config['SPLIT_RATIO_DISPATCHER']
-            print(store_charge)
-            print(dispatch_charge)
-        '''
-        return (pay_data, store_value)
+    def record_sales(self, cart_id, iso_code):
+        pass
         
