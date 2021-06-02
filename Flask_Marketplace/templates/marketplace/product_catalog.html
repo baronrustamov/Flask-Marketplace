@@ -6,8 +6,7 @@
         <p class="card-title crop-text-2">{{ product.name }}</p>
         {% if iso_code %}
         <p class="card-text font-weight-bold mt-n3">
-        {{ iso_code }} {{ product.sale_price(
-        config.PRODUCT_PRICING, iso_code, config.MULTICURRENCY) }}
+        {{ iso_code }} {{ product.sale_price(iso_code) }}
         </p>
         {% endif %}
     </div>

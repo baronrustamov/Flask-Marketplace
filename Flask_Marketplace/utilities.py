@@ -1,3 +1,4 @@
+from datetime import datetime
 from decimal import Decimal
 from requests import get
 
@@ -61,25 +62,6 @@ def can_edit_product(current_user, product_store):
     return False
 
 
-def update_cart_status(status='order'):
-    """Update cart status
-
-    Args:
-        user_id (int): DB id of the user
-        status (str, optional): stage of the cart. Defaults to 'order'.
-    """
-    # get the order data for comparism and verification
-    cart = Order.cart().filter_by(user_id=current_user.id).first()
-    cart_tot = db.session.query(
-        db.func.sum(OrderLine.qty * OrderLine.price)).filter(
-        OrderLine.order_id == cart.id).group_by(OrderLine.order_id).first()
-    # We can now certify the order
-    cart.status = status
-    cart.amount = str(cart_tot[0])
-    db.session.commit()
-    return "Transaction updated to {}".format(status)
-
-
 def create_new_store(name=None):
     name = len(Store)
     dispatcher = db.session.query(
@@ -135,7 +117,7 @@ def inherit_classes(cls):
     return NewClass
 
 
-def compute_checkout(self, cart_id, iso_code):
+def compute_checkout(cart_id, iso_code):
     """Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
     Why sum of quantities per store? Recall, dispatchers rates are per qty
 
@@ -150,7 +132,8 @@ def compute_checkout(self, cart_id, iso_code):
     store_value_sq = db.session.query(
         Product.store_id.label('store_id'),
         db.func.sum(OrderLine.qty * OrderLine.price).label('store_amt_sum'),
-        db.func.sum(OrderLine.qty).label('store_qty_sum').label('store_qty_sum'),
+        db.func.sum(OrderLine.qty).label(
+            'store_qty_sum').label('store_qty_sum'),
     ).join(Product).filter(OrderLine.order_id == cart_id).group_by(
         Product.store_id).subquery()
     # All other payment data are related to the store
@@ -161,12 +144,36 @@ def compute_checkout(self, cart_id, iso_code):
     # Compute amounts
     store_value = amounts_sep(
         iso_code, pay_data, current_app.config['CURRENCY_DISPATCHER'])
-    '''for i in range(len(pay_data)):
-            store_charge = float(pay_data[i][1]) * \
-                current_app.config['SPLIT_RATIO_STORE']
-            dispatch_charge = float('%.2f'.format(store_value['shipping_costs'][i])
-                                    ) * current_app.config['SPLIT_RATIO_DISPATCHER']
-            print(store_charge)
-            print(dispatch_charge)
-        '''
+    for i in range(len(pay_data)):
+        store_charge = float(pay_data[i][1]) * (
+            current_app.config['SPLIT_RATIO_STORE'])
+        dispatch_charge = float(store_value['shipping_costs'][i]
+                                ) * current_app.config['SPLIT_RATIO_DISPATCHER']
+        print(store_charge)
+        print(dispatch_charge)
+    print(pay_data)
+    print(store_value)
     return (pay_data, store_value)
+
+
+def record_sales(cart_id, address=None, phone=None, store_payout=None,
+                 dispatcher_id=None, dispatcher_payout=None):
+    # Mark this order
+    order = db.session.query(Order).filter_by(id=cart_id).first()
+    order.address = address
+    order.phone = phone
+    order.status = 'order'
+    order.last_modified_at = datetime.utcnow()
+    # Write other columns of Orderlines Model
+    for line in db.session.query(OrderLine).filter_by(order_id=cart_id).all():
+        line.position = "store"
+        line.store_payout = store_payout or (
+            current_app.config['SPLIT_RATIO_STORE'] * float(line.price) * line.qty)
+        line.store_payout_status = 'open'
+        line.dispatcher_id = dispatcher_id or line.product.store.dispatcher_id
+        line.dispatcher_payout = dispatcher_payout or (
+            line.product.store.dispatcher.charge * line.qty *
+            current_app.config['SPLIT_RATIO_DISPATCHER'])
+        line.dispatcher_payout_status = 'open'
+    db.session.commit()
+    return True

@@ -31,7 +31,7 @@ default_config = {
     'PLUGINS_FOLDER': 'plugins',  # plugins folder relative to the app root
     # ----- Payment Info
     'CURRENCY_DISPATCHER': 'USD',
-    'MULTICURRENCY': True,
+    'STORE_MULTICURRENCY': True, # Allow stores to specify currency
     'PRODUCT_PRICING': 'localize',
     'DEFAULT_STORE_NAME': 'Name your store',
     'SPLIT_RATIO_STORE': 0.9,
@@ -122,6 +122,7 @@ def marketplace(app, url_prefix=''):
         shop.add_url_rule('/', view_func=marketends.index)
         shop.add_url_rule('/cart', view_func=marketends.cart)
         shop.add_url_rule('/checkout', view_func=marketends.checkout)
+        shop.add_url_rule('/checked-out', view_func=marketends.checked_out)
         shop.add_url_rule('/dashboard', view_func=marketends.dashboard)
         shop.add_url_rule('/img/<string:model>/<int:id>',
                           view_func=marketends.image)

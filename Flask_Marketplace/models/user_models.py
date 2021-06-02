@@ -9,7 +9,7 @@ from flask_security import utils, current_user, UserMixin, RoleMixin
 from flask_admin.contrib import sqla
 from wtforms.fields import PasswordField
 
-from factory import db
+from Flask_Marketplace.factory import db
 
 
 roles_users = db.Table(

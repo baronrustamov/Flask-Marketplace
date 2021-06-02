@@ -8,7 +8,7 @@ from flask_login import current_user, login_required
 from sqlalchemy import text
 
 from . import utilities
-from factory import db
+from Flask_Marketplace.factory import db
 from Flask_Marketplace.models.shop_models import (
     AccountDetail, Currency, Dispatcher, Order, OrderLine, Product, Store)
 
@@ -120,9 +120,7 @@ class MarketViews:
         if cart:
             # For security reason, let's update all the order line prices
             for line in db.session.query(self.OrderLine).filter_by(order_id=cart.id).all():
-                line.price = line.product.sale_price(
-                    current_app.config['PRODUCT_PRICING'], iso_code,
-                    current_app.config['MULTICURRENCY'])
+                line.price = line.product.sale_price(iso_code)
             db.session.commit()  # To ensure the updated figures are picked up
             cart_lines = self.OrderLine.query.filter_by(order_id=cart.id).all()
         # Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
@@ -133,7 +131,18 @@ class MarketViews:
 
     @login_required
     def checked_out(self):
-        pass
+        address = request.args.get('address')
+        print(address)
+        phone = text = request.args.get('phone')
+        print(phone)
+        cart = Order.cart().filter_by(user_id=current_user.id).first()
+        try:
+            utilities.record_sales(cart.id, address=address, phone=phone)
+            flash('Thank you, your order is being processed', 'success')
+        except Exception:
+            raise Exception
+            flash('Unable to checkout \n Kindly contact us', 'danger')
+        return redirect(url_for('marketplace.index', cart=cart))
 
     @login_required
     def dashboard(self):
@@ -185,9 +194,8 @@ class MarketViews:
                     order_id=cart_data['cart_id'],
                     product_id=cart_line['id'],
                     qty=cart_line['qty'],
-                    price=Product.query.get(cart_line['id']).sale_price(
-                        current_app.config['PRODUCT_PRICING'], iso_code,
-                        current_app.config['MULTICURRENCY'])
+                    price=Product.query.get(
+                        cart_line['id']).sale_price(iso_code)
                 ))
             db.session.commit()
             # load the newly populated cart
@@ -326,6 +334,3 @@ class MarketViews:
             flash('Access Error', 'danger')
             return redirect(url_for('marketplace.market'))
 
-    def record_sales(self, cart_id, iso_code):
-        pass
-        

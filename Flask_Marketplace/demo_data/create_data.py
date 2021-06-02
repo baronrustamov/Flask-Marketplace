@@ -13,7 +13,7 @@ import os
 from flask_security import utils, SQLAlchemyUserDatastore
 
 from demo_data import dummy_data
-from factory import db
+from Flask_Marketplace.factory import db
 from run import app
 import flw_module.models
 import shop_module.models

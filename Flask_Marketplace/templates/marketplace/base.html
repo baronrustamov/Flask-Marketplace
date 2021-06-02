@@ -38,7 +38,7 @@
           <a class='nav-link text-white' href="{{url_for('marketplace.market')}}">Market
           </a>
         </li>
-        {% if config.MULTICURRENCY and iso_code and currency_options()%}
+        {% if config['PRODUCT_PRICING'] == 'localize' and iso_code and currency_options()%}
         {% include 'marketplace/currency.html' %}
         {% endif %}
         {% if current_user.is_authenticated %}
