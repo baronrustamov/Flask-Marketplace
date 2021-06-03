@@ -33,22 +33,20 @@
 <hr>
 
 ## Introduction
-This web application provides a Jumia-Like online market features where different vendors register their stores and publish products for sale and also posses some additional features, notable of which are:
-  * **Multicurrency:** By default the platform allows customers to switch currency. This could be fixed to the desired currency in the configuration file by setting the `PRODUCT_PRICING` value. [More in the configurations section](#Configuration-parameters). 
-  * **Vendor Registration Token:** For registration, a fee whose value and currency could be set by setting the `STORE_REG_AMT` (defaults to 10 USD) value in the config. Read more in the config section.
-  * **Dispatcher Assignment:** Upon successful registration, a registered dispatcher is randomly assigned to each store.
+Flask-Marketplace provides a Jumia-Like online market features where different vendors register their stores and publish products for sale and also posses some additional features, notable of which are:
+  * **Extensible:**  The core can easily be extended by using existing or new plugins to introduce features.
+  * **Multicurrency:** By default the platform allows customers to switch currency. This could be fixed to the desired currency in the configuration file by setting the `PRODUCT_PRICING` value. [More in the configurations section](#Configuration-parameters).
   * **Revenue sharing:** For every checked-out order, the total revenue is shared based on the value of the `STORE_PAY_RATIO` and `SPLIT_RATIO_DISPATCHER` configuration values. But by default:
     * Vendor:Platform = 0.97:0.03 of the product prices
     * Dispatcher:Platform = 0.80:0.2 of delivery fee.
-    Note: The point at which the splitting occurs is defined by the PAYMENT_SPLIT_POINT (defaults to 'instant') see the Configuration section.
 
 ## Setup
-See a [working version here](http://ewetoye.pythonanywhere.com/),
-See a [minimal example here](#Minimal-Example)
+See a [working version here](http://ewetoye.pythonanywhere.com/)
 ### Steps
-1. _[required]_ Install the requirements file by doing `pip install Flask-Marketplace`
-2. _[optional]_ During production, it is advisable to set configuration variables as explained in the [configuration section](#Configuration-parameters) but can be skipped during testing
-3. _[required]_ Call the Marketplace function with an app object, as shown below.
+1. Install the package, preferably in a virtual environment, with `pip install Flask-Marketplace`
+2. Call the Marketplace function with an app object, as shown [below](#Minimal-Example).  
+Optional: During production, it is advisable to set configuration variables as explained in the [configuration section](#Configuration-parameters) but can be skipped during testing
+
 ### Minimal Example
 ```
 from Flask_Marketplace import marketplace
@@ -56,7 +54,9 @@ from Flask_Marketplace import marketplace
 if __name__ == '__main__':
     from flask import Flask
     app = Flask(__name__)
+    app.config['SECRET_KEY'] = 'Long hard to guess key'
     marketplace(app).run(port=6060, host='0.0.0.0', debug=True)
+
 ```
 
 ## How it Works
@@ -75,29 +75,28 @@ if __name__ == '__main__':
 ### Store and Product Registration
 [Try registering a store](http://ewetoye.pythonanywhere.com/)
 <div align='center'>
-  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Flask-Marketplace/readme_files/store and product reg.gif"
+  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Flask-Marketplace/readme_files/store_product_reg.gif"
     title="Registration process" width='100%'>
 </div>
 
-Any registered user can create a store, after the payment of a store registration fee specified by the `STORE_REG_AMT`(default is 10 USD) configuration variable. After payment has been confirmed, an editable store is automatically generated and a dispatcher got assigned to the new store. An account detail form is also presented to the store owners, the values of which are sent to Flutterwave for the creation or modification of subaccounts.
-When multicurrency in set to true, stores are allowed to quote the prices of their products in one of the supported currencies.
-For every store sales, the share of the store owner is picked up from the `SPLIT_RATIO_STORE` (default is 0.975) configuration variable and when the `PAYMENT_SPLIT_POINT` is set to instant, the disbursement is achieved with Flutterwave's split payment feature. Check [payments and calculations](#Payments-and-calculations) for more.
+Any registered user can create a store.
+For every store sales, the share of the store owner is picked up from the `SPLIT_RATIO_STORE` (default is 0.975) configuration variable. Check [payments and calculations](#Payments-and-calculations) for more.
 
 ### Dispatcher
-Dispatchers are created on the platform, each dispatcher can charge different delivery rates which is specified during creation. Just like the stores, their account details are sent to flutterwave for the creation or modification of subaccounts.
+Dispatchers are created on the platform, each dispatcher can charge different delivery rates which is specified during creation.
 For every product sales, the dispatcher receives `SPLIT_RATIO_DISPATCHER` (default to 0.8) fraction of it's sum of delivery charge. Check [payments and calculations](#Payments-and-calculations) for more.
 
 ### Shopping and checking-out
 [Try shopping and checking out](http://ewetoye.pythonanywhere.com/)
 <div align='center'>
-  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Flask-Marketplace/readme_files/shopping and checkout.gif"
-    title="Registration process" width='100%'>
+  <img src="https://raw.githubusercontent.com/EwetoyeIbrahim/static_assets/master/Flask-Marketplace/readme_files/shopping_checkout.gif"
+    title="shopping and checkout" width='100%'>
 </div>
 
 * A visitor visits the website, the platform guesses the currency of the visitor from its IP Address and sets it as a cookie. based on the visitor's currency, values of all products are converted to the visitor's currency value.
 * A user selects all the desired products which could be from different stores
 * Clicks on checkout when ready and for redirected to the checkout page, where contact information is collected and summary of the impending order is displayed.
-* Clicks on pay now will trigger the Flutterwave inline payment form with the parsed order details and respective stores and dispatcher split payment argument when the payment mode is set to instant.
+* Clicks on pay now will trigger, if available, an installed payment acquirer plugin and save the checkout data.
 
 ### Payments and Calculations:
 Say, a customer whose currency iso_code is NGN ordered for two products, Fanta 30cl and Nokia 2.4
@@ -127,17 +126,15 @@ In this scenario:
 ## Configuration Parameters
 Variable  | Type / Default | Description
 ---------- | - | -------
-SPLIT_RATIO_STORE | String of float (defaults to  '0.8') | The fraction of the products price to disburse to the store owners, the other fraction goes to the platform
-SPLIT_RATIO_DISPATCHER | String of float (defaults to  '0.975') | The fraction of the delivery cost to disburse to the dispatcher, the other fraction goes to the platform
-FLW_PUB_KEY | String (defaults to a flutterwave test api value of 'FLWPUBK_TEST-4b5acac8e21aceb3fc87f634a846c001-X'). | Flutterwave's public key for integrating frontend payments, you have to [get yours](https://developer.flutterwave.com/docs/api-keys) to be able to handle payments succesfully.
-FLW_SEC_KEY | String (defaults to a flutterwave test api value of 'FLWSECK_TEST-604a7225885949af8eded44c605deb0c-X' | Flutterwave's secret key for backend communications with your flutterwave's account, you have to [get yours](https://developer.flutterwave.com/docs/api-keys) to be able to perform backend activities like confirmation of payments succesfully
-PAYMENT_SPLIT_POINT | String (defaults to 'instant') | When to disburse payment to the parties (store and dispatchers) involved. Can be one of `'instant'` (pay each vendors and dispatchers during checkout using subaccount flat split payment), `'fullfil'` (_not_yet_implemented_ pay parties after when an order has been marked as done)
-PAYMENT_PLATFORM | String (defaults to 'flutterwave') | The payment platform to use, note that this app is built on modular architecture, thus one can always write modules for other payment system but must really understand what needs to be tweaked, thus the scope of this app is currently for flutterwave payment system which is known for its reliability
-PRODUCT_PRICING | String (defaults to 'localize') | The currencu to display the product in. Can be one of: `localize` (converts the products from their store currency to the clients currency based on the conversion rates specified provided the client currency is one stated next, else product prices will be converted to USD); `'GBP'`; `'KES'`; `'NGN'`; `'USD'` (The product prices will be fixed at the specified ISO CODE)
-STORE_REG_AMT | String of value+space+code (defaults to '10 USD') | The registration fee to charge Vendors
+APP_NAME | String (defaults to `'Flask'`) | Ecommerce  name
+DEFAULT_STORE_NAME | String (defaults to `'Name your store'`) | Name of a newly created store. Stores with this name will not be active on the platform
+DISPATCHER_CURRENCY | String (defaults to `'USD'`) | The currency at which the store dispatcher charges are saved
+PLUGINS_FOLDER | String of path (defaults to `'plugins'`) | path to the location of plugins folder relative to the app root
+PRODUCT_PRICING | String of ISO code or None (defaults to `None`) | Specify if products should be converted to different currencies. Values can be one of: String of ISO code, e.g `'NGN'`, to fixed product sales prices  at the specified ISO CODE; or None to allow users converts the product prices from their store currencies to the clients currency based on the conversion rates
+SPLIT_RATIO_STORE | String of float (defaults to  `'0.8'`) | The fraction of the products price to disburse to the store owners, the other fraction goes to the platform
+SPLIT_RATIO_DISPATCHER | String of float (defaults to  `'0.975'`) | The fraction of the delivery cost to disburse to the dispatcher, the other fraction goes to the platform
+STORE_CURRENCY | String of ISO code (defaults to `None`)| Allow stores to specify trading currency
 
 ## Upcoming Improvements
-An evolving list.
-* Dispatcher Assignment should be currency-aware
-* `pay_after_done` option for the `PAYMENT_SPLIT_POINT` configuration variable: When the `pay_after_done` is used, disbursement of partners payments will only be effected after the order has been marked as delivered by the store owner.
-* Writing of tests
+* Automated tests
+* Plugins

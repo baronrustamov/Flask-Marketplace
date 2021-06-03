@@ -50,30 +50,31 @@
     </div>
     <div id='cart_content' class='collapse'>
       <div class='card-body'>
-        <table class='display table table-striped table-responsive mt-3'>
+        <table class="display table table-md table-striped table-responsive-sm mt-3">
           <thead>
-            <tr>
-              <th class='' style='max-width: 20px;'>No.</th>
-              <th class='d-none'>Id</th>
-              <th class='col-lg-6 col-sm-4'>Item</th>
-              <th class='col-lg-2 col-sm-2'>Qty</th>
-              <th class='col-lg-2 col-sm-2'>Unit Price</th>
-              <th class='col-lg-1 col-sm-2'>Amount</th>
+            <tr class="d-flex">
+              <th class="col-md-1 d-none d-md-block">No.</th>
+              <th class="d-none">Id</th>
+              <th class="col-6">Item</th>
+              <th class="col-3 col-md-2">Qty</th>
+              <th class="col-lg-1 d-none d-lg-block">Unit Price</th>
+              <th class="col-3 col-lg-2">Amount</th>
             </tr>
           </thead>
           <tbody>
             {% for line in cart %}
-            <tr>
-              <td class='s_n align-middle'></td>
-              <td class='align-middle d-none'>{{ line.id }}</td>
-              <td class='align-middle'>{{ line.product.name }}</td>
-              <td class='align-middle'>
-                <input type='number' min='1' class='form-control qty' value={{line.qty}} readonly>
+            <tr class="d-flex">
+              <td class="s_n align-middle col-md-1 d-none d-md-block"></td>
+              <td class="align-middle d-none prod_id">{{ line.product.id }}</td>
+              <td class="align-middle col-6">{{ line.product.name }}</td>
+              <td class="align-middle col-3 col-md-2">
+                <input type="number" min="1" class="form-control qty col-12" disabled
+                  value="{{line.qty}}">
               </td>
-              <td class='align-middle'>{{ line.product.sale_price(
-                cart[0].order.iso_code)}}
+              <td class="align-middle col-lg-1 d-none d-lg-block">
+                {{ line.product.sale_price(cart[0].order.iso_code) }}
               </td>
-              <td class='line_amt align-middle'></td>
+              <td class="line_amt align-middle col-3 col-lg-2"></td>
             </tr>
             {% endfor %}
             <!-- Area will be populated when shoping-->

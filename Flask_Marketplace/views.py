@@ -1,4 +1,5 @@
 ''' Defination of all marketplace views in `marketplace` blueprint '''
+from datetime import datetime
 import os
 from requests import get
 
@@ -30,13 +31,14 @@ class MarketViews:
         self.StoreRegisterForm = StoreRegisterForm
 
     def before_request(self):
-        ''' Make sure that the currency is always known '''
+        """Make sure that the currency is always known"""
         if not(request.cookies.get('iso_code')):
             response = make_response(redirect(request.path))
-            if (current_app.config['PRODUCT_PRICING'].split('-')[0] not
-                    in ['localize', 'localize_market']):
+            if (current_app.config['PRODUCT_PRICING']):
+                # Fixed sales currency
                 code = current_app.config['PRODUCT_PRICING']
             else:
+                # Set sales currency
                 try:
                     code = get('https://ipapi.co/currency/').text
                 except Exception:
@@ -104,6 +106,7 @@ class MarketViews:
                                   orderlines=[cart_line])
                 db.session.add(cart_line)
                 db.session.add(cart)
+            cart.last_modified_at = datetime.utcnow()
             db.session.commit()
             flash("Item has been added to cart", 'success')
             return redirect(url_for('marketplace.cart', cart=cart))
@@ -132,9 +135,7 @@ class MarketViews:
     @login_required
     def checked_out(self):
         address = request.args.get('address')
-        print(address)
         phone = text = request.args.get('phone')
-        print(phone)
         cart = Order.cart().filter_by(user_id=current_user.id).first()
         try:
             utilities.record_sales(cart.id, address=address, phone=phone)
@@ -180,7 +181,6 @@ class MarketViews:
 
     @login_required
     def save_cart(self):
-        # Still being worked on
         cart_data = request.json
         cart = OrderLine.query.filter_by(order_id=cart_data['cart_id']).all()
         if (cart[0].order.user_id == current_user.id):
@@ -200,7 +200,6 @@ class MarketViews:
             db.session.commit()
             # load the newly populated cart
             flash("Cart was successfully saved", 'success')
-            cart = Order.cart().filter_by(user_id=current_user.id).first()
             return "Success"
         flash("Unable to save your cart", 'info')
         return "Failed"
@@ -225,6 +224,9 @@ class MarketViews:
             if store_form.logo.data:
                 store.logo = store_form.logo.data.read()
             store.user_id = current_user.id
+            # only make active if the default name has been changed
+            if store_form.name.data != current_app.config['DEFAULT_STORE_NAME']:
+                store.is_active = True
             db.session.commit()
             flash('Store details: succesfully edited', 'success')
             return redirect(url_for('marketplace.store_admin', store_name=store.name))
@@ -253,7 +255,6 @@ class MarketViews:
         store_form.logo.data = store.logo
         store_form.phone.data = store.phone
         store_form.email.data = store.email
-        print(store.account)
         # New stores don't posses account details
         # if store.account:
         account_form.account_name.data = store.account.account_name
@@ -270,8 +271,8 @@ class MarketViews:
                 name = current_app.config['DEFAULT_STORE_NAME']
             dispatcher = db.session.query(
                 Dispatcher).order_by(db.func.random()).first().id
-            store = Store(name=name, about='Give your store a short Description',
-                          iso_code='USD', dispatcher_id=dispatcher, user_id=current_user.id,
+            store = Store(name=name, about='Short description', iso_code='USD',
+                          dispatcher_id=dispatcher, user_id=current_user.id,
                           phone='e.g. 08123456789', email='e.g. abc@gmail.com')
             db.session.add(store)
             db.session.commit()
@@ -281,7 +282,6 @@ class MarketViews:
     def store_product(self, store_name):
         # List the products
         store = Store.query.filter_by(name=store_name).first()
-        print(store.account)
         prod_list = Product.query.filter_by(store_id=store.id).all()
         return render_template('marketplace/market.html',
                                products=prod_list,
@@ -329,8 +329,8 @@ class MarketViews:
                 flash('Product created successfully', 'success')
                 # List the products
                 return redirect(url_for('marketplace.store_product', store_name=store_name))
-            return render_template('marketplace/product.html', product_form=prod_form, currency=store.iso_code)
+            return render_template('marketplace/product.html', product_form=prod_form,
+                                   currency=store.iso_code)
         else:
             flash('Access Error', 'danger')
             return redirect(url_for('marketplace.market'))
-

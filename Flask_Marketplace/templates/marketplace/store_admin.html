@@ -2,10 +2,12 @@
 {% block field_page %}
 {% from 'marketplace/custom_macro.html' import render_field_with_errors, render_field_btn %}
 <h5 class='text-center'> Store Details
-  <a  class="btn btn-sm btn-secondary" href="{{ url_for('marketplace.store_product', store_name=store_form.name.data) }}">
+  <a class="btn btn-sm btn-secondary"
+    href="{{ url_for('marketplace.store_product', store_name=store_form.name.data) }}">
     View Products
   </a>
-  <a class="btn btn-sm btn-secondary" href="{{ url_for('marketplace.store_product_admin', store_name=store_form.name.data) }}">
+  <a class="btn btn-sm btn-secondary"
+    href="{{ url_for('marketplace.store_product_admin', store_name=store_form.name.data) }}">
     Add New Product
   </a>
 </h5>
@@ -17,7 +19,7 @@
         <div class='form-group col-12'>
           {{ render_field_with_errors(store_form.name) }}
           {{ render_field_with_errors(store_form.about) }}
-          {% if config.MULTICURRENCY %}
+          {% if not (config.STORE_CURRENCY) %}
           {{ render_field_with_errors(store_form.iso_code) }}
           {% endif %}
           {{ render_field_with_errors(store_form.phone) }}
@@ -30,8 +32,7 @@
       </form>
     </fieldset>
     <div>
-      <button type="button" id="edit_store"
-        class="btn btn-secondary m-4">Edit</button>
+      <button type="button" id="edit_store" class="btn btn-secondary m-4">Edit</button>
     </div>
   </div>
 
@@ -44,15 +45,13 @@
           {{ render_field_with_errors(account_form.account_num) }}
           {{ render_field_with_errors(account_form.bank) }}
         </div>
-
         <div class='text-right d-none' id='account_submit'>
           {{ render_field_btn(account_form.save) }}
         </div>
       </form>
     </fieldset>
     <div class='text-right'>
-      <button type="button" id="edit_account"
-        class="btn btn-secondary m-4">Edit</button>
+      <button type="button" id="edit_account" class="btn btn-secondary m-4">Edit</button>
     </div>
   </div>
 </div>
@@ -73,6 +72,6 @@
   });
 </script>
 <link rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css" />
+  href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.min.css" />
 <script src="{{ url_for('marketplace.static', filename='base/js/bootstrap-select-1.13.1.js') }}"></script>
 {% endblock bottom_styles_scripts %}

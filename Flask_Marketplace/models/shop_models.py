@@ -39,8 +39,7 @@ class Currency(db.Model):
 
 
 class Dispatcher(db.Model):
-    """Delivery agents
-    """
+    """Delivery agents"""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), unique=True, nullable=False)
     account_id = db.Column(db.Integer, db.ForeignKey('account_detail.id'))
@@ -82,8 +81,7 @@ class Order(db.Model):
 
 
 class OrderLine(db.Model):
-    """Individual items cart history
-    """
+    """Individual items cart history"""
     id = db.Column(db.Integer, primary_key=True)
     order_id = db.Column(db.Integer, db.ForeignKey('order.id'),
                          nullable=False)
@@ -102,8 +100,7 @@ class OrderLine(db.Model):
 
 
 class Product(db.Model):
-    """Table of all Products from all stores.
-    """
+    """Table of all Products from all stores."""
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100))
     price = db.Column(db.Numeric(20, 2))
@@ -125,16 +122,9 @@ class Product(db.Model):
         return(Product.query.filter(Product.is_active == 1))
 
     def sale_price(self, to_currency):
-        """Converts price of products to a specified currency
-        
-        Args:
-            product_pricing (str): how to compute sales price (localize or fixed)
-
-        Returns:
-            float: converted sales price
-        """
+        """Converts price of products to a specified currency"""
         if (current_app.config['PRODUCT_PRICING'] == 'localize' or
-                current_app.config['STORE_MULTICURRENCY']):
+                current_app.config['STORE_CURRENCY']):
             scale = (
                 Currency.query.filter_by(code=to_currency).first().rate /
                 self.store.currency.rate)
@@ -155,7 +145,7 @@ class Store(db.Model):
     about = db.Column(db.String(150), nullable=False)
     created_at = db.Column(db.DateTime(), default=datetime.utcnow())
     email = db.Column(db.String(100), nullable=False)
-    is_active = db.Column(db.Boolean(), default=True)
+    is_active = db.Column(db.Boolean(), default=False)
     phone = db.Column(db.String(15), nullable=False)
     # Foreign Keys -----
     account_id = db.Column(db.Integer, db.ForeignKey('account_detail.id'))

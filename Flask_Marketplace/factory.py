@@ -19,30 +19,27 @@ except ImportError:
 from Flask_Marketplace import utilities as util
 
 
-default_config = {
-    'APP_NAME': 'Flask',
-    'DEBUG': True,
-    'SECRET_KEY': 'Ir$6789BoknbgRt678/;oAp[@.kjhgHfdsaw34I&?lP56789M',
-    'SECURITY_PASSWORD_HASH': 'sha512_crypt',
-    'SECURITY_PASSWORD_SALT': 'vcxdse4r6yu8ijjnb$cde456y7fc',
-    'SECURITY_REGISTERABLE': True,
-    'SQLALCHEMY_TRACK_MODIFICATIONS': False,
-    # ----- Plugins
-    'PLUGINS_FOLDER': 'plugins',  # plugins folder relative to the app root
-    # ----- Payment Info
-    'CURRENCY_DISPATCHER': 'USD',
-    'STORE_MULTICURRENCY': True, # Allow stores to specify currency
-    'PRODUCT_PRICING': 'localize',
-    'DEFAULT_STORE_NAME': 'Name your store',
-    'SPLIT_RATIO_STORE': 0.9,
-    'SPLIT_RATIO_DISPATCHER': 0.85,
-    'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + os.path.join(os.path.abspath(
-        os.path.dirname(__file__)), 'platform.sqlite3')
-}
-
-
 def marketplace(app, url_prefix=''):
     # Configs
+    default_config = {
+        'SECURITY_PASSWORD_HASH': 'sha512_crypt',
+        'SECURITY_PASSWORD_SALT': 'vcxdse4r6yu8ijjnb$cde456y7fc',
+        'SECURITY_REGISTERABLE': True,
+        'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + os.path.join(os.path.abspath(
+            os.path.dirname(__file__)), 'platform.sqlite3'),
+        'SQLALCHEMY_TRACK_MODIFICATIONS': False,
+        # ----- Flask Markeplace Specifics
+        'APP_NAME': 'Flask',  # Ecommerce Name
+        'DISPATCHER_CURRENCY': 'USD',  # Delivery rates currency
+        'DEFAULT_STORE_NAME': 'Name your store',  # Name of newly created stores
+        'PLUGINS_FOLDER': 'plugins',  # Plugins folder relative to the app root
+        # None(multicurrency) or ISO code(fixed currency)
+        'PRODUCT_PRICING': None,
+        'SPLIT_RATIO_DISPATCHER': 0.85,  # Payout fraction from delivery cost
+        'SPLIT_RATIO_STORE': 0.9,  # Payout fraction from item price
+        # None(stores specify currency) or ISO code(fixed)
+        'STORE_CURRENCY': None,
+    }
     for config in default_config:
         if not config in app.config:
             app.config[config] = default_config[config]

@@ -143,16 +143,12 @@ def compute_checkout(cart_id, iso_code):
         store_value_sq, Store.id == store_value_sq.c.store_id).all()
     # Compute amounts
     store_value = amounts_sep(
-        iso_code, pay_data, current_app.config['CURRENCY_DISPATCHER'])
+        iso_code, pay_data, current_app.config['DISPATCHER_CURRENCY'])
     for i in range(len(pay_data)):
         store_charge = float(pay_data[i][1]) * (
             current_app.config['SPLIT_RATIO_STORE'])
         dispatch_charge = float(store_value['shipping_costs'][i]
                                 ) * current_app.config['SPLIT_RATIO_DISPATCHER']
-        print(store_charge)
-        print(dispatch_charge)
-    print(pay_data)
-    print(store_value)
     return (pay_data, store_value)
 
 
