@@ -20,8 +20,7 @@
 * [Introduction](#Introduction)
 * [Setup](#Setup)
   * [Setup Steps](#Steps)
-  * [Minimal Example](#Minimal-Example)
-* [Testing Data](#Testing)
+Ewe  * [Minimal Example](#Minimal-Example)
 * [How it works](#How-it-works)
   * [Registration](#Registration)
   * [Store](#Store-and-Product-Registration)
@@ -137,4 +136,4 @@ STORE_CURRENCY | String of ISO code (defaults to `None`)| Allow stores to specif
 
 ## Upcoming Improvements
 * Automated tests
-* Plugins
+* Develop plugins

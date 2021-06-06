@@ -1,7 +1,7 @@
-  
 include ReadMe.md
 include requirements.txt
-include Flask_Marketplace/flw_module/bank_data.json
-graft Flask_Marketplace/*/static
-graft Flask_Marketplace/*/templates
-exclude Flask_Marketplace/*/trash*
+graft Flask_Marketplace/*
+exclude Flask_Marketplace/*trash*
+prune Flask_Marketplace/demo_data
+prune Flask_Marketplace/*__pycache__
+prune Flask_Marketplace/*/__pycache__
