@@ -20,7 +20,7 @@
 * [Introduction](#Introduction)
 * [Setup](#Setup)
   * [Setup Steps](#Steps)
-Ewe  * [Minimal Example](#Minimal-Example)
+  * [Minimal Example](#Minimal-Example)
 * [How it works](#How-it-works)
   * [Registration](#Registration)
   * [Store](#Store-and-Product-Registration)
