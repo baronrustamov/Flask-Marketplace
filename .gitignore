@@ -9,6 +9,7 @@ __pycache__/
 *trash*
 *tests*
 shell.py
+plugins/
 
 # Packaging stuffs
 build/

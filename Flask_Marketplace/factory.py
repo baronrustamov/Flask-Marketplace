@@ -3,6 +3,7 @@ The Factory Function:
 The aim of this file is to return a fully decorated app object through the
 `marketplace` function
 '''
+from importlib import import_module
 import jinja2
 import os
 import sys
@@ -83,9 +84,24 @@ def marketplace(app, url_prefix=''):
         # ----- Setup Plugins
         plugins_path = app.config['PLUGINS_FOLDER']
         if os.path.isdir(plugins_path):
-            from importlib import import_module
-            plugins = os.listdir(plugins_path)  # List of plugins
+            # Get a list of all available plugins
+            # Neglect folders that starts with point(.) and double underscore(__)
+            plugins = [p for p in os.listdir(plugins_path) if not(
+                p.startswith('.') or p.startswith('__'))]
             for plugin in plugins:
+                # Import the setup.py file, which must be present at the root
+                setup = None
+                try:
+                    setup = import_module(plugins_path+'.'+plugin+'.setup')
+                    if hasattr(setup, 'config'):
+                        # apply the module's configuration
+                        for config in setup.config:
+                            if not config in app.config:
+                                app.config[config] = setup.config[config]
+                    print('Info:', 'Installing '+setup.name)
+                except (ModuleNotFoundError, AttributeError) as e:
+                    print('Info:', 'Skipping a module', e)
+                    continue
                 # import everything exposed through the __init__ of each plugins
                 my_module = import_module(plugins_path+'.'+plugin, '*')
                 module_dict = my_module.__dict__
