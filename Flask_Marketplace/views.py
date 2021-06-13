@@ -115,7 +115,7 @@ class MarketViews:
         return render_template('marketplace/cart.html', cart=cart)
 
     @login_required
-    def checkout(self):
+    def checkout(self, template_folder='marketplace'):
         iso_code = request.cookies.get('iso_code')
         # Get the last hanging cart
         cart_lines = None
@@ -129,7 +129,7 @@ class MarketViews:
         # Summarize the cart items by Store>>store_amt_sum>>store_qty_sum
         # Why sum of quantities per store? Recall, dispatchers rates are per qty
         pay_data, store_value = utilities.compute_checkout(cart.id, iso_code)
-        return render_template('marketplace/checkout.html', cart=cart_lines,
+        return render_template(template_folder+'/checkout.html', cart=cart_lines,
                                store_value=store_value, pay_data=pay_data)
 
     @login_required
