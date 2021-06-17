@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from decimal import Decimal
 from requests import get
@@ -173,3 +174,15 @@ def record_sales(cart_id, address=None, phone=None, store_payout=None,
         line.dispatcher_payout_status = 'open'
     db.session.commit()
     return True
+
+
+def register_store(name=None):
+    if not name:
+        name = current_app.config['DEFAULT_STORE_NAME']
+    dispatcher = db.session.query(
+        Dispatcher).order_by(db.func.random()).first().id
+    store = Store(name=name, about='Short description', iso_code='USD',
+                  dispatcher_id=dispatcher, user_id=current_user.id,
+                  phone='e.g. 08123456789', email='e.g. abc@gmail.com')
+    db.session.add(store)
+    db.session.commit()

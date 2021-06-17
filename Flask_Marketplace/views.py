@@ -265,19 +265,12 @@ class MarketViews:
                                store_form=store_form,
                                account_form=account_form)
 
-    def store_new(self, name=None):
+    @login_required
+    def store_new(self, name=None, template_folder='marketplace'):
         if request.method == 'POST':
-            if not name:
-                name = current_app.config['DEFAULT_STORE_NAME']
-            dispatcher = db.session.query(
-                Dispatcher).order_by(db.func.random()).first().id
-            store = Store(name=name, about='Short description', iso_code='USD',
-                          dispatcher_id=dispatcher, user_id=current_user.id,
-                          phone='e.g. 08123456789', email='e.g. abc@gmail.com')
-            db.session.add(store)
-            db.session.commit()
+            utilities.register_store(name=name)
             return {'redirect': url_for('marketplace.store_admin', store_name=name)}
-        return render_template('marketplace/store_new.html')
+        return render_template(template_folder+'/store_new.html')
 
     def store_product(self, store_name):
         # List the products

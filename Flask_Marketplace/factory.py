@@ -5,6 +5,7 @@ The aim of this file is to return a fully decorated app object through the
 '''
 from importlib import import_module
 import jinja2
+import logging
 import os
 import sys
 
@@ -18,6 +19,9 @@ try:
 except ImportError:
     db = SQLAlchemy()
 from Flask_Marketplace import utilities as util
+
+logging.basicConfig(filename='marketplace.log', level=logging.DEBUG,
+                    format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
 
 
 def marketplace(app, url_prefix=''):

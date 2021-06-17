@@ -1,5 +1,6 @@
 """Minimal implentation of Flask-Markeplace
 """
+
 from Flask_Marketplace import marketplace
 
 if __name__ == '__main__':
