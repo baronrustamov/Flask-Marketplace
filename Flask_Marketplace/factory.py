@@ -102,9 +102,9 @@ def marketplace(app, url_prefix=''):
                         for config in setup.config:
                             if not config in app.config:
                                 app.config[config] = setup.config[config]
-                    print('Info:', 'Installing '+setup.name)
+                    app.logger.info('Installing '+setup.name)
                 except (ModuleNotFoundError, AttributeError) as e:
-                    print('Info:', 'Skipping a module', e)
+                    app.logger.info(f'Skipping a plugin - {e}')
                     continue
                 # import everything exposed through the __init__ of each plugins
                 my_module = import_module(plugins_path+'.'+plugin, '*')
@@ -118,9 +118,9 @@ def marketplace(app, url_prefix=''):
                     app.register_blueprint(
                         getattr(view_mod, plugin), url_prefix=url_prefix+'/'+plugin)
                 except (ModuleNotFoundError, AttributeError) as e:
-                    print('Info:', e)
+                    app.logger.info(f'No views registered for {setup.name} - {e}')
         else:
-            print('Info: No plugins folder found')
+            app.logger.info('No plugins folder found')
         # Make sure all models exists
         db.create_all()
 
@@ -130,8 +130,7 @@ def marketplace(app, url_prefix=''):
             util.inherit_classes(
                 AccountForm), util.inherit_classes(ProductForm),
             util.inherit_classes(ProfileForm), util.inherit_classes(StoreRegisterForm))
-        print('Info: Views inheritance is as stated below \n',
-              marketends.__class__.__mro__)
+        app.logger.info(f'Views inheritance hierarchy:\n{marketends.__class__.__mro__}')
         # Registering Marketplace rules
         shop = Blueprint('marketplace', __name__, template_folder='templates',
                          static_folder='static', static_url_path='/static/marketplace')
