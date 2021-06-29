@@ -59,7 +59,7 @@ function basket_total() {
  * with specified quantity
  * @returns {object[]} JSON object representation of table cart lines
  */
-function jsonifyCartTable(cart_id) {
+function jsonifyCartTable(cart_id, csrf_token) {
   var table_data = [];
   var line_qty;
   var line_data;
@@ -82,6 +82,7 @@ function jsonifyCartTable(cart_id) {
     type: 'POST',
     url: window.location.origin + '/save-cart',
     data: JSON.stringify(cart_data),
+    headers: { 'X-CSRFToken': csrf_token },
     contentType: 'application/json; charset=utf-8',
     success: function (data, textStatus) {
       console.log(data)

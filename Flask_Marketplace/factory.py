@@ -13,6 +13,7 @@ from flask import render_template, request, flash, Blueprint
 from flask_sqlalchemy import SQLAlchemy
 from flask_security import Security, login_required, SQLAlchemyUserDatastore
 from flask_admin import Admin
+from flask_wtf import CSRFProtect
 
 try:
     import db
@@ -71,10 +72,13 @@ def marketplace(app, url_prefix=''):
         from Flask_Marketplace.forms.shop_forms import AccountForm, ProductForm, StoreRegisterForm
         from Flask_Marketplace.forms.user_forms import ExtendedRegisterForm, ProfileForm
         from Flask_Marketplace import MarketViews
+        
+        # Enabling protection against CSRF
+        csrf = CSRFProtect(app)
 
+        # Setting up Security and Admins
         user_datastore = SQLAlchemyUserDatastore(
             db, user_models.User, user_models.Role)
-        # Setting up Security and Admins
         security = Security(app, user_datastore,
                             register_form=ExtendedRegisterForm)
         admin = Admin(app)

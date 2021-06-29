@@ -12,6 +12,7 @@
     $.ajax({
       type: 'POST',
       url: "{{ url_for('marketplace.store_new') }}",
+      headers: { 'X-CSRFToken': '{{ csrf_token() }}' },
       contentType: 'application/json; charset=utf-8',
       success: function (data, textStatus) {
         console.log(data)

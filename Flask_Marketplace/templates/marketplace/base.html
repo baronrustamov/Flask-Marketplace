@@ -75,6 +75,7 @@
               <input type="search" class="form-control form-control-sm"
                 placeholder="Search for product, stores ... Not yet implemented" id="query_param" required>
             </div>
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
             <button class="btn btn-primary btn-sm d-none d-md-block col-md-3" type="submit" value="Submit">Search
             </button>
           </div>
