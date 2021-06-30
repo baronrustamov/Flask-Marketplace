@@ -1,6 +1,7 @@
 include ReadMe.md
 include requirements.txt
 graft Flask_Marketplace/*
+include Flask_Marketplace/platform.sqlite3
 exclude Flask_Marketplace/*trash*
 prune Flask_Marketplace/demo_data
 prune Flask_Marketplace/*__pycache__
