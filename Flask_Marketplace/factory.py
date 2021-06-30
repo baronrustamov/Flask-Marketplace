@@ -21,8 +21,11 @@ except ImportError:
     db = SQLAlchemy()
 from Flask_Marketplace import utilities as util
 
-logging.basicConfig(filename='marketplace.log', level=logging.DEBUG,
-                    format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s')
+logging.basicConfig(
+    filename='marketplace.log',
+    level=logging.DEBUG,
+    format=f'%(asctime)s %(levelname)s %(name)s %(threadName)s : %(message)s'
+)
 
 
 def marketplace(app, url_prefix=''):
@@ -66,17 +69,16 @@ def marketplace(app, url_prefix=''):
 
     db.init_app(app)
     with app.app_context():
-
-        from Flask_Marketplace.models import user_models
-        from Flask_Marketplace.models import shop_models
-        from Flask_Marketplace.forms.shop_forms import AccountForm, ProductForm, StoreRegisterForm
-        from Flask_Marketplace.forms.user_forms import ExtendedRegisterForm, ProfileForm
-        from Flask_Marketplace import MarketViews
-        
         # Enabling protection against CSRF
         csrf = CSRFProtect(app)
-
+        
+        # Make sure the default tables exists before been used by forms and plugins
+        from Flask_Marketplace.models import user_models
+        from Flask_Marketplace.models import shop_models
+        db.create_all()
+        
         # Setting up Security and Admins
+        from Flask_Marketplace.forms.user_forms import ExtendedRegisterForm
         user_datastore = SQLAlchemyUserDatastore(
             db, user_models.User, user_models.Role)
         security = Security(app, user_datastore,
@@ -122,19 +124,23 @@ def marketplace(app, url_prefix=''):
                     app.register_blueprint(
                         getattr(view_mod, plugin), url_prefix=url_prefix+'/'+plugin)
                 except (ModuleNotFoundError, AttributeError) as e:
-                    app.logger.info(f'No views registered for {setup.name} - {e}')
+                    app.logger.info(
+                        f'No views registered for {setup.name} - {e}')
         else:
             app.logger.info('No plugins folder found')
-        # Make sure all models exists
+        # Create other plugins models
         db.create_all()
-
-        """Overiding default market views from plugins"""
-        # views can be subclassed to overide some default routes
+        
+        # === Time to set the default view, noting that they might have  been subclassed
+        from Flask_Marketplace.forms.shop_forms import AccountForm, ProductForm, StoreRegisterForm
+        from Flask_Marketplace.forms.user_forms import ProfileForm
+        from Flask_Marketplace import MarketViews
         marketends = util.inherit_classes(MarketViews)(
             util.inherit_classes(
                 AccountForm), util.inherit_classes(ProductForm),
             util.inherit_classes(ProfileForm), util.inherit_classes(StoreRegisterForm))
-        app.logger.info(f'Views inheritance hierarchy:\n{marketends.__class__.__mro__}')
+        app.logger.info(
+            f'Views inheritance hierarchy:\n{marketends.__class__.__mro__}')
         # Registering Marketplace rules
         shop = Blueprint('marketplace', __name__, template_folder='templates',
                          static_folder='static', static_url_path='/static/marketplace')
