@@ -39,7 +39,7 @@ def marketplace(app, url_prefix=''):
 
         'SQLALCHEMY_TRACK_MODIFICATIONS': False,
         # ----- Flask Markeplace Specifics
-        'APP_NAME': 'Flask',  # Ecommerce Name
+        'APP_NAME': 'FlaskMarkt',  # Ecommerce Name
         'DISPATCHER_CURRENCY': 'USD',  # Delivery rates currency
         'DEFAULT_STORE_NAME': 'Name your store',  # Name of newly created stores
         'PLUGINS_FOLDER': 'plugins',  # Plugins folder relative to the app root
