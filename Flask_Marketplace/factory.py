@@ -35,7 +35,8 @@ def marketplace(app, url_prefix=''):
         'SECURITY_PASSWORD_SALT': 'vcxdse4r6yu8ijjnb$cde456y7fc',
         'SECURITY_REGISTERABLE': True,
         'SQLALCHEMY_DATABASE_URI': 'sqlite:///' + os.path.join(os.path.abspath(
-            os.path.dirname(__file__)), 'platform.sqlite3'),
+            os.path.dirname(__file__)), 'sqlite.db'), #os.path.dirname(__file__)), 'platform.sqlite3'),
+
         'SQLALCHEMY_TRACK_MODIFICATIONS': False,
         # ----- Flask Markeplace Specifics
         'APP_NAME': 'Flask',  # Ecommerce Name
