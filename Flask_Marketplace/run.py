@@ -12,4 +12,4 @@ if __name__ == '__main__':
     from Flask_Marketplace import marketplace
     app = Flask(__name__)
     app.config["SECRET_KEY"] = "Insane L0ng mIxuture 0f Ch@rac7er5"
-    marketplace(app).run(port=5001, host='0.0.0.0', debug=False)
+    marketplace(app).run(port=6060, host='0.0.0.0', debug=False)
