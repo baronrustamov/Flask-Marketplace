@@ -36,7 +36,7 @@
     <div class="collapse navbar-collapse" id="navbarText">
       <ul class="navbar-nav mr-auto">
         <li class='nav-item'>
-          <a class='nav-link text-white' href="{{url_for('marketplace.market')}}">Market
+          <a class='nav-link text-white' href="{{url_for('marketplace.market')}}">Маркет
           </a>
         </li>
         {% if not(config['PRODUCT_PRICING']) and iso_code and currency_options()%}
@@ -76,7 +76,7 @@
                 placeholder="Search for product, stores ... Not yet implemented" id="query_param" required>
             </div>
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-            <button class="btn btn-primary btn-sm d-none d-md-block col-md-3" type="submit" value="Submit">Search
+            <button class="btn btn-primary btn-sm d-none d-md-block col-md-3" type="submit" value="Submit">Поиск
             </button>
           </div>
         </form>
