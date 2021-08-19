@@ -1,0 +1,32 @@
+{% macro render_field_with_errors(field) %}
+<div class="form-group">
+  {{ field.label }}
+  {% if field.errors %}
+  <ul>
+    {% for error in field.errors %}
+    <li class='text-danger'>{{ error }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {{ field(class="form-control form-control-sm selectpicker", **kwargs)|safe }}
+</div>
+{% endmacro %}
+
+
+{% macro render_field_btn(field) %}
+{{ field(class="btn btn-success m-4", **kwargs)|safe }}
+{% endmacro %}
+
+{% macro render_field_check(field) %}
+  <div class="form-inline">
+    {{ field.label }}
+    {% if field.errors %}
+      <ul>
+      {% for error in field.errors %}
+        <li class='text-danger'>{{ error }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+    {{ field(class="form-control-sm form-check-input ml-1 mt-1", **kwargs)|safe }}
+  </div>
+{% endmacro %}

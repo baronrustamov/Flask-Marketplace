@@ -1,0 +1,68 @@
+{% extends 'marketplace/base.html' %}
+
+{% block main_page %}
+<h2> Cart </h2>
+{% if cart %}
+<table id="cart_table" class="display table table-md table-striped table-responsive-sm mt-3">
+  <thead>
+    <tr class="d-flex">
+      <th class="col-md-1 d-none d-md-block">No.</th>
+      <th class="d-none">Id</th>
+      <th class="col-6">Item</th>
+      <th class="col-3 col-md-2">Qty</th>
+      <th class="col-lg-1 d-none d-lg-block">Unit Price</th>
+      <th class="col-2 col-lg-1">Amount</th>
+      <th class="col-1"><span id="del_all" class="btn text-danger">
+          <i class="fa fa-trash"></i></span>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line in cart %}
+    <tr class="d-flex">
+      <td class="s_n align-middle col-md-1 d-none d-md-block"></td>
+      <td class="align-middle d-none prod_id">{{ line.product.id }}</td>
+      <td class="align-middle col-6">{{ line.product.name }}</td>
+      <td class="align-middle col-3 col-md-2">
+        <input type="number" min="1" class="form-control qty col-12" value="{{line.qty}}">
+      </td>
+      <td class="align-middle col-lg-1 d-none d-lg-block">
+        {{ line.product.sale_price(cart[0].order.iso_code) }}
+      </td>
+      <td class="line_amt align-middle col-2 col-lg-1"></td>
+      <td class="align-middle col-1"><i class="fas fa-minus-circle text-danger 
+          btn remove"></i></td>
+    </tr>
+    {% endfor %}
+    <!-- Area will be populated when shoping-->
+  </tbody>
+    
+</table>
+<div class='row col-12 mt-3'>
+  <p class='float-right'>
+  <span>Basket Total: </span>
+  <span class='font-weight-bold'><span>{{ cart[0].order.iso_code }} </span><span class='total'>0</span></span>
+  </p>
+</div>
+<div class='col-12'>
+  <a class='btn btn-md btn-success' href="{{url_for('marketplace.checkout')}}">
+    Confirm and Checkout</a>
+  <a class='btn btn-md btn-primary float-right cont_btn' href="{{url_for('marketplace.market')}}">
+    Continue Shopping</a>
+  <button type="button" class='btn btn-md btn-info float-right d-none save_cart'
+        onclick="jsonifyCartTable('{{ cart[0].order_id }}', '{{ csrf_token() }}')">Save and Continue</button>
+</div>
+{% endif %}
+<div id='empty_cart' class='row'>
+  <div class='col-md-8 offset-md-2 mb-5'>
+    <!-- Empty cart notification-->
+  </div>
+</div>
+{% endblock main_page %}
+
+{% block bottom_styles_scripts%}
+<script src="{{ url_for('marketplace.static', filename='base/js/loadingoverlay.js') }}">
+</script>
+<script src="{{ url_for('marketplace.static', filename='base/js/table_cart.js') }}">
+</script>
+{% endblock bottom_styles_scripts %}

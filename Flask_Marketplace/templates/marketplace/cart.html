@@ -46,11 +46,11 @@
 </div>
 <div class='col-12'>
   <a class='btn btn-md btn-success' href="{{url_for('marketplace.checkout')}}">
-    Confirm and Checkout</a>
+    Подтвердить и оплатить</a>
   <a class='btn btn-md btn-primary float-right cont_btn' href="{{url_for('marketplace.market')}}">
-    Continue Shopping</a>
+    Продолжить покупки</a>
   <button type="button" class='btn btn-md btn-info float-right d-none save_cart'
-        onclick="jsonifyCartTable('{{ cart[0].order_id }}', '{{ csrf_token() }}')">Save and Continue</button>
+        onclick="jsonifyCartTable('{{ cart[0].order_id }}', '{{ csrf_token() }}')">Сохранить и продолжить</button>
 </div>
 {% endif %}
 <div id='empty_cart' class='row'>

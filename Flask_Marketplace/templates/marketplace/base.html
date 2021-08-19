@@ -44,11 +44,11 @@
         {% endif %}
         {% if current_user.is_authenticated %}
         <li class='nav-item'>
-          <a class='nav-link text-white' href="{{url_for('security.logout')}}">Logout
+          <a class='nav-link text-white' href="{{url_for('security.logout')}}">Выйти
           </a>
         </li>
         <li class='nav-item'>
-          <a class='nav-link text-white' href="{{url_for('marketplace.cart')}}">Cart
+          <a class='nav-link text-white' href="{{url_for('marketplace.cart')}}">Корзина
           </a>
         </li>
         <li class='nav-item'>
@@ -58,7 +58,7 @@
         </li>
         {% else %}
         <li class='nav-item'>
-          <a class='nav-link text-white' href="{{url_for('security.login')}}">Login
+          <a class='nav-link text-white' href="{{url_for('security.login')}}">Войти
           </a>
         </li>
         {% endif %}
@@ -99,10 +99,10 @@
       <div class="mt-5">
         {% block side_bar %}
         <div class="card-body">
-          <p class="card-title">No.1 International market place</p>
+          <p class="card-title">No.1 маркетплейс</p>
           <hr />
           <ul class="list-group list-group-flush">
-            <p> Latest Stores</p>
+            <p> Последние магазины</p>
             </hr>
             {% for store in latest_stores() %}
             <a class="list-group-item"
